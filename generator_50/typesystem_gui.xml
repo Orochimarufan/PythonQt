@@ -1200,14 +1200,6 @@
       </modify-argument>
     </modify-function>
 
-<inject-code class="pywrap-h">
-QImage* new_QImage( const uchar * data, int width, int height, QImage::Format format )
-{
-  QImage* image = new QImage(width, height, format);
-  memcpy(image-&gt;bits(), data, image-&gt;byteCount());
-  return image;
-}
-</inject-code>  
   </value-type>
 
   <value-type name="QColormap" delete-in-main-thread="yes">
@@ -2101,6 +2093,14 @@ QImage* new_QImage( const uchar * data, int width, int height, QImage::Format fo
         <access modifier="private"/>
     </modify-function>
 
+    <modify-function signature="addAction(QString,const QObject*,const char*,QKeySequence)">
+        <remove/>
+    </modify-function>
+
+    <modify-function signature="addAction(QIcon,QString,const QObject*,const char*,QKeySequence)">
+        <remove/>
+    </modify-function>
+  
   <inject-code class="pywrap-h">
   QAction* addAction (QMenu* menu, const QString &amp; text, PyObject* callable, const QKeySequence &amp; shortcut = 0) {
     QAction* a = menu-&gt;addAction(text);
@@ -2108,7 +2108,7 @@ QImage* new_QImage( const uchar * data, int width, int height, QImage::Format fo
     PythonQt::self()-&gt;addSignalHandler(a, SIGNAL(triggered(bool)), callable);
     return a;
   }
-
+  
   QAction* addAction (QMenu* menu, const QIcon&amp; icon, const QString&amp; text, PyObject* callable, const QKeySequence&amp; shortcut = 0)
   {
     QAction* a = menu-&gt;addAction(text);
@@ -2158,6 +2158,7 @@ QImage* new_QImage( const uchar * data, int width, int height, QImage::Format fo
             <reference-count action="ignore"/>
         </modify-argument>
     </modify-function>
+  
   <inject-code class="pywrap-h">
   QAction* addAction (QMenuBar* menu, const QString &amp; text, PyObject* callable)
   {
@@ -4887,6 +4888,7 @@ QImage* new_QImage( const uchar * data, int width, int height, QImage::Format fo
             <reference-count action="ignore"/>
         </modify-argument>
     </modify-function>
+  
   <inject-code class="pywrap-h">
   QAction* addAction (QToolBar* menu, const QString &amp; text, PyObject* callable)
   {
@@ -5665,6 +5667,7 @@ QImage* new_QImage( const uchar * data, int width, int height, QImage::Format fo
   <suppress-warning text="WARNING(JavaGenerator) :: either add or remove specified for reference count variable '__rcMenus' in 'com.trolltech.qt.gui.QMenuBar' but not both"/>
 
   <suppress-warning text="WARNING(MetaJavaBuilder) :: skipping function 'QPixmap::pixmapData', unmatched return type 'QPixmapData*'"/>
+  <suppress-warning text="WARNING(MetaJavaBuilder) :: object type 'QAccessible' extended by interface type 'QAbstractAccessibleFactory'. The resulting API will be less expressive than the original."/>
 
   <suppress-warning text="WARNING(MetaJavaBuilder) :: Rejected enum has no alternative...: QPalette::NColorRoles"/>
 

@@ -87,9 +87,9 @@ qt_add_resources(GEN_QRC ${SOURCES_QRC})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DQT_NO_KEYWORDS) # recent python versions use them :(
+#add_definitions(-DQT_NO_KEYWORDS) # recent python versions use them :(
 
-add_library(PythonQt SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC})
+add_library(PythonQt SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
 if(PythonQt_Qt5)
 	qt_use_modules(PythonQt Core Gui Widgets)
 else()

@@ -181,8 +181,13 @@ QObject* PythonQtStdDecorators::findChild(QObject* parent, PyObject* type, const
     meta = ((PythonQtClassWrapper*)type)->classInfo()->metaObject();
   } else if (PyObject_TypeCheck(type, &PythonQtInstanceWrapper_Type)) {
     meta = ((PythonQtInstanceWrapper*)type)->classInfo()->metaObject();
+#ifdef PY3K
+  } else if (PyUnicode_Check(type)) {
+    typeName = PyUnicode_AsUTF8(type);
+#else
   } else if (PyString_Check(type)) {
     typeName = PyString_AsString(type);
+#endif
   }
 
   if (!typeName && !meta)
@@ -200,8 +205,13 @@ QList<QObject*> PythonQtStdDecorators::findChildren(QObject* parent, PyObject* t
     meta = ((PythonQtClassWrapper*)type)->classInfo()->metaObject();
   } else if (PyObject_TypeCheck(type, &PythonQtInstanceWrapper_Type)) {
     meta = ((PythonQtInstanceWrapper*)type)->classInfo()->metaObject();
+#ifdef PY3K
+  } else if (PyUnicode_Check(type)) {
+    typeName = PyUnicode_AsUTF8(type);
+#else
   } else if (PyString_Check(type)) {
     typeName = PyString_AsString(type);
+#endif
   }
 
   QList<QObject*> list;
@@ -223,8 +233,13 @@ QList<QObject*> PythonQtStdDecorators::findChildren(QObject* parent, PyObject* t
     meta = ((PythonQtClassWrapper*)type)->classInfo()->metaObject();
   } else if (PyObject_TypeCheck(type, &PythonQtInstanceWrapper_Type)) {
     meta = ((PythonQtInstanceWrapper*)type)->classInfo()->metaObject();
+#ifdef PY3K
+  } else if (PyUnicode_Check(type)) {
+    typeName = PyUnicode_AsUTF8(type);
+#else
   } else if (PyString_Check(type)) {
     typeName = PyString_AsString(type);
+#endif
   }
 
   QList<QObject*> list;

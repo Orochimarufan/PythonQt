@@ -166,7 +166,11 @@ PythonQt::PythonQt(int flags, const QByteArray& pythonQtModuleName)
   _p->_PythonQtObjectPtr_metaId = qRegisterMetaType<PythonQtObjectPtr>("PythonQtObjectPtr");
 
   if ((flags & PythonAlreadyInitialized) == 0) {
+#ifdef PY3K
+    Py_SetProgramName(const_cast<wchar_t*>(L"PythonQt"));
+#else
     Py_SetProgramName(const_cast<char*>("PythonQt"));
+#endif
     if (flags & IgnoreSiteModule) {
       // this prevents the automatic importing of Python site files
       Py_NoSiteFlag = 1;
@@ -496,7 +500,11 @@ PyObject* PythonQtPrivate::dummyTuple() {
   static PyObject* dummyTuple = NULL;
   if (dummyTuple==NULL) {
     dummyTuple = PyTuple_New(1);
+#ifdef PY3K
+    PyTuple_SET_ITEM(dummyTuple, 0, PyUnicode_FromString("dummy"));
+#else
     PyTuple_SET_ITEM(dummyTuple, 0 , PyString_FromString("dummy"));
+#endif
   }
   return dummyTuple;
 }
@@ -526,7 +534,11 @@ PythonQtInstanceWrapper* PythonQtPrivate::createNewPythonQtInstanceWrapper(QObje
 PythonQtClassWrapper* PythonQtPrivate::createNewPythonQtClassWrapper(PythonQtClassInfo* info, PyObject* parentModule) {
   PythonQtClassWrapper* result;
 
+#ifdef PY3K
+  PyObject* className = PyUnicode_FromString(info->className());
+#else
   PyObject* className = PyString_FromString(info->className());
+#endif
 
   PyObject* baseClasses = PyTuple_New(1);
   PyTuple_SET_ITEM(baseClasses, 0, (PyObject*)&PythonQtInstanceWrapper_Type);
@@ -561,10 +573,18 @@ PyObject*  PythonQtPrivate::createEnumValueInstance(PyObject* enumType, unsigned
 PyObject* PythonQtPrivate::createNewPythonQtEnumWrapper(const char* enumName, PyObject* parentObject) {
   PyObject* result;
 
+#ifdef PY3K
+  PyObject* className = PyUnicode_FromString(enumName);
+#else
   PyObject* className = PyString_FromString(enumName);
+#endif
 
   PyObject* baseClasses = PyTuple_New(1);
+#ifdef PY3K
+  PyTuple_SET_ITEM(baseClasses, 0, (PyObject*)&PyLong_Type);
+#else
   PyTuple_SET_ITEM(baseClasses, 0, (PyObject*)&PyInt_Type);
+#endif
 
   PyObject* module = PyObject_GetAttrString(parentObject, "__module__");
   PyObject* typeDict = PyDict_New();
@@ -703,11 +723,21 @@ QVariant PythonQt::evalCode(PyObject* object, PyObject* pycode) {
       globals = dict;
     } else {
       dict = PyObject_GetAttrString(object, "__dict__");
-      globals = PyObject_GetAttrString(PyImport_ImportModule(PyString_AS_STRING(PyObject_GetAttrString(object, "__module__"))),"__dict__");
+      globals = PyObject_GetAttrString(PyImport_ImportModule(
+#ifdef PY3K
+                                         PyUnicode_AsUTF8(
+#else
+                                         PyString_AS_STRING(
+#endif
+                                           PyObject_GetAttrString(object, "__module__"))),"__dict__");
     }
     PyObject* r = NULL;
     if (dict) {
+#ifdef PY3K
+      r = PyEval_EvalCode(pycode, globals, dict);
+#else
       r = PyEval_EvalCode((PyCodeObject*)pycode, globals , dict);
+#endif
     }
     if (r) {
       result = PythonQtConv::PyObjToQVariant(r);
@@ -894,7 +924,11 @@ QStringList PythonQt::introspectObject(PyObject* object, ObjectType type)
       } else {
         PyObject* doc = PyObject_GetAttrString(object, "__doc__");
         if (doc) {
+#ifdef PY3K
+          results << PyUnicode_AsUTF8(doc);
+#else
           results << PyString_AsString(doc);
+#endif
           Py_DECREF(doc);
         }
       }
@@ -922,7 +956,11 @@ QStringList PythonQt::introspectObject(PyObject* object, ObjectType type)
           value = PyObject_GetAttr(object, key);
         }
         if (!value) continue;
+#ifdef PY3K
+        keystr = PyUnicode_AsUTF8(key);
+#else
         keystr = PyString_AsString(key);
+#endif
         static const QString underscoreStr("__tmp");
         if (!keystr.startsWith(underscoreStr)) {
           switch (type) {
@@ -930,18 +968,25 @@ QStringList PythonQt::introspectObject(PyObject* object, ObjectType type)
             results << keystr;
             break;
           case Class:
+#ifdef PY3K
+            if(PyType_Check(value)) {
+#else
             if (value->ob_type == &PyClass_Type || value->ob_type == &PyType_Type) {
+#endif
               results << keystr;
             }
             break;
           case Variable:
-            if (value->ob_type != &PyClass_Type
-              && value->ob_type != &PyCFunction_Type
-              && value->ob_type != &PyFunction_Type
-              && value->ob_type != &PyMethod_Type
-              && value->ob_type != &PyModule_Type
-              && value->ob_type != &PyType_Type
-              && value->ob_type != &PythonQtSlotFunction_Type
+            if (
+#ifndef PY3K
+               value->ob_type != &PyClass_Type &&
+#endif
+               value->ob_type != &PyCFunction_Type &&
+               value->ob_type != &PyFunction_Type &&
+               value->ob_type != &PyMethod_Type &&
+               value->ob_type != &PyModule_Type &&
+               value->ob_type != &PyType_Type &&
+               value->ob_type != &PythonQtSlotFunction_Type
               ) {
               results << keystr;
             }
@@ -1282,8 +1327,12 @@ int custom_system_exit_exception_handler()
 //    return exitcode;
 
   PyErr_Fetch(&exception, &value, &tb);
+#ifdef PY3K
+  std::cout << std::endl;
+#else
   if (Py_FlushLine())
     PyErr_Clear();
+#endif
   fflush(stdout);
   if (value == NULL || value == Py_None)
     goto done;
@@ -1299,8 +1348,13 @@ int custom_system_exit_exception_handler()
     /* If we failed to dig out the 'code' attribute,
        just let the else clause below print the error. */
   }
+#ifdef PY3K
+  if (PyLong_Check(value))
+    exitcode = (int)PyLong_AsLong(value);
+#else
   if (PyInt_Check(value))
     exitcode = (int)PyInt_AsLong(value);
+#endif
   else {
     PyObject *sys_stderr = PySys_GetObject(const_cast<char*>("stderr"));
     if (sys_stderr != NULL && sys_stderr != Py_None) {
@@ -1437,13 +1491,32 @@ static PyMethodDef PythonQtMethods[] = {
   {NULL, NULL, 0, NULL}
 };
 
+#ifdef PY3K
+static PyModuleDef PythonQtModule = {
+  PyModuleDef_HEAD_INIT,
+  "",
+  NULL,
+  -1,
+  PythonQtMethods,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+#endif
+
 void PythonQt::initPythonQtModule(bool redirectStdOut, const QByteArray& pythonQtModuleName)
 {
   QByteArray name = "PythonQt";
   if (!pythonQtModuleName.isEmpty()) {
     name = pythonQtModuleName;
   }
+#ifdef PY3K
+  PythonQtModule.m_name = name.constData();
+  _p->_pythonQtModule = PyModule_Create(&PythonQtModule);
+#else
   _p->_pythonQtModule = Py_InitModule(name.constData(), PythonQtMethods);
+#endif
   _p->_pythonQtModuleName = name;
 
   if (redirectStdOut) {
@@ -1469,7 +1542,11 @@ void PythonQt::initPythonQtModule(bool redirectStdOut, const QByteArray& pythonQ
   PyObject *module_names = PyTuple_New(old_size+1);
   for(Py_ssize_t i = 0; i < old_size; i++)
       PyTuple_SetItem(module_names, i, PyTuple_GetItem(old_module_names, i));
+#ifdef PY3K
+  PyTuple_SetItem(module_names, old_size, PyUnicode_FromString(name.constData()));
+#else
   PyTuple_SetItem(module_names, old_size, PyString_FromString(name.constData()));
+#endif
   PyModule_AddObject(sys.object(),"builtin_module_names",module_names);
   Py_DecRef(old_module_names);
 }
@@ -1512,7 +1589,11 @@ QString PythonQt::getReturnTypeOfWrappedMethodHelper(const PythonQtObjectPtr& va
     
   QString type;
   
+#ifdef PY3K
+  if (PyType_Check(methodObject)) {
+#else
   if (methodObject->ob_type == &PyClass_Type || methodObject->ob_type == &PyType_Type) {
+#endif
     // the methodObject is not a method, but the name of a type/class. This means
     // a constructor is called. Return the context.
     type = context;
@@ -1525,8 +1606,13 @@ QString PythonQt::getReturnTypeOfWrappedMethodHelper(const PythonQtObjectPtr& va
     } else {
       PyObject* classNameObject = PyObject_GetAttrString(variableObject, "__name__");
       if (classNameObject) {
+#ifdef PY3K
+        Q_ASSERT(PyUnicode_Check(classNameObject));
+        className = PyUnicode_AsUTF8(classNameObject);
+#else
         Q_ASSERT(PyString_Check(classNameObject));
         className = PyString_AsString(classNameObject);
+#endif
         Py_DECREF(classNameObject);
       }
     }
@@ -1559,11 +1645,20 @@ QString PythonQt::getReturnTypeOfWrappedMethodHelper(const PythonQtObjectPtr& va
               PythonQtClassInfo* typeInfo = _p->_knownClassInfos.value(type.toLatin1().constData());
               if (typeInfo && typeInfo->pythonQtClassWrapper()) {
                 PyObject* s = PyObject_GetAttrString(typeInfo->pythonQtClassWrapper(), "__module__");
+#ifdef PY3K
+                Q_ASSERT(PyUnicode_Check(s));
+                type = QString(PyUnicode_AsUTF8(s));
+#else
                 Q_ASSERT(PyString_Check(s));
                 type = QString(PyString_AsString(s)) + "." + type;
+#endif
                 Py_DECREF(s);
                 s = PyObject_GetAttrString(typeInfo->pythonQtClassWrapper(), "__name__");
+#ifdef PY3K
+                Q_ASSERT(PyUnicode_Check(s));
+#else
                 Q_ASSERT(PyString_Check(s));
+#endif
                 Py_DECREF(s);
               }
             }
@@ -1668,7 +1763,11 @@ PyObject* PythonQt::helpCalled(PythonQtClassInfo* info)
     Q_EMIT pythonHelpRequest(QByteArray(info->className()));
     return Py_BuildValue("");
   } else {
+#ifdef PY3K
+    return PyUnicode_FromString(info->help().toLatin1().data());
+#else
     return PyString_FromString(info->help().toLatin1().data());
+#endif
   }
 }
 
@@ -1743,8 +1842,11 @@ bool PythonQtPrivate::isMethodDescriptor(PyObject* object) const
   if (PyObject_HasAttrString(object, "__get__") &&
       !PyObject_HasAttrString(object, "__set__") &&
       !PyMethod_Check(object) &&
-      !PyFunction_Check(object) &&
-      !PyClass_Check(object)) {
+      !PyFunction_Check(object)
+#ifndef PY3K
+      && !PyClass_Check(object)
+#endif
+      ) {
     return true;
   }
   return false;
@@ -1760,7 +1862,11 @@ QString PythonQtPrivate::getSignature(PyObject* object)
     
     bool decrefMethod = false;
     
+#ifdef PY3K
+    if (PyType_Check(object)) {
+#else
     if (object->ob_type == &PyClass_Type || object->ob_type == &PyType_Type) {
+#endif
       method = (PyMethodObject*)PyObject_GetAttrString(object, "__init__");
       decrefMethod = true;
     } else if (object->ob_type == &PyFunction_Type) {
@@ -1775,14 +1881,23 @@ QString PythonQtPrivate::getSignature(PyObject* object)
         QString docstr;
         PyObject* doc = PyObject_GetAttrString(object, "__doc__");
         if (doc) {
+#ifdef PY3K
+          docstr = PyUnicode_AsUTF8(doc);
+#else
           docstr = PyString_AsString(doc);
+#endif
           Py_DECREF(doc);
         }
 
         PyObject* s = PyObject_GetAttrString(object, "__name__");
         if (s) {
+#ifdef PY3K
+          Q_ASSERT(PyUnicode_Check(s));
+          signature = PyUnicode_AsUTF8(s);
+#else
           Q_ASSERT(PyString_Check(s));
           signature = PyString_AsString(s);
+#endif
           if (docstr.startsWith(signature + "(")) {
             signature = docstr;
           } else {
@@ -1800,15 +1915,25 @@ QString PythonQtPrivate::getSignature(PyObject* object)
       QString funcName;
       PyObject* s = PyObject_GetAttrString((PyObject*)func, "__name__");
       if (s) {
+#ifdef PY3K
+        Q_ASSERT(PyUnicode_Check(s));
+        funcName = PyUnicode_AsUTF8(s);
+#else
         Q_ASSERT(PyString_Check(s));
         funcName = PyString_AsString(s);
+#endif
         Py_DECREF(s);
       }
       if (method && funcName == "__init__") {
         PyObject* s = PyObject_GetAttrString(object, "__name__");
         if (s) {
+#ifdef PY3K
+          Q_ASSERT(PyUnicode_Check(s));
+          funcName = PyUnicode_AsUTF8(s);
+#else
           Q_ASSERT(PyString_Check(s));
           funcName = PyString_AsString(s);
+#endif
           Py_DECREF(s);
         }
       }
@@ -1826,19 +1951,34 @@ QString PythonQtPrivate::getSignature(PyObject* object)
         Q_ASSERT(PyTuple_Check(code->co_varnames));
         for (int i=0; i<nargs; i++) {
           PyObject* name = PyTuple_GetItem(code->co_varnames, i);
+#ifdef PY3K
+          Q_ASSERT(PyUnicode_Check(name));
+          arguments << PyUnicode_AsUTF8(name);
+#else
           Q_ASSERT(PyString_Check(name));
           arguments << PyString_AsString(name);
+#endif
         }
         if (code->co_flags & CO_VARARGS) {
           PyObject* s = PyTuple_GetItem(code->co_varnames, nargs);
+#ifdef PY3K
+          Q_ASSERT(PyUnicode_Check(s));
+          varargs = PyUnicode_AsUTF8(s);
+#else
           Q_ASSERT(PyString_Check(s));
           varargs = PyString_AsString(s);
+#endif
           nargs += 1;
         }
         if (code->co_flags & CO_VARKEYWORDS) {
           PyObject* s = PyTuple_GetItem(code->co_varnames, nargs);
+#ifdef PY3K
+          Q_ASSERT(PyUnicode_Check(s));
+          varkeywords = PyUnicode_AsUTF8(s);
+#else
           Q_ASSERT(PyString_Check(s));
           varkeywords = PyString_AsString(s);
+#endif
         }
       }
       
@@ -1848,8 +1988,13 @@ QString PythonQtPrivate::getSignature(PyObject* object)
         for (Py_ssize_t i=0; i<PyTuple_Size(defaultsTuple); i++) {
           PyObject* d = PyTuple_GetItem(defaultsTuple, i);
           PyObject* s = PyObject_Repr(d);
+#ifdef PY3K
+          Q_ASSERT(PyUnicode_Check(s));
+          defaults << PyUnicode_AsUTF8(s);
+#else
           Q_ASSERT(PyString_Check(s));
           defaults << PyString_AsString(s);
+#endif
           Py_DECREF(s);
         }
       }
@@ -1900,12 +2045,20 @@ void PythonQtPrivate::shellClassDeleted( void* shellClass )
 
 PyObject* PythonQtPrivate::wrapMemoryAsBuffer( const void* data, Py_ssize_t size )
 {
-  // P3K port needed later on!
-  return PyBuffer_FromMemory((void*)data, size);
+  // P3K port needed later on! -- not anymore :D
+#ifdef PY3K
+  return PyMemoryView_FromMemory((char*)data, size, PyBUF_READ);
+#else
+  return PyBuffer_FromMemory((char*)data, size);
+#endif
 }
 
 PyObject* PythonQtPrivate::wrapMemoryAsBuffer( void* data, Py_ssize_t size )
 {
-  // P3K port needed later on!
-  return PyBuffer_FromReadWriteMemory(data, size);
+  // P3K port needed later on! -- not anymore :D
+#ifdef PY3K
+  return PyMemoryView_FromMemory((char*)data, size, PyBUF_READ | PyBUF_WRITE);
+#else
+  return PyBuffer_FromReadWriteMemory((char*)data, size);
+#endif
 }

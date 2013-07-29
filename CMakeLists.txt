@@ -44,11 +44,11 @@ endif()
 
 #-----------------------------------------------------------------------------
 # Generator
-#if(PythonQt_Qt5)
-#	add_subdirectory(generator_50 EXCLUDE_FROM_ALL)
-#	add_custom_target(generator)
-#	add_dependencies(generator pythonqt_generator)
-#endif()
+if(PythonQt_Qt5)
+	add_subdirectory(generator_50 EXCLUDE_FROM_ALL)
+	add_custom_target(generator)
+	add_dependencies(generator pythonqt_generator)
+endif()
 
 # TODO
 
@@ -107,7 +107,6 @@ endif()
 option(PythonQt_Python3 "Use Python 3.x (3.3+)" OFF)
 if(PythonQt_Python3)
 	set(PythonQt_PythonMin 3.3)
-	add_definitions(PYTHON3K)
 else(PythonQt_Python3)
 	set(PythonQt_PythonMin 2.6)
 endif()

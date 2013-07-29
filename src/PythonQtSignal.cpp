@@ -110,9 +110,17 @@ static PyObject *
 meth_get__name__(PythonQtSignalFunctionObject *m, void * /*closure*/)
 {
 #if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+#ifdef PY3K
+  return PyUnicode_FromString(m->m_ml->metaMethod()->methodSignature());
+#else
   return PyString_FromString(m->m_ml->metaMethod()->methodSignature());
+#endif
+#else
+#ifdef PY3K
+  return PyUnicode_FromString(m->m_ml->metaMethod()->signature());
 #else
   return PyString_FromString(m->m_ml->metaMethod()->signature());
+#endif
 #endif
 }
 
@@ -137,11 +145,13 @@ static PyObject *
 meth_get__self__(PythonQtSignalFunctionObject *m, void * /*closure*/)
 {
   PyObject *self;
+#ifndef PY3K
   if (PyEval_GetRestricted()) {
     PyErr_SetString(PyExc_RuntimeError,
       "method.__self__ not accessible in restricted mode");
     return NULL;
   }
+#endif
   self = m->m_self;
   if (self == NULL)
     self = Py_None;
@@ -266,11 +276,19 @@ meth_repr(PythonQtSignalFunctionObject *f)
 {
   if (f->m_self->ob_type == &PythonQtClassWrapper_Type) {
     PythonQtClassWrapper* self = (PythonQtClassWrapper*) f->m_self;
+#ifdef PY3K
+    return PyUnicode_FromFormat("<unbound qt signal %s of %s type>",
+#else
     return PyString_FromFormat("<unbound qt signal %s of %s type>",
+#endif
       f->m_ml->slotName().data(),
       self->classInfo()->className());
   } else {
+#ifdef PY3K
+    return PyUnicode_FromFormat("<qt signal %s of %s instance at %p>",
+#else
     return PyString_FromFormat("<qt signal %s of %s instance at %p>",
+#endif
       f->m_ml->slotName().data(),
       f->m_self->ob_type->tp_name,
       f->m_self);
@@ -314,10 +332,32 @@ meth_hash(PythonQtSignalFunctionObject *a)
   return x;
 }
 
+// for python 3.x
+static PyObject*
+meth_richcompare(PythonQtSignalFunctionObject *a, PythonQtSignalFunctionObject *b, int op)
+{
+  int x = meth_compare(a, b);
+  bool r;
+  if (op == Py_LT)
+    r = x < 0;
+  else if (op == Py_LE)
+    r = x < 1;
+  else if (op == Py_EQ)
+    r = x == 0;
+  else if (op == Py_NE)
+    r = x != 0;
+  else if (op == Py_GE)
+    r = x > -1;
+  else if (op == Py_GT)
+    r = x > 0;
+  if (r)
+    Py_RETURN_TRUE;
+  else
+    Py_RETURN_FALSE;
+}
 
 PyTypeObject PythonQtSignalFunction_Type = {
-  PyObject_HEAD_INIT(&PyType_Type)
-    0,
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
     "builtin_qt_signal",
     sizeof(PythonQtSignalFunctionObject),
     0,
@@ -325,7 +365,11 @@ PyTypeObject PythonQtSignalFunction_Type = {
     0,          /* tp_print */
     0,          /* tp_getattr */
     0,          /* tp_setattr */
+#ifdef PY3K
+    0,
+#else
     (cmpfunc)meth_compare,      /* tp_compare */
+#endif
     (reprfunc)meth_repr,      /* tp_repr */
     0,          /* tp_as_number */
     0,          /* tp_as_sequence */
@@ -341,7 +385,7 @@ PyTypeObject PythonQtSignalFunction_Type = {
     0,          /* tp_doc */
     (traverseproc)meth_traverse,    /* tp_traverse */
     0,          /* tp_clear */
-    0,          /* tp_richcompare */
+    (richcmpfunc)meth_richcompare,          /* tp_richcompare */
     0,          /* tp_weaklistoffset */
     0,          /* tp_iter */
     0,          /* tp_iternext */

@@ -48,10 +48,14 @@
 #include "PythonQtConversion.h"
 #include "PythonQtClassWrapper.h"
 
+#if PY_MAJOR_VERSION >= 3
+#define PY3K
+#endif
+
 PythonQtClassInfo* PythonQtInstanceWrapperStruct::classInfo()
 {
   // take the class info from our type object
-  return ((PythonQtClassWrapper*)ob_type)->_classInfo;
+  return ((PythonQtClassWrapper*)Py_TYPE(this))->_classInfo;
 }
 
 static void PythonQtInstanceWrapper_deleteObject(PythonQtInstanceWrapper* self, bool force = false) {
@@ -112,7 +116,7 @@ static void PythonQtInstanceWrapper_dealloc(PythonQtInstanceWrapper* self)
 {
   PythonQtInstanceWrapper_deleteObject(self);
   self->_obj.~QPointer<QObject>();
-  self->ob_type->tp_free((PyObject*)self);
+  Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject* PythonQtInstanceWrapper_new(PyTypeObject *type, PyObject * /*args*/, PyObject * /*kwds*/)
@@ -286,7 +290,11 @@ static PyObject *PythonQtInstanceWrapper_richcompare(PythonQtInstanceWrapper* wr
 
 static PyObject *PythonQtInstanceWrapper_classname(PythonQtInstanceWrapper* obj)
 {
-  return PyString_FromString(obj->ob_type->tp_name);
+#ifdef PY3K
+  return PyUnicode_FromString(Py_TYPE(obj)->tp_name);
+#else
+  return PyString_FromString(Py_TYPE(obj)->tp_name);
+#endif
 }
 
 PyObject *PythonQtInstanceWrapper_inherits(PythonQtInstanceWrapper* obj, PyObject *args)
@@ -333,7 +341,11 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
   const char *attributeName;
   PythonQtInstanceWrapper *wrapper = (PythonQtInstanceWrapper *)obj;
 
+#ifdef PY3K
+  if ((attributeName = PyUnicode_AsUTF8(name)) == NULL) {
+#else
   if ((attributeName = PyString_AsString(name)) == NULL) {
+#endif
     return NULL;
   }
 
@@ -455,7 +467,11 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
   }
 
   // look for the internal methods (className(), help())
+#ifdef PY3K
+  PyObject* internalMethod = PyObject_GenericGetAttr(obj, name);
+#else
   PyObject* internalMethod = Py_FindMethod( PythonQtInstanceWrapper_methods, obj, (char*)attributeName);
+#endif
   if (internalMethod) {
     return internalMethod;
   }
@@ -483,7 +499,11 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
   const char *attributeName;
   PythonQtInstanceWrapper *wrapper = (PythonQtInstanceWrapper *)obj;
 
+#ifdef PY3K
+  if ((attributeName = PyUnicode_AsUTF8(name)) == NULL)
+#else
   if ((attributeName = PyString_AsString(name)) == NULL)
+#endif
     return -1;
 
   PythonQtMemberInfo member = wrapper->classInfo()->member(attributeName);
@@ -619,9 +639,17 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
   if (wrapper->classInfo()->metaTypeId()==QVariant::ByteArray) {
     QByteArray* b = (QByteArray*) wrapper->_wrappedPtr;
     if (b->data()) {
+#ifdef PY3K
+      return PyUnicode_FromStringAndSize(b->data(), b->size());
+#else
       return PyString_FromStringAndSize(b->data(), b->size());
+#endif
     } else {
+#ifdef PY3K
+      return PyUnicode_New(0, 0);
+#else
       return PyString_FromString("");
+#endif
     }
   }
 
@@ -629,16 +657,32 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
   QObject *qobj = wrapper->_obj;
   QString str = getStringFromObject(wrapper);
   if (!str.isEmpty()) {
+#ifdef PY3K
+    return PyUnicode_FromFormat("%s", str.toLatin1().constData());
+#else
     return PyString_FromFormat("%s", str.toLatin1().constData());
+#endif
   }
   if (wrapper->_wrappedPtr) {
     if (wrapper->_obj) {
-      return PyString_FromFormat("%s (C++ Object %p wrapped by %s %p))", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
+#ifdef PY3K
+      return PyUnicode_FromFormat("%s (C++ Object %p wrapped by %s %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
+#else
+      return PyString_FromFormat("%s (C++ Object %p wrapped by %s %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
+#endif
     } else {
+#ifdef PY3K
+      return PyUnicode_FromFormat("%s (C++ Object %p)", typeName, wrapper->_wrappedPtr);
+#else
       return PyString_FromFormat("%s (C++ Object %p)", typeName, wrapper->_wrappedPtr);
+#endif
     }
   } else {
+#ifdef PY3K
+    return PyUnicode_FromFormat("%s (QObject %p)", typeName, qobj);
+#else
     return PyString_FromFormat("%s (QObject %p)", typeName, qobj);
+#endif
   }
 }
 
@@ -651,19 +695,39 @@ static PyObject * PythonQtInstanceWrapper_repr(PyObject * obj)
   QString str = getStringFromObject(wrapper);
   if (!str.isEmpty()) {
     if (str.startsWith(typeName)) {
+#ifdef PY3K
+      return PyUnicode_FromFormat("%s", str.toLatin1().constData());
+#else
       return PyString_FromFormat("%s", str.toLatin1().constData());
+#endif
     } else {
+#ifdef PY3K
+      return PyUnicode_FromFormat("%s (%s, at: %p)", typeName, str.toLatin1().constData(), wrapper->_wrappedPtr ? wrapper->_wrappedPtr : qobj);
+#else
       return PyString_FromFormat("%s (%s, at: %p)", typeName, str.toLatin1().constData(), wrapper->_wrappedPtr ? wrapper->_wrappedPtr : qobj);
+#endif
     }
   }
   if (wrapper->_wrappedPtr) {
     if (wrapper->_obj) {
+#ifdef PY3K
+      return PyUnicode_FromFormat("%s (C++ object at: %p wrapped by %s at: %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
+#else
       return PyString_FromFormat("%s (C++ object at: %p wrapped by %s at: %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
+#endif
     } else {
+#ifdef PY3K
+      return PyUnicode_FromFormat("%s (C++ object at: %p)", typeName, wrapper->_wrappedPtr);
+#else
       return PyString_FromFormat("%s (C++ object at: %p)", typeName, wrapper->_wrappedPtr);
+#endif
     }
   } else {
+#ifdef PY3K
+    return PyUnicode_FromFormat("%s (%s at: %p)", typeName, wrapper->classInfo()->className(), qobj);
+#else
     return PyString_FromFormat("%s (%s at: %p)", typeName, wrapper->classInfo()->className(), qobj);
+#endif
   }
 }
 
@@ -691,30 +755,38 @@ static PyNumberMethods PythonQtInstanceWrapper_as_number = {
   0,      /* nb_add */
     0,      /* nb_subtract */
     0,      /* nb_multiply */
+#ifndef PY3K
     0,      /* nb_divide */
+#endif
     0,      /* nb_remainder */
     0,      /* nb_divmod */
     0,      /* nb_power */
     0,      /* nb_negative */
     0,      /* nb_positive */
     0,      /* nb_absolute */
-    PythonQtInstanceWrapper_builtin_nonzero,      /* nb_nonzero */
+    PythonQtInstanceWrapper_builtin_nonzero,      /* nb_nonzero / nb_bool in Py3K */
     0,      /* nb_invert */
     0,      /* nb_lshift */
     0,      /* nb_rshift */
     0,    /* nb_and */
     0,    /* nb_xor */
     0,    /* nb_or */
+#ifndef PY3K
     0,      /* nb_coerce */
+#endif
     0,      /* nb_int */
-    0,      /* nb_long */
+    0,      /* nb_long  / nb_reserved in Py3K */
     0,      /* nb_float */
+#ifndef PY3K
     0,      /* nb_oct */
     0,      /* nb_hex */
+#endif
     0,      /* nb_inplace_add */
     0,      /* nb_inplace_subtract */
     0,      /* nb_inplace_multiply */
+#ifndef PY3K
     0,      /* nb_inplace_divide */
+#endif
     0,      /* nb_inplace_remainder */
     0,      /* nb_inplace_power */
     0,      /* nb_inplace_lshift */
@@ -726,11 +798,13 @@ static PyNumberMethods PythonQtInstanceWrapper_as_number = {
     0,      /* nb_true_divide */
     0,      /* nb_inplace_floor_divide */
     0,      /* nb_inplace_true_divide */
+#ifdef PY3K
+    0,      /* nb_index in Py3K */
+#endif
 };
 
 PyTypeObject PythonQtInstanceWrapper_Type = {
-    PyObject_HEAD_INIT(&PythonQtClassWrapper_Type)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(&PythonQtClassWrapper_Type, 0)
     "PythonQt.PythonQtInstanceWrapper",             /*tp_name*/
     sizeof(PythonQtInstanceWrapper),             /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -749,7 +823,7 @@ PyTypeObject PythonQtInstanceWrapper_Type = {
     PythonQtInstanceWrapper_getattro,                         /*tp_getattro*/
     PythonQtInstanceWrapper_setattro,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE /*| Py_TPFLAGS_CHECKTYPES FIXME Py_TPFLAGS_CHECKTYPES removal */, /*tp_flags*/
     "PythonQtInstanceWrapper object",           /* tp_doc */
     0,                   /* tp_traverse */
     0,                   /* tp_clear */

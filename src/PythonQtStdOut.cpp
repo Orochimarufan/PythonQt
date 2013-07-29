@@ -60,6 +60,11 @@ static PyObject *PythonQtStdOutRedirect_write(PyObject *self, PyObject *args)
     if (PyTuple_GET_SIZE(args)>=1) {
       PyObject* obj = PyTuple_GET_ITEM(args,0);
       if (PyUnicode_Check(obj)) {
+#ifdef PY3K
+        Py_UCS4 *x = PyUnicode_AsUCS4Copy(obj);
+        output = QString::fromUcs4(x, PyUnicode_GetLength(obj));
+        PyMem_Free(x);
+#else
         PyObject *tmp = PyUnicode_AsUTF8String(obj);
         if(tmp) {
           output = QString::fromUtf8(PyString_AS_STRING(tmp));
@@ -67,6 +72,7 @@ static PyObject *PythonQtStdOutRedirect_write(PyObject *self, PyObject *args)
         } else {
           return NULL;
         }
+#endif
       } else {
         char *string;
         if (!PyArg_ParseTuple(args, "s", &string)) {
@@ -117,8 +123,7 @@ static PyMemberDef PythonQtStdOutRedirect_members[] = {
 };
 
 PyTypeObject PythonQtStdOutRedirectType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "PythonQtStdOutRedirect",             /*tp_name*/
     sizeof(PythonQtStdOutRedirect),             /*tp_basicsize*/
     0,                         /*tp_itemsize*/

@@ -45,6 +45,10 @@
 #include <QTime>
 #include <QDate>
 
+#if PY_MAJOR_VERSION >= 3
+#define PY3K
+#endif
+
 PythonQtValueStorage<qint64, 128>  PythonQtConv::global_valueStorage;
 PythonQtValueStorage<void*, 128>   PythonQtConv::global_ptrStorage;
 PythonQtValueStorageWithCleanup<QVariant, 128> PythonQtConv::global_variantStorage;
@@ -78,7 +82,11 @@ PyObject* PythonQtConv::ConvertQtValueToPython(const PythonQtMethodInfo::Paramet
     // a char ptr will probably be a null terminated string, so we support that:
     char* charPtr = *((char**)data);
     if (charPtr) {
+#ifdef PY3K
+      return PyUnicode_FromString(charPtr);
+#else
       return PyString_FromString(charPtr);
+#endif
     } else {
       Py_INCREF(Py_None);
       return Py_None;
@@ -129,27 +137,27 @@ PyObject* PythonQtConv::ConvertQtValueToPythonInternal(int type, const void* dat
     Py_INCREF(Py_None);
     return Py_None;
   case QMetaType::Char:
-    return PyInt_FromLong(*((char*)data));
+    return PyLong_FromLong(*((char*)data));
   case QMetaType::UChar:
-    return PyInt_FromLong(*((unsigned char*)data));
+    return PyLong_FromLong(*((unsigned char*)data));
   case QMetaType::Short:
-    return PyInt_FromLong(*((short*)data));
+    return PyLong_FromLong(*((short*)data));
   case QMetaType::UShort:
-    return PyInt_FromLong(*((unsigned short*)data));
+    return PyLong_FromLong(*((unsigned short*)data));
   case QMetaType::Long:
-    return PyInt_FromLong(*((long*)data));
+    return PyLong_FromLong(*((long*)data));
   case QMetaType::ULong:
     // does not fit into simple int of python
     return PyLong_FromUnsignedLong(*((unsigned long*)data));
   case QMetaType::Bool:
     return PythonQtConv::GetPyBool(*((bool*)data));
   case QMetaType::Int:
-    return PyInt_FromLong(*((int*)data));
+    return PyLong_FromLong(*((int*)data));
   case QMetaType::UInt:
     // does not fit into simple int of python
     return PyLong_FromUnsignedLong(*((unsigned int*)data));
   case QMetaType::QChar:
-    return PyInt_FromLong(*((short*)data));
+    return PyLong_FromLong(*((short*)data));
   case QMetaType::Float:
     return PyFloat_FromDouble(*((float*)data));
   case QMetaType::Double:
@@ -293,7 +301,7 @@ void* PythonQtConv::handlePythonToQtAutoConversion(int typeId, PyObject* obj, vo
   if (typeId == cursorId) {
     static PyObject* qtCursorShapeEnum = PythonQtClassInfo::findEnumWrapper("Qt::CursorShape", NULL);
     if ((PyObject*)obj->ob_type == qtCursorShapeEnum) {
-      Qt::CursorShape val = (Qt::CursorShape)PyInt_AS_LONG(obj);
+      Qt::CursorShape val = (Qt::CursorShape)PyLong_AsLong(obj);
       if (!ptr) {
         PythonQtValueStorage_ADD_VALUE(global_variantStorage, QVariant, QCursor(), ptr);
         ptr = (void*)((QVariant*)ptr)->constData();
@@ -305,7 +313,7 @@ void* PythonQtConv::handlePythonToQtAutoConversion(int typeId, PyObject* obj, vo
     // brushes can be created from QColor and from Qt::GlobalColor (and from brushes, but that's the default)
     static PyObject* qtColorClass = PythonQt::priv()->getClassInfo("QColor")->pythonQtClassWrapper();
     if ((PyObject*)obj->ob_type == qtGlobalColorEnum) {
-      Qt::GlobalColor val = (Qt::GlobalColor)PyInt_AS_LONG(obj);
+      Qt::GlobalColor val = (Qt::GlobalColor)PyLong_AsLong(obj);
       if (!ptr) {
         PythonQtValueStorage_ADD_VALUE(global_variantStorage, QVariant, QPen(), ptr);
         ptr = (void*)((QVariant*)ptr)->constData();
@@ -324,7 +332,7 @@ void* PythonQtConv::handlePythonToQtAutoConversion(int typeId, PyObject* obj, vo
     // brushes can be created from QColor and from Qt::GlobalColor (and from brushes, but that's the default)
     static PyObject* qtColorClass = PythonQt::priv()->getClassInfo("QColor")->pythonQtClassWrapper();
     if ((PyObject*)obj->ob_type == qtGlobalColorEnum) {
-      Qt::GlobalColor val = (Qt::GlobalColor)PyInt_AS_LONG(obj);
+      Qt::GlobalColor val = (Qt::GlobalColor)PyLong_AsLong(obj);
       if (!ptr) {
         PythonQtValueStorage_ADD_VALUE(global_variantStorage, QVariant, QBrush(), ptr);
         ptr = (void*)((QVariant*)ptr)->constData();
@@ -342,7 +350,7 @@ void* PythonQtConv::handlePythonToQtAutoConversion(int typeId, PyObject* obj, vo
   } else if (typeId == colorId) {
     // colors can be created from Qt::GlobalColor (and from colors, but that's the default)
     if ((PyObject*)obj->ob_type == qtGlobalColorEnum) {
-      Qt::GlobalColor val = (Qt::GlobalColor)PyInt_AS_LONG(obj);
+      Qt::GlobalColor val = (Qt::GlobalColor)PyLong_AsLong(obj);
       if (!ptr) {
         PythonQtValueStorage_ADD_VALUE(global_variantStorage, QVariant, QColor(), ptr);
         ptr = (void*)((QVariant*)ptr)->constData();
@@ -393,10 +401,18 @@ void* PythonQtConv::ConvertPythonToQt(const PythonQtMethodInfo::ParameterInfo& i
      // a pointer
      if (info.typeId == QMetaType::Char || info.typeId == QMetaType::UChar)
      {
+#ifdef PY3K
+       if (PyUnicode_Check(obj)) {
+         QByteArray bytes(PyUnicode_AsUTF8(obj));
+         void* ptr2 = NULL;
+         PythonQtValueStorage_ADD_VALUE_IF_NEEDED(NULL,global_variantStorage, QVariant, QVariant(bytes), ptr2);
+         PythonQtValueStorage_ADD_VALUE_IF_NEEDED(alreadyAllocatedCPPObject,global_ptrStorage, void*, (((QByteArray*)((QVariant*)ptr2)->constData())->data()), ptr);
+#else
        if (obj->ob_type == &PyString_Type) {
          // take direct reference to string data
          const char* data = PyString_AS_STRING(obj);
          PythonQtValueStorage_ADD_VALUE_IF_NEEDED(alreadyAllocatedCPPObject,global_ptrStorage, void*, (void*)data, ptr);
+#endif
        } else {
          // convert to string
          QString str = PyObjGetString(obj, strict, ok);
@@ -601,7 +617,7 @@ void* PythonQtConv::ConvertPythonToQt(const PythonQtMethodInfo::ParameterInfo& i
            ok = false;
            if ((PyObject*)obj->ob_type == info.enumWrapper) {
              // we have a exact enum type match:
-             val = PyInt_AS_LONG(obj);
+             val = PyLong_AsLong(obj);
              ok = true;
            } else if (!strict) {
              // we try to get any integer, when not being strict. If we are strict, integers are not wanted because
@@ -681,8 +697,10 @@ QStringList PythonQtConv::PyObjToStringList(PyObject* val, bool strict, bool& ok
   ok = false;
   // if we are strict, we do not want to convert a string to a stringlist
   // (strings in python are detected to be sequences)
-  if (strict &&
-    (val->ob_type == &PyString_Type ||
+  if (strict && (
+#ifndef PY3K
+    val->ob_type == &PyString_Type ||
+#endif
     PyUnicode_Check(val))) {
     ok = false;
     return v;
@@ -703,7 +721,13 @@ QString PythonQtConv::PyObjGetRepresentation(PyObject* val)
   QString r;
   PyObject* str =  PyObject_Repr(val);
   if (str) {
+#ifdef PY3K
+    Py_UCS4 *x = PyUnicode_AsUCS4Copy(str);
+    r = QString::fromUcs4(x, PyUnicode_GetLength(str));
+    PyMem_Free(x);
+#else
     r = QString(PyString_AS_STRING(str));
+#endif
     Py_DECREF(str);
   }
   return r;
@@ -712,19 +736,34 @@ QString PythonQtConv::PyObjGetRepresentation(PyObject* val)
 QString PythonQtConv::PyObjGetString(PyObject* val, bool strict, bool& ok) {
   QString r;
   ok = true;
-  if (val->ob_type == &PyString_Type) {
+#ifndef PY3K
+  if (Py_TYPE(val) == &PyString_Type) {
     r = QString(PyString_AS_STRING(val));
-  } else if (PyUnicode_Check(val)) {
+  } else
+#endif
+  if (PyUnicode_Check(val)) {
+#ifdef PY3K
+    Py_UCS4 *x = PyUnicode_AsUCS4Copy(val);
+    r = QString::fromUcs4(x, PyUnicode_GetLength(val));
+    PyMem_Free(x);
+#else
     PyObject *ptmp = PyUnicode_AsUTF8String(val);
     if(ptmp) {
       r = QString::fromUtf8(PyString_AS_STRING(ptmp));
       Py_DECREF(ptmp);
     }
+#endif
   } else if (!strict) {
     // EXTRA: could also use _Unicode, but why should we?
     PyObject* str =  PyObject_Str(val);
     if (str) {
+#ifdef PY3K
+      Py_UCS4 *x = PyUnicode_AsUCS4Copy(str);
+      r = QString::fromUcs4(x, PyUnicode_GetLength(str));
+      PyMem_Free(x);
+#else
       r = QString(PyString_AS_STRING(str));
+#endif
       Py_DECREF(str);
     } else {
       ok = false;
@@ -739,9 +778,14 @@ QByteArray PythonQtConv::PyObjGetBytes(PyObject* val, bool /*strict*/, bool& ok)
   // TODO: support buffer objects in general
   QByteArray r;
   ok = true;
-  if (val->ob_type == &PyString_Type) {
+#ifdef PY3K
+  if (PyBytes_Check(val)) {
+    r = QByteArray(PyBytes_AS_STRING(val), PyBytes_GET_SIZE(val));
+#else
+  if (Py_TYPE(val) == &PyString_Type) {
     long size = PyString_GET_SIZE(val);
     r = QByteArray(PyString_AS_STRING(val), size);
+#endif
   } else {
     ok = false;
   }
@@ -769,17 +813,25 @@ bool PythonQtConv::PyObjGetBool(PyObject* val, bool strict, bool &ok) {
 int PythonQtConv::PyObjGetInt(PyObject* val, bool strict, bool &ok) {
   int d = 0;
   ok = true;
+#ifndef PY3K
   if (val->ob_type == &PyInt_Type) {
     d = PyInt_AS_LONG(val);
+  } else
+#endif
+  if (Py_TYPE(val) == &PyLong_Type) {
+    // handle error on overflow!
+    d = PyLong_AsLong(val);
   } else if (!strict) {
+#ifndef PY3K
     if (PyObject_TypeCheck(val, &PyInt_Type)) {
       // support for derived int classes, e.g. for our enums
       d = PyInt_AS_LONG(val);
-    } else if (val->ob_type == &PyFloat_Type) {
-      d = floor(PyFloat_AS_DOUBLE(val));
-    } else if (val->ob_type == &PyLong_Type) {
-      // handle error on overflow!
+    } else
+#endif
+    if (PyObject_TypeCheck(val, &PyLong_Type)) {
       d = PyLong_AsLong(val);
+    } else if (Py_TYPE(val) == &PyFloat_Type) {
+      d = floor(PyFloat_AS_DOUBLE(val));
     } else if (val == Py_False) {
       d = 0;
     } else if (val == Py_True) {
@@ -787,7 +839,7 @@ int PythonQtConv::PyObjGetInt(PyObject* val, bool strict, bool &ok) {
     } else {
       PyErr_Clear();
       // PyInt_AsLong will try conversion to an int if the object is not an int:
-      d = PyInt_AsLong(val);
+      d = PyLong_AsLong(val);
       if (PyErr_Occurred()) {
         ok = false;
         PyErr_Clear();
@@ -802,15 +854,23 @@ int PythonQtConv::PyObjGetInt(PyObject* val, bool strict, bool &ok) {
 qint64 PythonQtConv::PyObjGetLongLong(PyObject* val, bool strict, bool &ok) {
   qint64 d = 0;
   ok = true;
+#ifndef PY3K
   if (val->ob_type == &PyInt_Type) {
     d = PyInt_AS_LONG(val);
-  } else if (val->ob_type == &PyLong_Type) {
+  } else
+#endif
+  if (Py_TYPE(val) == &PyLong_Type) {
     d = PyLong_AsLongLong(val);
   } else if (!strict) {
+#ifndef PY3K
     if (PyObject_TypeCheck(val, &PyInt_Type)) {
       // support for derived int classes, e.g. for our enums
       d = PyInt_AS_LONG(val);
-    } else if (val->ob_type == &PyFloat_Type) {
+    } else
+#endif
+    if (PyObject_TypeCheck(val, &PyLong_Type)) {
+      d = PyLong_AsLong(val);
+    } else if (Py_TYPE(val) == &PyFloat_Type) {
       d = floor(PyFloat_AS_DOUBLE(val));
     } else if (val == Py_False) {
       d = 0;
@@ -834,15 +894,23 @@ qint64 PythonQtConv::PyObjGetLongLong(PyObject* val, bool strict, bool &ok) {
 quint64 PythonQtConv::PyObjGetULongLong(PyObject* val, bool strict, bool &ok) {
   quint64 d = 0;
   ok = true;
-  if (PyObject_TypeCheck(val, &PyInt_Type)) {
+#ifndef PY3K
+  if (Py_TYPE(val) == &PyInt_Type) {
     d = PyInt_AS_LONG(val);
-  } else if (val->ob_type == &PyLong_Type) {
+  } else
+#endif
+  if (Py_TYPE(val) == &PyLong_Type) {
     d = PyLong_AsLongLong(val);
   } else if (!strict) {
+#ifndef PY3K
     if (PyObject_TypeCheck(val, &PyInt_Type)) {
       // support for derived int classes, e.g. for our enums
       d = PyInt_AS_LONG(val);
-    } else if (val->ob_type == &PyFloat_Type) {
+    } else
+#endif
+    if (PyObject_TypeCheck(val, &PyLong_Type)) {
+      d = PyLong_AsLong(val);
+    } else if (Py_TYPE(val) == &PyFloat_Type) {
       d = floor(PyFloat_AS_DOUBLE(val));
     } else if (val == Py_False) {
       d = 0;
@@ -869,9 +937,12 @@ double PythonQtConv::PyObjGetDouble(PyObject* val, bool strict, bool &ok) {
   if (val->ob_type == &PyFloat_Type) {
     d = PyFloat_AS_DOUBLE(val);
   } else if (!strict) {
+#ifndef PY3K
     if (PyObject_TypeCheck(val, &PyInt_Type)) {
       d = PyInt_AS_LONG(val);
-    } else if (val->ob_type == &PyLong_Type) {
+    } else
+#endif
+    if (PyLong_Check(val)) {
       d = PyLong_AsLong(val);
     } else if (val == Py_False) {
       d = 0;
@@ -899,15 +970,23 @@ QVariant PythonQtConv::PyObjToQVariant(PyObject* val, int type)
 
   if (type==-1) {
     // no special type requested
+#ifdef PY3K
+    if (PyBytes_Check(val)) {
+      type = QVariant::ByteArray;
+    } else if (PyUnicode_Check(val)) {
+#else
     if (val->ob_type==&PyString_Type || val->ob_type==&PyUnicode_Type) {
+#endif
       type = QVariant::String;
     } else if (val == Py_False || val == Py_True) {
       type = QVariant::Bool;
+#ifndef PY3K
     } else if (PyObject_TypeCheck(val, &PyInt_Type)) {
       type = QVariant::Int;
-    } else if (val->ob_type==&PyLong_Type) {
+#endif
+    } else if (PyLong_Check(val)) {
       type = QVariant::LongLong;
-    } else if (val->ob_type==&PyFloat_Type) {
+    } else if (PyFloat_Check(val)) {
       type = QVariant::Double;
     } else if (PyObject_TypeCheck(val, &PythonQtInstanceWrapper_Type)) {
       PythonQtInstanceWrapper* wrap = (PythonQtInstanceWrapper*)val;
@@ -928,9 +1007,9 @@ QVariant PythonQtConv::PyObjToQVariant(PyObject* val, int type)
         v = qVariantFromValue(myObject);
       }
       return v;
-    } else if (val->ob_type==&PyDict_Type) {
+    } else if (PyDict_Check(val)) {
       type = QVariant::Map;
-    } else if (val->ob_type==&PyList_Type || val->ob_type==&PyTuple_Type || PySequence_Check(val)) {
+    } else if (PyList_Check(val) || PyTuple_Check(val) || PySequence_Check(val)) {
       type = QVariant::List;
     } else if (val == Py_None) {
       // none is invalid
@@ -1100,7 +1179,11 @@ QVariant PythonQtConv::PyObjToQVariant(PyObject* val, int type)
 PyObject* PythonQtConv::QStringToPyObject(const QString& str)
 {
   if (str.isNull()) {
+#ifdef PY3K
+    return PyUnicode_New(0, 0);
+#else
     return PyString_FromString("");
+#endif
   } else {
     return PyUnicode_DecodeUTF16((const char*)str.utf16(), str.length()*2, NULL, NULL);
   }
