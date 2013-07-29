@@ -13,7 +13,15 @@ DESTDIR    = ../lib
 CONFIG += qt dll
 CONFIG -= flat
 
+contains(QT_MAJOR_VERSION, 5) {
+  QT += widgets
+}
+
+mac {
+  OTHER_FILES += ../scripts/osx-fix-dylib.sh
+}
+
 include ( ../build/common.prf )  
-include ( ../build/python.prf )  
+include ( ../build/python.prf )
 
 include ( src.pri )  

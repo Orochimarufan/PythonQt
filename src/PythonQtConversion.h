@@ -172,7 +172,7 @@ PyObject* PythonQtConvertListOfValueTypeToPythonList(const void* /*QList<T>* */ 
   }
   PyObject* result = PyTuple_New(list->size());
   int i = 0;
-  foreach (const T& value, *list) {
+  Q_FOREACH (const T& value, *list) {
     PyTuple_SET_ITEM(result, i, PythonQtConv::ConvertQtValueToPythonInternal(innerType, &value));
     i++;
   }
@@ -197,7 +197,7 @@ bool PythonQtConvertPythonListToListOfValueType(PyObject* obj, void* /*QList<T>*
       // this is quite some overhead, but it avoids having another large switch...
       QVariant v = PythonQtConv::PyObjToQVariant(value, innerType);
       if (v.isValid()) {
-        list->push_back(qVariantValue<T>(v));
+        list->push_back(qvariant_cast<T>(v));
       } else {
         result = false;
         break;

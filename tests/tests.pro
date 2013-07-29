@@ -6,7 +6,11 @@
 TARGET   = PythonQtTest
 TEMPLATE = app
 
-CONFIG += qtestlib
+contains(QT_MAJOR_VERSION, 5) {
+  QT += testlib widgets
+} else {
+  CONFIG += qtestlib
+}
 
 include ( ../build/common.prf )
 include ( ../build/PythonQt.prf )

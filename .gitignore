@@ -1,0 +1,4 @@
+*.user
+/build*
+*.o
+.preprocessed.tmp

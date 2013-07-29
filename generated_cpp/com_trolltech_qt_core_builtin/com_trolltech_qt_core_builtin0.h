@@ -30,7 +30,7 @@
 class PythonQtWrapper_QBitArray : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QBitArray* new_QBitArray();
 QBitArray* new_QBitArray(const QBitArray&  other);
 QBitArray* new_QBitArray(int  size, bool  val = false);
@@ -74,7 +74,7 @@ void delete_QBitArray(QBitArray* obj) { delete obj; }
 class PythonQtWrapper_QByteArray : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QByteArray* new_QByteArray();
 QByteArray* new_QByteArray(const QByteArray&  arg__1);
 QByteArray* new_QByteArray(int  size, char  c);
@@ -205,7 +205,7 @@ public:
 Q_ENUMS(MonthNameType )
 enum MonthNameType{
   DateFormat = QDate::DateFormat,   StandaloneFormat = QDate::StandaloneFormat};
-public slots:
+public Q_SLOTS:
 QDate* new_QDate();
 QDate* new_QDate(int  y, int  m, int  d);
 QDate* new_QDate(const QDate& other) {
@@ -266,7 +266,7 @@ void delete_QDate(QDate* obj) { delete obj; }
 class PythonQtWrapper_QDateTime : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QDateTime* new_QDateTime();
 QDateTime* new_QDateTime(const QDate&  arg__1);
 QDateTime* new_QDateTime(const QDate&  arg__1, const QTime&  arg__2, Qt::TimeSpec  spec = Qt::LocalTime);
@@ -325,7 +325,7 @@ void delete_QDateTime(QDateTime* obj) { delete obj; }
 class PythonQtWrapper_QLine : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QLine* new_QLine();
 QLine* new_QLine(const QPoint&  pt1, const QPoint&  pt2);
 QLine* new_QLine(int  x1, int  y1, int  x2, int  y2);
@@ -371,7 +371,7 @@ public:
 Q_ENUMS(IntersectType )
 enum IntersectType{
   NoIntersection = QLineF::NoIntersection,   BoundedIntersection = QLineF::BoundedIntersection,   UnboundedIntersection = QLineF::UnboundedIntersection};
-public slots:
+public Q_SLOTS:
 QLineF* new_QLineF();
 QLineF* new_QLineF(const QLine&  line);
 QLineF* new_QLineF(const QPointF&  pt1, const QPointF&  pt2);
@@ -446,7 +446,7 @@ enum Country{
 enum Language{
   AnyLanguage = QLocale::AnyLanguage,   C = QLocale::C,   Abkhazian = QLocale::Abkhazian,   Afan = QLocale::Afan,   Afar = QLocale::Afar,   Afrikaans = QLocale::Afrikaans,   Albanian = QLocale::Albanian,   Amharic = QLocale::Amharic,   Arabic = QLocale::Arabic,   Armenian = QLocale::Armenian,   Assamese = QLocale::Assamese,   Aymara = QLocale::Aymara,   Azerbaijani = QLocale::Azerbaijani,   Bashkir = QLocale::Bashkir,   Basque = QLocale::Basque,   Bengali = QLocale::Bengali,   Bhutani = QLocale::Bhutani,   Bihari = QLocale::Bihari,   Bislama = QLocale::Bislama,   Breton = QLocale::Breton,   Bulgarian = QLocale::Bulgarian,   Burmese = QLocale::Burmese,   Byelorussian = QLocale::Byelorussian,   Cambodian = QLocale::Cambodian,   Catalan = QLocale::Catalan,   Chinese = QLocale::Chinese,   Corsican = QLocale::Corsican,   Croatian = QLocale::Croatian,   Czech = QLocale::Czech,   Danish = QLocale::Danish,   Dutch = QLocale::Dutch,   English = QLocale::English,   Esperanto = QLocale::Esperanto,   Estonian = QLocale::Estonian,   Faroese = QLocale::Faroese,   FijiLanguage = QLocale::FijiLanguage,   Finnish = QLocale::Finnish,   French = QLocale::French,   Frisian = QLocale::Frisian,   Gaelic = QLocale::Gaelic,   Galician = QLocale::Galician,   Georgian = QLocale::Georgian,   German = QLocale::German,   Greek = QLocale::Greek,   Greenlandic = QLocale::Greenlandic,   Guarani = QLocale::Guarani,   Gujarati = QLocale::Gujarati,   Hausa = QLocale::Hausa,   Hebrew = QLocale::Hebrew,   Hindi = QLocale::Hindi,   Hungarian = QLocale::Hungarian,   Icelandic = QLocale::Icelandic,   Indonesian = QLocale::Indonesian,   Interlingua = QLocale::Interlingua,   Interlingue = QLocale::Interlingue,   Inuktitut = QLocale::Inuktitut,   Inupiak = QLocale::Inupiak,   Irish = QLocale::Irish,   Italian = QLocale::Italian,   Japanese = QLocale::Japanese,   Javanese = QLocale::Javanese,   Kannada = QLocale::Kannada,   Kashmiri = QLocale::Kashmiri,   Kazakh = QLocale::Kazakh,   Kinyarwanda = QLocale::Kinyarwanda,   Kirghiz = QLocale::Kirghiz,   Korean = QLocale::Korean,   Kurdish = QLocale::Kurdish,   Kurundi = QLocale::Kurundi,   Laothian = QLocale::Laothian,   Latin = QLocale::Latin,   Latvian = QLocale::Latvian,   Lingala = QLocale::Lingala,   Lithuanian = QLocale::Lithuanian,   Macedonian = QLocale::Macedonian,   Malagasy = QLocale::Malagasy,   Malay = QLocale::Malay,   Malayalam = QLocale::Malayalam,   Maltese = QLocale::Maltese,   Maori = QLocale::Maori,   Marathi = QLocale::Marathi,   Moldavian = QLocale::Moldavian,   Mongolian = QLocale::Mongolian,   NauruLanguage = QLocale::NauruLanguage,   Nepali = QLocale::Nepali,   Norwegian = QLocale::Norwegian,   Occitan = QLocale::Occitan,   Oriya = QLocale::Oriya,   Pashto = QLocale::Pashto,   Persian = QLocale::Persian,   Polish = QLocale::Polish,   Portuguese = QLocale::Portuguese,   Punjabi = QLocale::Punjabi,   Quechua = QLocale::Quechua,   RhaetoRomance = QLocale::RhaetoRomance,   Romanian = QLocale::Romanian,   Russian = QLocale::Russian,   Samoan = QLocale::Samoan,   Sangho = QLocale::Sangho,   Sanskrit = QLocale::Sanskrit,   Serbian = QLocale::Serbian,   SerboCroatian = QLocale::SerboCroatian,   Sesotho = QLocale::Sesotho,   Setswana = QLocale::Setswana,   Shona = QLocale::Shona,   Sindhi = QLocale::Sindhi,   Singhalese = QLocale::Singhalese,   Siswati = QLocale::Siswati,   Slovak = QLocale::Slovak,   Slovenian = QLocale::Slovenian,   Somali = QLocale::Somali,   Spanish = QLocale::Spanish,   Sundanese = QLocale::Sundanese,   Swahili = QLocale::Swahili,   Swedish = QLocale::Swedish,   Tagalog = QLocale::Tagalog,   Tajik = QLocale::Tajik,   Tamil = QLocale::Tamil,   Tatar = QLocale::Tatar,   Telugu = QLocale::Telugu,   Thai = QLocale::Thai,   Tibetan = QLocale::Tibetan,   Tigrinya = QLocale::Tigrinya,   TongaLanguage = QLocale::TongaLanguage,   Tsonga = QLocale::Tsonga,   Turkish = QLocale::Turkish,   Turkmen = QLocale::Turkmen,   Twi = QLocale::Twi,   Uigur = QLocale::Uigur,   Ukrainian = QLocale::Ukrainian,   Urdu = QLocale::Urdu,   Uzbek = QLocale::Uzbek,   Vietnamese = QLocale::Vietnamese,   Volapuk = QLocale::Volapuk,   Welsh = QLocale::Welsh,   Wolof = QLocale::Wolof,   Xhosa = QLocale::Xhosa,   Yiddish = QLocale::Yiddish,   Yoruba = QLocale::Yoruba,   Zhuang = QLocale::Zhuang,   Zulu = QLocale::Zulu,   Nynorsk = QLocale::Nynorsk,   Bosnian = QLocale::Bosnian,   Divehi = QLocale::Divehi,   Manx = QLocale::Manx,   Cornish = QLocale::Cornish,   Akan = QLocale::Akan,   Konkani = QLocale::Konkani,   Ga = QLocale::Ga,   Igbo = QLocale::Igbo,   Kamba = QLocale::Kamba,   Syriac = QLocale::Syriac,   Blin = QLocale::Blin,   Geez = QLocale::Geez,   Koro = QLocale::Koro,   Sidamo = QLocale::Sidamo,   Atsam = QLocale::Atsam,   Tigre = QLocale::Tigre,   Jju = QLocale::Jju,   Friulian = QLocale::Friulian,   Venda = QLocale::Venda,   Ewe = QLocale::Ewe,   Walamo = QLocale::Walamo,   Hawaiian = QLocale::Hawaiian,   Tyap = QLocale::Tyap,   Chewa = QLocale::Chewa,   Filipino = QLocale::Filipino,   SwissGerman = QLocale::SwissGerman,   SichuanYi = QLocale::SichuanYi,   Kpelle = QLocale::Kpelle,   LowGerman = QLocale::LowGerman,   SouthNdebele = QLocale::SouthNdebele,   NorthernSotho = QLocale::NorthernSotho,   NorthernSami = QLocale::NorthernSami,   Taroko = QLocale::Taroko,   Gusii = QLocale::Gusii,   Taita = QLocale::Taita,   Fulah = QLocale::Fulah,   Kikuyu = QLocale::Kikuyu,   Samburu = QLocale::Samburu,   Sena = QLocale::Sena,   NorthNdebele = QLocale::NorthNdebele,   Rombo = QLocale::Rombo,   Tachelhit = QLocale::Tachelhit,   Kabyle = QLocale::Kabyle,   Nyankole = QLocale::Nyankole,   Bena = QLocale::Bena,   Vunjo = QLocale::Vunjo,   Bambara = QLocale::Bambara,   Embu = QLocale::Embu,   Cherokee = QLocale::Cherokee,   Morisyen = QLocale::Morisyen,   Makonde = QLocale::Makonde,   Langi = QLocale::Langi,   Ganda = QLocale::Ganda,   Bemba = QLocale::Bemba,   Kabuverdianu = QLocale::Kabuverdianu,   Meru = QLocale::Meru,   Kalenjin = QLocale::Kalenjin,   Nama = QLocale::Nama,   Machame = QLocale::Machame,   Colognian = QLocale::Colognian,   Masai = QLocale::Masai,   Soga = QLocale::Soga,   Luyia = QLocale::Luyia,   Asu = QLocale::Asu,   Teso = QLocale::Teso,   Saho = QLocale::Saho,   KoyraChiini = QLocale::KoyraChiini,   Rwa = QLocale::Rwa,   Luo = QLocale::Luo,   Chiga = QLocale::Chiga,   CentralMoroccoTamazight = QLocale::CentralMoroccoTamazight,   KoyraboroSenni = QLocale::KoyraboroSenni,   Shambala = QLocale::Shambala,   NorwegianBokmal = QLocale::NorwegianBokmal,   NorwegianNynorsk = QLocale::NorwegianNynorsk,   LastLanguage = QLocale::LastLanguage};
 Q_DECLARE_FLAGS(NumberOptions, NumberOption)
-public slots:
+public Q_SLOTS:
 QLocale* new_QLocale();
 QLocale* new_QLocale(QLocale::Language  language, QLocale::Country  country = QLocale::AnyCountry);
 QLocale* new_QLocale(QLocale::Language  language, QLocale::Script  script, QLocale::Country  country);
@@ -543,7 +543,7 @@ void delete_QLocale(QLocale* obj) { delete obj; }
 class PythonQtWrapper_QPoint : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QPoint* new_QPoint();
 QPoint* new_QPoint(int  xpos, int  ypos);
 QPoint* new_QPoint(const QPoint& other) {
@@ -586,7 +586,7 @@ void delete_QPoint(QPoint* obj) { delete obj; }
 class PythonQtWrapper_QPointF : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QPointF* new_QPointF();
 QPointF* new_QPointF(const QPoint&  p);
 QPointF* new_QPointF(qreal  xpos, qreal  ypos);
@@ -627,7 +627,7 @@ void delete_QPointF(QPointF* obj) { delete obj; }
 class PythonQtWrapper_QRect : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QRect* new_QRect();
 QRect* new_QRect(const QPoint&  topleft, const QPoint&  bottomright);
 QRect* new_QRect(const QPoint&  topleft, const QSize&  size);
@@ -712,7 +712,7 @@ void delete_QRect(QRect* obj) { delete obj; }
 class PythonQtWrapper_QRectF : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QRectF* new_QRectF();
 QRectF* new_QRectF(const QPointF&  topleft, const QPointF&  bottomRight);
 QRectF* new_QRectF(const QPointF&  topleft, const QSizeF&  size);
@@ -806,7 +806,7 @@ enum PatternSyntax{
   RegExp = QRegExp::RegExp,   Wildcard = QRegExp::Wildcard,   FixedString = QRegExp::FixedString,   RegExp2 = QRegExp::RegExp2,   WildcardUnix = QRegExp::WildcardUnix,   W3CXmlSchema11 = QRegExp::W3CXmlSchema11};
 enum CaretMode{
   CaretAtZero = QRegExp::CaretAtZero,   CaretAtOffset = QRegExp::CaretAtOffset,   CaretWontMatch = QRegExp::CaretWontMatch};
-public slots:
+public Q_SLOTS:
 QRegExp* new_QRegExp();
 QRegExp* new_QRegExp(const QRegExp&  rx);
 QRegExp* new_QRegExp(const QString&  pattern, Qt::CaseSensitivity  cs = Qt::CaseSensitive, QRegExp::PatternSyntax  syntax = QRegExp::RegExp);
@@ -846,7 +846,7 @@ void delete_QRegExp(QRegExp* obj) { delete obj; }
 class PythonQtWrapper_QSize : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QSize* new_QSize();
 QSize* new_QSize(int  w, int  h);
 QSize* new_QSize(const QSize& other) {
@@ -888,7 +888,7 @@ void delete_QSize(QSize* obj) { delete obj; }
 class PythonQtWrapper_QSizeF : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QSizeF* new_QSizeF();
 QSizeF* new_QSizeF(const QSize&  sz);
 QSizeF* new_QSizeF(qreal  w, qreal  h);
@@ -932,7 +932,7 @@ void delete_QSizeF(QSizeF* obj) { delete obj; }
 class PythonQtWrapper_QTime : public QObject
 { Q_OBJECT
 public:
-public slots:
+public Q_SLOTS:
 QTime* new_QTime();
 QTime* new_QTime(int  h, int  m, int  s = 0, int  ms = 0);
 QTime* new_QTime(const QTime& other) {
@@ -986,7 +986,7 @@ enum ParsingMode{
 enum FormattingOption{
   None = QUrl::None,   RemoveScheme = QUrl::RemoveScheme,   RemovePassword = QUrl::RemovePassword,   RemoveUserInfo = QUrl::RemoveUserInfo,   RemovePort = QUrl::RemovePort,   RemoveAuthority = QUrl::RemoveAuthority,   RemovePath = QUrl::RemovePath,   RemoveQuery = QUrl::RemoveQuery,   RemoveFragment = QUrl::RemoveFragment,   StripTrailingSlash = QUrl::StripTrailingSlash};
 Q_DECLARE_FLAGS(FormattingOptions, FormattingOption)
-public slots:
+public Q_SLOTS:
 QUrl* new_QUrl();
 QUrl* new_QUrl(const QString&  url);
 QUrl* new_QUrl(const QString&  url, QUrl::ParsingMode  mode);
@@ -1248,7 +1248,7 @@ Q_DECLARE_FLAGS(TouchPointStates, TouchPointState)
 Q_DECLARE_FLAGS(TextInteractionFlags, TextInteractionFlag)
 Q_DECLARE_FLAGS(MouseButtons, MouseButton)
 Q_DECLARE_FLAGS(MatchFlags, MatchFlag)
-public slots:
+public Q_SLOTS:
    QTextCodec*  static_Qt_codecForHtml(const QByteArray&  ba);
    QString  static_Qt_convertFromPlainText(const QString&  plain, Qt::WhiteSpaceMode  mode = Qt::WhiteSpacePre);
    QString  static_Qt_escape(const QString&  plain);

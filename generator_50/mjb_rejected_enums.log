@@ -1,0 +1,35 @@
+************************************************************************
+Not in type system
+ - QAbstractItemModel::LayoutChangeHint
+ - QCoreApplication::enum_1
+ - QFont::HintingPreference
+ - QState::RestorePolicy
+ - QStyleOptionTab::TabFeature
+ - QTouchEvent::TouchPoint::InfoFlag
+ - QUrl::ComponentFormattingOption
+ - QUrl::UrlFormattingOption
+ - enum_3
+************************************************************************
+
+************************************************************************
+Generation disabled by type system
+ - QFont::ResolveProperties
+ - QGradient::InterpolationMode
+ - Qt::Initialization
+ - Qt::Modifier
+ - enum_1
+ - enum_2
+************************************************************************
+
+************************************************************************
+Type redefined to not be a class
+************************************************************************
+
+************************************************************************
+Unmatched argument type
+************************************************************************
+
+************************************************************************
+Unmatched return type
+************************************************************************
+

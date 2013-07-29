@@ -72,7 +72,7 @@ PythonQtClassInfo::~PythonQtClassInfo()
   if (_destructor) {
     _destructor->deleteOverloadsAndThis();
   }
-  foreach(PythonQtSlotInfo* info, _decoratorSlots) {
+  Q_FOREACH(PythonQtSlotInfo* info, _decoratorSlots) {
     info->deleteOverloadsAndThis();
   }
 }
@@ -151,7 +151,7 @@ bool PythonQtClassInfo::lookForPropertyAndCache(const char* memberName)
 PythonQtSlotInfo* PythonQtClassInfo::recursiveFindDecoratorSlotsFromDecoratorProvider(const char* memberName, PythonQtSlotInfo* inputInfo, bool &found, QHash<QByteArray, PythonQtMemberInfo>& memberCache, int upcastingOffset)
 {
   inputInfo = findDecoratorSlotsFromDecoratorProvider(memberName, inputInfo, found, memberCache, upcastingOffset);
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     inputInfo = info._parent->recursiveFindDecoratorSlotsFromDecoratorProvider(memberName, inputInfo, found, memberCache, upcastingOffset+info._upcastingOffset);
   }
   return inputInfo;
@@ -170,15 +170,19 @@ PythonQtSlotInfo* PythonQtClassInfo::findDecoratorSlotsFromDecoratorProvider(con
       if ((m.methodType() == QMetaMethod::Method ||
            m.methodType() == QMetaMethod::Slot) && m.access() == QMetaMethod::Public) {
         
-        const char* sigStart = m.signature();
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+        QByteArray sigStart = m.methodSignature();
+#else
+        QByteArray sigStart = m.signature();
+#endif
         bool isClassDeco = false;
-        if (qstrncmp(sigStart, "static_", 7)==0) {
+        if (sigStart.startsWith("static_")) {
           // skip the static_classname_ part of the string
-          sigStart += 7 + 1 + strlen(className());
+          sigStart.remove(0,7+strlen(className())+1);
           isClassDeco = true;
-        } else if (qstrncmp(sigStart, "new_", 4)==0) {
+        } else if (sigStart.startsWith("new_")) {
           isClassDeco = true;
-        } else if (qstrncmp(sigStart, "delete_", 7)==0) {
+        } else if (sigStart.startsWith("delete_")) {
           isClassDeco = true;
         }
         // find the first '('
@@ -220,7 +224,11 @@ PythonQtSlotInfo* PythonQtClassInfo::findDecoratorSlotsFromDecoratorProvider(con
         m.methodType() == QMetaMethod::Slot) && m.access() == QMetaMethod::Public)
         || m.methodType()==QMetaMethod::Signal) {
 
-          const char* sigStart = m.signature();
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+        QByteArray sigStart = m.methodSignature();
+#else
+        QByteArray sigStart = m.signature();
+#endif
           // find the first '('
           int offset = findCharOffset(sigStart, '(');
 
@@ -309,7 +317,7 @@ PythonQtMemberInfo PythonQtClassInfo::member(const char* memberName)
         // look for dynamic decorators in this class and in derived classes
         QList<QObject*> decoObjects;
         recursiveCollectDecoratorObjects(decoObjects);
-        foreach(QObject* deco, decoObjects) {
+        Q_FOREACH(QObject* deco, decoObjects) {
           // call on ourself for caching, but with different metaObject():
           found = lookForEnumAndCache(deco->metaObject(), memberName);
           if (found) {
@@ -357,14 +365,14 @@ void PythonQtClassInfo::recursiveCollectDecoratorObjects(QList<QObject*>& decora
   if (deco) {
     decoratorObjects.append(deco);
   }
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     info._parent->recursiveCollectDecoratorObjects(decoratorObjects);
   }
 }
 
 void PythonQtClassInfo::recursiveCollectClassInfos(QList<PythonQtClassInfo*>& classInfoObjects) {
   classInfoObjects.append(this);
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     info._parent->recursiveCollectClassInfos(classInfoObjects);
   }
 }
@@ -376,10 +384,15 @@ PythonQtSlotInfo* PythonQtClassInfo::findDecoratorSlots(const char* memberName, 
 
     PythonQtSlotInfo* infoOrig = it.next();
           
-    const char* sigStart = infoOrig->metaMethod()->signature();
-    if (qstrncmp("static_", sigStart, 7)==0) {
-      sigStart += 7;
-      sigStart += findCharOffset(sigStart, '_')+1;
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+    QByteArray sigStart = infoOrig->metaMethod()->methodSignature();
+#else
+    QByteArray sigStart = infoOrig->metaMethod()->signature();
+#endif
+    if (sigStart.startsWith("static_")) {
+      sigStart.remove(0,7);
+      int offset = findCharOffset(sigStart, '_');
+      sigStart.remove(0,offset+1);
     }
     int offset = findCharOffset(sigStart, '(');
     if (memberNameLen == offset && qstrncmp(memberName, sigStart, offset)==0) {
@@ -410,17 +423,21 @@ void PythonQtClassInfo::listDecoratorSlotsFromDecoratorProvider(QStringList& lis
       if ((m.methodType() == QMetaMethod::Method ||
            m.methodType() == QMetaMethod::Slot) && m.access() == QMetaMethod::Public) {
         
-        const char* sigStart = m.signature();
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+        QByteArray sigStart = m.methodSignature();
+#else
+        QByteArray sigStart = m.signature();
+#endif
         bool isClassDeco = false;
-        if (qstrncmp(sigStart, "static_", 7)==0) {
+        if (sigStart.startsWith("static_")) {
           // skip the static_classname_ part of the string
-          sigStart += 7 + 1 + strlen(className());
+          sigStart.remove(0,7+strlen(className())+1);
           isClassDeco = true;
-        } else if (qstrncmp(sigStart, "new_", 4)==0) {
+        } else if (sigStart.startsWith("new_")) {
           continue;
-        } else if (qstrncmp(sigStart, "delete_", 7)==0) {
+        } else if (sigStart.startsWith("delete_")) {
           continue;
-        } else if (qstrncmp(sigStart, "py_", 3)==0) {
+        } else if (sigStart.startsWith("py_")) {
           // hide everything that starts with py_
           continue;
         }
@@ -484,7 +501,11 @@ QStringList PythonQtClassInfo::memberList()
       if (((m.methodType() == QMetaMethod::Method ||
         m.methodType() == QMetaMethod::Slot) && m.access() == QMetaMethod::Public)
           || m.methodType()==QMetaMethod::Signal) {
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+        QByteArray signa(m.methodSignature());
+#else
         QByteArray signa(m.signature());
+#endif
         signa = signa.left(signa.indexOf('('));
         l << signa;
       }
@@ -495,7 +516,7 @@ QStringList PythonQtClassInfo::memberList()
     // look for dynamic decorators in this class and in derived classes
     QList<PythonQtClassInfo*> infos;
     recursiveCollectClassInfos(infos);
-    foreach(PythonQtClassInfo* info, infos) {
+    Q_FOREACH(PythonQtClassInfo* info, infos) {
       info->listDecoratorSlotsFromDecoratorProvider(l, false);
     }
   }
@@ -508,11 +529,11 @@ QStringList PythonQtClassInfo::memberList()
   // check enums in the class hierachy of CPP classes
   QList<QObject*> decoObjects;
   recursiveCollectDecoratorObjects(decoObjects);
-  foreach(QObject* deco, decoObjects) {
+  Q_FOREACH(QObject* deco, decoObjects) {
     enumMetaObjects << deco->metaObject();
   }
   
-  foreach(const QMetaObject* meta, enumMetaObjects) {
+  Q_FOREACH(const QMetaObject* meta, enumMetaObjects) {
     for (int i = 0; i<meta->enumeratorCount(); i++) {
       QMetaEnum e = meta->enumerator(i);
       l << e.name();
@@ -541,7 +562,7 @@ void* PythonQtClassInfo::castTo(void* ptr, const char* classname)
   if (_wrappedClassName == classname) {
     return ptr;
   }
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     void* result = info._parent->castTo((char*)ptr + info._upcastingOffset, classname);
     if (result) {
       return result;
@@ -555,7 +576,7 @@ bool PythonQtClassInfo::inherits(const char* name)
   if (_wrappedClassName == name) {
     return true;
   }
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     if (info._parent->inherits(name)) {
       return true;
     }
@@ -568,7 +589,7 @@ bool PythonQtClassInfo::inherits(PythonQtClassInfo* classInfo)
   if (classInfo == this) {
     return true;
   }
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     if (info._parent->inherits(classInfo)) {
       return true;
     }
@@ -641,7 +662,11 @@ QString PythonQtClassInfo::help()
       for (int i = 0; i < numMethods; i++) {
         QMetaMethod m = _meta->method(i);
         if (m.methodType() == QMetaMethod::Signal) {
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+          h += QString(m.methodSignature()) + "\n";
+#else
           h += QString(m.signature()) + "\n";
+#endif
         }
       }
     }
@@ -720,14 +745,14 @@ QObject* PythonQtClassInfo::decorator()
 void* PythonQtClassInfo::recursiveCastDownIfPossible(void* ptr, const char** resultClassName)
 {
   if (!_polymorphicHandlers.isEmpty()) {
-    foreach(PythonQtPolymorphicHandlerCB* cb, _polymorphicHandlers) {
+    Q_FOREACH(PythonQtPolymorphicHandlerCB* cb, _polymorphicHandlers) {
       void* resultPtr = (*cb)(ptr, resultClassName);
       if (resultPtr) {
         return resultPtr;
       }
     }
   }
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     if (!info._parent->isQObject()) {
       void* resultPtr = info._parent->recursiveCastDownIfPossible((char*)ptr + info._upcastingOffset, resultClassName);
       if (resultPtr) {
@@ -747,7 +772,7 @@ void* PythonQtClassInfo::castDownIfPossible(void* ptr, PythonQtClassInfo** resul
   // we only do downcasting on the base object, not on the whole inheritance tree...
   void* resultPtr = NULL;
   if (!_polymorphicHandlers.isEmpty()) {
-    foreach(PythonQtPolymorphicHandlerCB* cb, _polymorphicHandlers) {
+    Q_FOREACH(PythonQtPolymorphicHandlerCB* cb, _polymorphicHandlers) {
       resultPtr = (*cb)(ptr, &className);
       if (resultPtr) {
         break;
@@ -810,7 +835,7 @@ void PythonQtClassInfo::createEnumWrappers()
     if (decorator()) {
       createEnumWrappers(decorator()->metaObject());
     }
-    foreach(const ParentClassInfo& info, _parentClasses) {
+    Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
       info._parent->createEnumWrappers();
     }
   }
@@ -821,13 +846,13 @@ PyObject* PythonQtClassInfo::findEnumWrapper(const char* name) {
   if (!_enumsCreated) {
     createEnumWrappers();
   }
-  foreach(const PythonQtObjectPtr& p, _enumWrappers) {
+  Q_FOREACH(const PythonQtObjectPtr& p, _enumWrappers) {
     const char* className = ((PyTypeObject*)p.object())->tp_name;
     if (qstrcmp(className, name)==0) {
       return p.object();
     }
   }
-  foreach(const ParentClassInfo& info, _parentClasses) {
+  Q_FOREACH(const ParentClassInfo& info, _parentClasses) {
     PyObject* p = info._parent->findEnumWrapper(name);
     if (p) return p;
   }

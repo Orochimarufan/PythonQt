@@ -175,7 +175,9 @@ PyObject* PythonQtConv::ConvertQtValueToPythonInternal(int type, const void* dat
   case PythonQtMethodInfo::Variant:
     return PythonQtConv::QVariantToPyObject(*((QVariant*)data));
   case QMetaType::QObjectStar:
+#if( QT_VERSION < QT_VERSION_CHECK(5,0,0) )
   case QMetaType::QWidgetStar:
+#endif
     return PythonQt::priv()->wrapQObject(*((QObject**)data));
 
   default:
@@ -187,7 +189,11 @@ PyObject* PythonQtConv::ConvertQtValueToPythonInternal(int type, const void* dat
     } else {
       if (type > 0) {
         // if the type is known, we can construct it via QMetaType::construct
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+        void* newCPPObject = QMetaType::create(type, data);
+#else
         void* newCPPObject = QMetaType::construct(type, data);
+#endif
         // XXX this could be optimized by using metatypeid directly
         PythonQtInstanceWrapper* wrap = (PythonQtInstanceWrapper*)PythonQt::priv()->wrapPtr(newCPPObject, QMetaType::typeName(type));
         wrap->_ownedByPythonQt = true;
@@ -1105,7 +1111,7 @@ PyObject* PythonQtConv::QStringListToPyObject(const QStringList& list)
   PyObject* result = PyTuple_New(list.count());
   int i = 0;
   QString str;
-  foreach (str, list) {
+  Q_FOREACH (str, list) {
     PyTuple_SET_ITEM(result, i, PythonQtConv::QStringToPyObject(str));
     i++;
   }
@@ -1149,7 +1155,7 @@ PyObject* PythonQtConv::QVariantListToPyObject(const QVariantList& l) {
   PyObject* result = PyTuple_New(l.count());
   int i = 0;
   QVariant v;
-  foreach (v, l) {
+  Q_FOREACH (v, l) {
     PyTuple_SET_ITEM(result, i, PythonQtConv::QVariantToPyObject(v));
     i++;
   }
@@ -1162,7 +1168,7 @@ PyObject* PythonQtConv::ConvertQListOfPointerTypeToPythonList(QList<void*>* list
 {
   PyObject* result = PyTuple_New(list->count());
   int i = 0;
-  foreach (void* value, *list) {
+  Q_FOREACH (void* value, *list) {
     PyTuple_SET_ITEM(result, i, PythonQt::priv()->wrapPtr(value, typeName));
     i++;
   }

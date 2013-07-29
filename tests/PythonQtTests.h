@@ -383,12 +383,12 @@ public slots:
   QColor  getQColor1(const QColor& var) { _called = true;  return var; }
   QColor  getQColor2(QColor& var) { _called = true;  return var; }
   QColor  getQColor3(QColor* col) { _called = true;  return *col; }
-  QColor  getQColor4(const QVariant& color) { _called = true;  return qVariantValue<QColor>(color); }
+  QColor  getQColor4(const QVariant& color) { _called = true;  return color.value<QColor>(); }
   QColor* getQColor5() { _called = true; static QColor c(1,2,3); return &c; }
 
   PyObject* getPyObject(PyObject* obj) { _called = true; return obj; }
-  PyObject* getPyObjectFromVariant(const QVariant& val) { _called = true; return PythonQtObjectPtr(val); };
-  QVariant  getPyObjectFromVariant2(const QVariant& val) { _called = true; return val; };
+  PyObject* getPyObjectFromVariant(const QVariant& val) { _called = true; return PythonQtObjectPtr(val); }
+  QVariant  getPyObjectFromVariant2(const QVariant& val) { _called = true; return val; }
   // this does not yet work but is not required to work:
   //PyObject* getPyObjectFromPtr(const PythonQtObjectPtr& val) { _called = true; return val; };
 

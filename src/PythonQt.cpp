@@ -251,30 +251,34 @@ void PythonQt::setRedirectStdInCallback(PythonQtInputChangedCB* callback, void *
   sys.setNewRef(PyImport_ImportModule("sys"));
 
   // Backup original 'sys.stdin' if not yet done
-  PyRun_SimpleString("if not hasattr(sys, 'pythonqt_original_stdin'):"
-                     "sys.pythonqt_original_stdin = sys.stdin");
+  if( !PyObject_HasAttrString(sys.object(), "pythonqt_original_stdin") )
+      PyObject_SetAttrString(sys.object(), "pythonqt_original_stdin", PyObject_GetAttrString(sys.object(), "stdin"));
 
   in = PythonQtStdInRedirectType.tp_new(&PythonQtStdInRedirectType, NULL, NULL);
   ((PythonQtStdInRedirect*)in.object())->_cb = callback;
   ((PythonQtStdInRedirect*)in.object())->_callData = callbackData;
   // replace the built in file objects with our own objects
-  PyModule_AddObject(sys, "stdin", in);
+  PyModule_AddObject(sys.object(), "stdin", in);
 
   // Backup custom 'stdin' into 'pythonqt_stdin'
-  PyRun_SimpleString("sys.pythonqt_stdin = sys.stdin");
+  Py_IncRef(in);
+  PyModule_AddObject(sys.object(), "pythonqt_stdin", in);
 }
 
 void PythonQt::setRedirectStdInCallbackEnabled(bool enabled)
 {
+  PythonQtObjectPtr sys;
+  sys.setNewRef(PyImport_ImportModule("sys"));
+
   if (enabled)
     {
-    PyRun_SimpleString("if hasattr(sys, 'pythonqt_stdin'):"
-                       "sys.stdin = sys.pythonqt_stdin");
+      if( !PyObject_HasAttrString(sys.object(), "pythonqt_stdin") )
+          PyObject_SetAttrString(sys.object(), "stdin", PyObject_GetAttrString(sys.object(), "pythonqt_stdin"));
     }
   else
     {
-    PyRun_SimpleString("if hasattr(sys,'pythonqt_original_stdin'):"
-                       "sys.stdin = sys.pythonqt_original_stdin");
+      if( !PyObject_HasAttrString(sys.object(), "pythonqt_original_stdin") )
+          PyObject_SetAttrString(sys.object(), "stdin", PyObject_GetAttrString(sys.object(), "pythonqt_original_stdin"));
     }
 }
 
@@ -1180,7 +1184,7 @@ void PythonQtPrivate::setupSharedLibrarySuffixes()
   _sharedLibrarySuffixes << "_d.so";
   #endif
 #endif
-  foreach (QVariant entry, result.toList()) {
+  Q_FOREACH (QVariant entry, result.toList()) {
     QVariantList suffixEntry = entry.toList();
     if (suffixEntry.count()==3) {
       int code = suffixEntry.at(2).toInt();
@@ -1206,26 +1210,29 @@ void PythonQtPrivate::addDecorators(QObject* o, int decoTypes)
     QMetaMethod m = o->metaObject()->method(i);
     if ((m.methodType() == QMetaMethod::Method ||
       m.methodType() == QMetaMethod::Slot) && m.access() == QMetaMethod::Public) {
-      if (qstrncmp(m.signature(), "new_", 4)==0) {
+// QMetaMethod::signature changed to QMetaMethod::methodSignature in QT5
+#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
+        QByteArray signature = m.methodSignature();
+#else
+        QByteArray signature = m.signature();
+#endif
+      if (signature.startsWith("new_")) {
         if ((decoTypes & ConstructorDecorator) == 0) continue;
         const PythonQtMethodInfo* info = PythonQtMethodInfo::getCachedMethodInfo(m, NULL);
         if (info->parameters().at(0).pointerCount == 1) {
-          QByteArray signature = m.signature();
           QByteArray nameOfClass = signature.mid(4, signature.indexOf('(')-4);
           PythonQtClassInfo* classInfo = lookupClassInfoAndCreateIfNotPresent(nameOfClass);
           PythonQtSlotInfo* newSlot = new PythonQtSlotInfo(NULL, m, i, o, PythonQtSlotInfo::ClassDecorator);
           classInfo->addConstructor(newSlot);
         }
-      } else if (qstrncmp(m.signature(), "delete_", 7)==0) {
+      } else if (signature.startsWith("delete_")) {
         if ((decoTypes & DestructorDecorator) == 0) continue;
-        QByteArray signature = m.signature();
         QByteArray nameOfClass = signature.mid(7, signature.indexOf('(')-7);
         PythonQtClassInfo* classInfo = lookupClassInfoAndCreateIfNotPresent(nameOfClass);
         PythonQtSlotInfo* newSlot = new PythonQtSlotInfo(NULL, m, i, o, PythonQtSlotInfo::ClassDecorator);
         classInfo->setDestructor(newSlot);
-      } else if (qstrncmp(m.signature(), "static_", 7)==0) {
+      } else if (signature.startsWith("static_")) {
         if ((decoTypes & StaticDecorator) == 0) continue;
-        QByteArray signature = m.signature();
         QByteArray nameOfClass = signature.mid(7);
         nameOfClass = nameOfClass.mid(0, nameOfClass.indexOf('_'));
         PythonQtClassInfo* classInfo = lookupClassInfoAndCreateIfNotPresent(nameOfClass);
@@ -1249,7 +1256,7 @@ void PythonQtPrivate::addDecorators(QObject* o, int decoTypes)
 
 void PythonQtPrivate::registerQObjectClassNames(const QStringList& names)
 {
-  foreach(QString name, names) {
+  Q_FOREACH(QString name, names) {
     _knownQObjectClassNames.insert(name.toLatin1(), true);
   }
 }
@@ -1326,7 +1333,7 @@ bool PythonQt::handleError()
     if (_p->_systemExitExceptionHandlerEnabled &&
         PyErr_ExceptionMatches(PyExc_SystemExit)) {
       int exitcode = custom_system_exit_exception_handler();
-      emit PythonQt::self()->systemExitExceptionRaised(exitcode);
+      Q_EMIT PythonQt::self()->systemExitExceptionRaised(exitcode);
       }
     else
       {
@@ -1398,7 +1405,7 @@ void PythonQt::stdOutRedirectCB(const QString& str)
     std::cout << str.toLatin1().data() << std::endl;
     return;
   }
-  emit PythonQt::self()->pythonStdOut(str);
+  Q_EMIT PythonQt::self()->pythonStdOut(str);
 }
 
 void PythonQt::stdErrRedirectCB(const QString& str)
@@ -1407,7 +1414,7 @@ void PythonQt::stdErrRedirectCB(const QString& str)
     std::cerr << str.toLatin1().data() << std::endl;
     return;
   }
-  emit PythonQt::self()->pythonStdErr(str);
+  Q_EMIT PythonQt::self()->pythonStdErr(str);
 }
 
 void PythonQt::setQObjectWrappedCallback(PythonQtQObjectWrappedCB* cb)
@@ -1453,6 +1460,18 @@ void PythonQt::initPythonQtModule(bool redirectStdOut, const QByteArray& pythonQ
     PyModule_AddObject(sys, "stdout", out);
     PyModule_AddObject(sys, "stderr", err);
   }
+
+  // add PythonQt to the list of builtin module names
+  PythonQtObjectPtr sys;
+  sys.setNewRef(PyImport_ImportModule("sys"));
+  PyObject *old_module_names = PyObject_GetAttrString(sys.object(),"builtin_module_names");
+  Py_ssize_t old_size = PyTuple_Size(old_module_names);
+  PyObject *module_names = PyTuple_New(old_size+1);
+  for(Py_ssize_t i = 0; i < old_size; i++)
+      PyTuple_SetItem(module_names, i, PyTuple_GetItem(old_module_names, i));
+  PyTuple_SetItem(module_names, old_size, PyString_FromString(name.constData()));
+  PyModule_AddObject(sys.object(),"builtin_module_names",module_names);
+  Py_DecRef(old_module_names);
 }
 
 QString PythonQt::getReturnTypeOfWrappedMethod(PyObject* module, const QString& name)
@@ -1646,7 +1665,7 @@ void PythonQtPrivate::handleVirtualOverloadReturnError(const char* signature, co
 PyObject* PythonQt::helpCalled(PythonQtClassInfo* info)
 {
   if (_p->_initFlags & ExternalHelp) {
-    emit pythonHelpRequest(QByteArray(info->className()));
+    Q_EMIT pythonHelpRequest(QByteArray(info->className()));
     return Py_BuildValue("");
   } else {
     return PyString_FromString(info->help().toLatin1().data());
@@ -1655,7 +1674,7 @@ PyObject* PythonQt::helpCalled(PythonQtClassInfo* info)
 
 void PythonQt::clearNotFoundCachedMembers()
 {
-  foreach(PythonQtClassInfo* info, _p->_knownClassInfos) {
+  Q_FOREACH(PythonQtClassInfo* info, _p->_knownClassInfos) {
     info->clearNotFoundCachedMembers();
   }
 }
