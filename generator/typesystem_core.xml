@@ -1163,7 +1163,11 @@
   
     <inject-code class="pywrap-h">
   PyObject* data(QByteArray* b) {
+#ifdef PY3K
+    return PyUnicode_FromStringAndSize(b-&gt;data(), b-&gt;size());
+#else
     return PyString_FromStringAndSize(b-&gt;data(), b-&gt;size());
+#endif
   }
     </inject-code>
   
@@ -1948,7 +1952,11 @@
      r.resize(len);
      int result = d-&gt;readRawData(r.data(), r.size());
      if (result&gt;=0) {
+#ifdef PY3K
+       return PyUnicode_FromStringAndSize(r.data(), result);
+#else
        return PyString_FromStringAndSize(r.data(), result);
+#endif
      } else {
        Py_INCREF(Py_None);
        return Py_None;
