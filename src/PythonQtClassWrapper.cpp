@@ -389,9 +389,6 @@ static PyObject *PythonQtClassWrapper_getattro(PyObject *obj, PyObject *name)
   }
 
   // look in Python to support derived Python classes
-#ifdef PY3K
-  return PyObject_GenericGetAttr(obj, name);
-#else
   PyObject* superAttr = PyType_Type.tp_getattro(obj, name);
   if (superAttr) {
     return superAttr;
@@ -418,7 +415,11 @@ static PyObject *PythonQtClassWrapper_getattro(PyObject *obj, PyObject *name)
   }
 
   // look for the internal methods (className(), help())
+#ifdef PY3K
+  PyObject* internalMethod = PyObject_GenericGetAttr(obj, name);
+#else
   PyObject* internalMethod = Py_FindMethod( PythonQtClassWrapper_methods, obj, (char*)attributeName);
+#endif
   if (internalMethod) {
     return internalMethod;
   }
@@ -426,7 +427,6 @@ static PyObject *PythonQtClassWrapper_getattro(PyObject *obj, PyObject *name)
   QString error = QString(wrapper->classInfo()->className()) + " has no attribute named '" + QString(attributeName) + "'";
   PyErr_SetString(PyExc_AttributeError, error.toLatin1().data());
   return NULL;
-#endif
 }
 
 static int PythonQtClassWrapper_setattro(PyObject *obj,PyObject *name,PyObject *value)
@@ -486,7 +486,7 @@ PyTypeObject PythonQtClassWrapper_Type = {
     0,                   /* tp_weaklistoffset */
     0,                   /* tp_iter */
     0,                   /* tp_iternext */
-    0,                   /* tp_methods */
+    PythonQtClassWrapper_methods,                   /* tp_methods */
     0,                   /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */

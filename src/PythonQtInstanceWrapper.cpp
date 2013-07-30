@@ -48,10 +48,6 @@
 #include "PythonQtConversion.h"
 #include "PythonQtClassWrapper.h"
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3K
-#endif
-
 PythonQtClassInfo* PythonQtInstanceWrapperStruct::classInfo()
 {
   // take the class info from our type object
@@ -831,7 +827,7 @@ PyTypeObject PythonQtInstanceWrapper_Type = {
     0,                   /* tp_weaklistoffset */
     0,                   /* tp_iter */
     0,                   /* tp_iternext */
-    0,             /* tp_methods */
+    PythonQtInstanceWrapper_methods,             /* tp_methods */
     0,             /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */

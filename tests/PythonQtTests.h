@@ -170,6 +170,8 @@ public slots:
   void stdErr(const QString&);
 
 private:
+  QString outBuf;
+  QString errBuf;
   bool _passed;
 };
 

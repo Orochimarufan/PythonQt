@@ -105,16 +105,20 @@ endif()
 #-----------------------------------------------------------------------------
 # Find Python
 option(PythonQt_Python3 "Use Python 3.x (3.3+)" OFF)
-if(PythonQt_Python3)
-	set(PythonQt_PythonMin 3.3)
-else(PythonQt_Python3)
-	set(PythonQt_PythonMin 2.6)
+option(PythonQt_Python "Use specific Python Version" OFF)
+if(PythonQt_Python)
+	find_package(Python ${PythonQt_Python} REQUIRED EXACT)
+elseif(PythonQt_Python3)
+	find_package(Python 3.3 REQUIRED)
+else()
+	find_package(Python 2.6 REQUIRED)
 endif()
 
-find_package(Python ${PythonQt_PythonMin} REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 add_definitions(-DPYTHONQT_USE_RELEASE_PYTHON_FALLBACK)
 
+#-----------------------------------------------------------------------------
+# Core
 add_subdirectory(src)
 
 #-----------------------------------------------------------------------------

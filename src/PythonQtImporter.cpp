@@ -51,10 +51,6 @@
 #include <QFile>
 #include <QFileInfo>
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3K
-#endif
-
 #define IS_SOURCE   0x0
 #define IS_BYTECODE 0x1
 #define IS_PACKAGE  0x2

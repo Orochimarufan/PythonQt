@@ -45,10 +45,6 @@
 #include <QTime>
 #include <QDate>
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3K
-#endif
-
 PythonQtValueStorage<qint64, 128>  PythonQtConv::global_valueStorage;
 PythonQtValueStorage<void*, 128>   PythonQtConv::global_ptrStorage;
 PythonQtValueStorageWithCleanup<QVariant, 128> PythonQtConv::global_variantStorage;

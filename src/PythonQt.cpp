@@ -142,7 +142,7 @@ void PythonQt::init(int flags, const QByteArray& pythonQtModuleName)
         Py_INCREF(obj);
         PyModule_AddObject(pack2, names[i], obj);
       } else {
-        std::cerr << "method not found " << names[i];
+        std::cerr << "method not found " << names[i] << std::endl;
       }
     }
   }
@@ -1492,7 +1492,7 @@ static PyMethodDef PythonQtMethods[] = {
 };
 
 #ifdef PY3K
-static PyModuleDef PythonQtModule = {
+static PyModuleDef PythonQtModuleDef = {
   PyModuleDef_HEAD_INIT,
   "",
   NULL,
@@ -1512,18 +1512,19 @@ void PythonQt::initPythonQtModule(bool redirectStdOut, const QByteArray& pythonQ
     name = pythonQtModuleName;
   }
 #ifdef PY3K
-  PythonQtModule.m_name = name.constData();
-  _p->_pythonQtModule = PyModule_Create(&PythonQtModule);
+  PythonQtModuleDef.m_name = name.constData();
+  _p->_pythonQtModule = PyModule_Create(&PythonQtModuleDef);
 #else
   _p->_pythonQtModule = Py_InitModule(name.constData(), PythonQtMethods);
 #endif
   _p->_pythonQtModuleName = name;
 
+  PythonQtObjectPtr sys;
+  sys.setNewRef(PyImport_ImportModule("sys"));
+
   if (redirectStdOut) {
-    PythonQtObjectPtr sys;
     PythonQtObjectPtr out;
     PythonQtObjectPtr err;
-    sys.setNewRef(PyImport_ImportModule("sys"));
     // create a redirection object for stdout and stderr
     out = PythonQtStdOutRedirectType.tp_new(&PythonQtStdOutRedirectType,NULL, NULL);
     ((PythonQtStdOutRedirect*)out.object())->_cb = stdOutRedirectCB;
@@ -1535,8 +1536,6 @@ void PythonQt::initPythonQtModule(bool redirectStdOut, const QByteArray& pythonQ
   }
 
   // add PythonQt to the list of builtin module names
-  PythonQtObjectPtr sys;
-  sys.setNewRef(PyImport_ImportModule("sys"));
   PyObject *old_module_names = PyObject_GetAttrString(sys.object(),"builtin_module_names");
   Py_ssize_t old_size = PyTuple_Size(old_module_names);
   PyObject *module_names = PyTuple_New(old_size+1);
@@ -1549,6 +1548,10 @@ void PythonQt::initPythonQtModule(bool redirectStdOut, const QByteArray& pythonQ
 #endif
   PyModule_AddObject(sys.object(),"builtin_module_names",module_names);
   Py_DecRef(old_module_names);
+
+#ifdef PY3K
+  PyDict_SetItem(PyObject_GetAttrString(sys.object(), "modules"), PyUnicode_FromString(name.constData()), _p->_pythonQtModule.object());
+#endif
 }
 
 QString PythonQt::getReturnTypeOfWrappedMethod(PyObject* module, const QString& name)

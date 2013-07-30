@@ -52,10 +52,6 @@
 
 #include <QByteArray>
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3K
-#endif
-
 #define PYTHONQT_MAX_ARGS 32
 
 
