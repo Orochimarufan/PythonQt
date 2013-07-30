@@ -27,6 +27,8 @@ SET(DIRS
 	pygments
 )
 
+find_package(${PythonQt})
+
 qt_wrap_cpp(GEN_MOC ${HEADERS})
 
 add_executable(NicePyConsole ${SOURCES} ${GEN_MOC})
@@ -36,9 +38,7 @@ else()
 	qt_use_modules(NicePyConsole Core Gui)
 endif()
 
-get_property(PythonQt_lib TARGET ${PythonQt} PROPERTY LOCATION)
-get_property(PythonQt_QtAll_lib TARGET ${PythonQt_QtAll} PROPERTY LOCATION)
-target_link_libraries(NicePyConsole ${PythonQt_lib} ${PythonQt_QtAll_lib} ${PYTHON_LIBRARIES})
+target_link_libraries(NicePyConsole ${PythonQt} ${PythonQt_QtAll} ${PYTHON_LIBRARIES})
 
 foreach(FILE ${FILES})
 	SET(OUT "${CMAKE_CURRENT_BINARY_DIR}/${FILE}")

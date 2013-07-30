@@ -86,7 +86,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 qt_wrap_cpp(GEN_MOC ${SOURCES_MOC})
 qt_add_resources(GEN_QRC ${SOURCES_QRC})
 
-add_library(${PythonQt} SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
+add_library(${PythonQt} SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC})
 if(PythonQt_Qt5)
 	qt_use_modules(${PythonQt} Core Gui Widgets)
 else()
@@ -103,8 +103,37 @@ set_target_properties(${PythonQt} PROPERTIES INSTALL_NAME_DIR "${CMAKE_INSTALL_P
 #-----------------------------------------------------------------------------
 # Install library (on windows, put the dll in 'bin' and the archive in 'lib')
 
-install(TARGETS ${PythonQt}
-				RUNTIME DESTINATION bin
-				LIBRARY DESTINATION lib
-				ARCHIVE DESTINATION lib)
-install(FILES ${headers} DESTINATION include/PythonQt)
+set_target_properties(${PythonQt} PROPERTIES PUBLIC_HEADER "${HEADERS}")
+
+install(TARGETS ${PythonQt} EXPORT ${PythonQt}Targets COMPONENT core-dev
+				RUNTIME DESTINATION bin COMPONENT core
+				LIBRARY DESTINATION lib COMPONENT core
+				ARCHIVE DESTINATION lib COMPONENT core
+				PUBLIC_HEADER DESTINATION include/PythonQt)
+
+#-----------------------------------------------------------------------------
+# Export CMake Config
+
+if(WIN32 AND NOT CYGWIN)
+	set(LIB_CMAKE_PATH "cmake")
+else()
+	set(LIB_CMAKE_PATH "lib/cmake/${PythonQt}")
+endif()
+
+export(TARGETS ${PythonQt} FILE "${PROJECT_BINARY_DIR}/${PythonQt}Targets.cmake")
+export(PACKAGE ${PythonQt})
+
+# build tree
+set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+configure_file(PythonQtConfig.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt}Config.cmake" @ONLY)
+# install tree
+set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/PythonQt")
+configure_file(PythonQtConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt}Config.cmake" @ONLY)
+# both
+configure_file(PythonQtConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake" @ONLY)
+
+install(EXPORT ${PythonQt}Targets DESTINATION "${LIB_CMAKE_PATH}" COMPONENT core-dev)
+install(FILES ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt}Config.cmake
+			  ${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake
+		DESTINATION "${LIB_CMAKE_PATH}" COMPONENT core-dev)
+

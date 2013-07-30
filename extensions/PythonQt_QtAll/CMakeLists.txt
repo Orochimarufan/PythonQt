@@ -138,6 +138,8 @@ endforeach()
 # Build
 set(PythonQt_QtAll ${PythonQt_LibraryName}_QtAll${PythonQt_LibrarySuffix} CACHE INTERNAL "")
 
+find_package(${PythonQt})
+
 include_directories(../../src)
 add_definitions(-DPYTHONQT_QTALL_EXPORTS)
 qt_wrap_cpp(GEN_MOC ${HEADERS})
@@ -151,10 +153,36 @@ endif()
 add_library(${PythonQt_QtAll} SHARED ${SOURCES} ${GEN_MOC})
 qt_use_modules(${PythonQt_QtAll} ${QT})
 
-get_property(PythonQt_lib TARGET ${PythonQt} PROPERTY LOCATION)
-target_link_libraries(${PythonQt_QtAll} ${PythonQt_lib} ${PYTHON_LIBRARIES})
+target_link_libraries(${PythonQt_QtAll} ${PythonQt} ${PYTHON_LIBRARIES})
 
-install(TARGETS ${PythonQt_QtAll}
+install(TARGETS ${PythonQt_QtAll} EXPORT ${PythonQt_QtAll}Targets COMPONENT QtAll
 				RUNTIME DESTINATION bin
 				LIBRARY DESTINATION lib
 				ARCHIVE DESTINATION lib)
+
+#-----------------------------------------------------------------------------
+# Export CMake Config
+
+if(WIN32 AND NOT CYGWIN)
+	set(LIB_CMAKE_PATH "cmake")
+else()
+	set(LIB_CMAKE_PATH "lib/cmake/${PythonQt_QtAll}")
+endif()
+
+export(TARGETS ${PythonQt_QtAll} ${PythonQt} FILE "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}Targets.cmake")
+export(PACKAGE ${PythonQt_QtAll})
+
+# build tree
+set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
+configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}Config.cmake" @ONLY)
+# install tree
+set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/PythonQt/QtAll")
+configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake" @ONLY)
+# both
+configure_file(PythonQt_QtAllConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}ConfigVersion.cmake" @ONLY)
+
+install(EXPORT ${PythonQt_QtAll}Targets DESTINATION "${LIB_CMAKE_PATH}" COMPONENT QtAll-dev)
+install(FILES ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake
+			  ${PROJECT_BINARY_DIR}/${PythonQt_QtAll}ConfigVersion.cmake
+		DESTINATION "${LIB_CMAKE_PATH}" COMPONENT QtAll-dev)
+

@@ -14,6 +14,10 @@ else()
 	remove_definitions(-DPYTHONQT_DEBUG)
 endif()
 
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
 #-----------------------------------------------------------------------------
 # Qt
 option(PythonQt_Qt5 "Use Qt 5.x (5.1+)" OFF)
@@ -110,6 +114,12 @@ else()
 	find_package(Python 2.6 REQUIRED)
 endif()
 
+if(NOT ${PYTHON_VERSION} VERSION_LESS 3)
+	set(PythonQt_Python3 ON)
+else()
+	set(PythonQt_Python3 OFF)
+endif()
+
 include_directories(${PYTHON_INCLUDE_DIRS})
 add_definitions(-DPYTHONQT_USE_RELEASE_PYTHON_FALLBACK)
 
@@ -124,11 +134,11 @@ if(PythonQt_Qt5)
 	set(PythonQt_LibraryName ${PythonQt_LibraryName}5)
 endif()
 
-if(NOT ${PYTHON_VERSION} VERSION_LESS 3)
+if(PythonQt_Python3)
 	set(PythonQt_LibraryName ${PythonQt_LibraryName}_3)
 endif()
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 	set(PythonQt_LibrarySuffix _d)
 endif()
 
@@ -147,13 +157,23 @@ add_dependencies(test PythonQtTest)
 
 #-----------------------------------------------------------------------------
 # Extenseions (QtAll)
-add_subdirectory(extensions EXCLUDE_FROM_ALL)
+add_subdirectory(extensions)
 # QtAll alias
 add_custom_target(QtAll)
-add_dependencies(QtAll PythonQt_QtAll)
+add_dependencies(QtAll ${PythonQt_QtAll})
 
 #-----------------------------------------------------------------------------
 # Examples
 include_directories(src)
 include_directories(extensions/PythonQt_QtAll)
 add_subdirectory(examples EXCLUDE_FROM_ALL)
+
+#-----------------------------------------------------------------------------
+# uninstall target
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+	IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)

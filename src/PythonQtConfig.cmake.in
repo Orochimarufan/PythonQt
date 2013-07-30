@@ -1,0 +1,22 @@
+# - Config file for the PythonQt package
+# It defines the following variables
+#  PythonQt              - the PythonQt core target (PythonQt PythonQt_3 PythonQt5 PythonQt5_3)
+#  PythonQt_INCLUDE_DIRS - include directories for PythonQt
+#  PythonQt_LIBRARIES    - libraries to link against
+
+set(PythonQt @PythonQt@)
+set(PythonQt_Qt5 @PythonQt_Qt5@)
+set(PythonQt_Python3 @PythonQt_Python3@)
+set(PythonQt_Python @PYTHON_VERSION@)
+
+# Compute paths
+get_filename_component(PYTHONQT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(PythonQt_INCLUDE_DIRS "@INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET @PythonQt@)
+  include("${PYTHONQT_CMAKE_DIR}/@PythonQt@Targets.cmake")
+endif()
+
+# These are IMPORTED targets created by @PythonQt@Targets.cmake
+set(PythonQt_LIBRARIES @PythonQt@)
