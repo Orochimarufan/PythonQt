@@ -12,3 +12,8 @@ endmacro()
 macro(qt_add_resources)
   qt5_add_resources(${ARGN})
 endmacro()
+
+# version
+set(QT_VERSION_MAJOR ${Qt5Core_VERSION_MAJOR})
+set(QT_VERSION_MINOR ${Qt5Core_VERSION_MINOR})
+set(QT_VERSION_PATCH ${Qt5Core_VERSION_PATCH})

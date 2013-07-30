@@ -26,11 +26,7 @@ endif(PythonQt_Qt5)
 #-----------------------------------------------------------------------------
 # The variable "generated_cpp_suffix" allows to conditionnally compile the generated wrappers
 # associated with the Qt version being used.
-if(PythonQt_Qt5)
-	set(generated_cpp_suffix "_${Qt5Core_VERSION_MAJOR}${Qt5Core_VERSION_MINOR}")
-else()
-	set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
-endif()
+set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
 
 if("${generated_cpp_suffix}" STREQUAL "_48")
 	set(generated_cpp_suffix "")
@@ -116,6 +112,27 @@ endif()
 
 include_directories(${PYTHON_INCLUDE_DIRS})
 add_definitions(-DPYTHONQT_USE_RELEASE_PYTHON_FALLBACK)
+
+#-----------------------------------------------------------------------------
+# Library Name
+# The variable PythonQt_LibraryName contains the PythonQt core library name
+#   It incorporates library mayor versions
+# The variable PythonQt_LibrarySuffix is "" or "_d", if it is a debug build
+set(PythonQt_LibraryName PythonQt)
+
+if(PythonQt_Qt5)
+	set(PythonQt_LibraryName ${PythonQt_LibraryName}5)
+endif()
+
+if(NOT ${PYTHON_VERSION} VERSION_LESS 3)
+	set(PythonQt_LibraryName ${PythonQt_LibraryName}_3)
+endif()
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	set(PythonQt_LibrarySuffix _d)
+endif()
+
+message(STATUS "Building ${PythonQt_LibraryName}${PythonQt_LibrarySuffix} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHON_VERSION} | ${CMAKE_BUILD_TYPE})")
 
 #-----------------------------------------------------------------------------
 # Core

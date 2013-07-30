@@ -78,35 +78,32 @@ set(SOURCES_MOC
 set(SOURCES_QRC )
 
 #-----------------------------------------------------------------------------
-# Do wrapping
-qt_wrap_cpp(GEN_MOC ${SOURCES_MOC})
-qt_add_resources(GEN_QRC ${SOURCES_QRC})
-
-#-----------------------------------------------------------------------------
 # Build the library
+set(PythonQt ${PythonQt_LibraryName}${PythonQt_LibrarySuffix} CACHE INTERNAL "")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-#add_definitions(-DQT_NO_KEYWORDS) # recent python versions use them :(
+qt_wrap_cpp(GEN_MOC ${SOURCES_MOC})
+qt_add_resources(GEN_QRC ${SOURCES_QRC})
 
-add_library(PythonQt SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
+add_library(${PythonQt} SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
 if(PythonQt_Qt5)
-	qt_use_modules(PythonQt Core Gui Widgets)
+	qt_use_modules(${PythonQt} Core Gui Widgets)
 else()
-	qt_use_modules(PythonQt Core Gui)
+	qt_use_modules(${PythonQt} Core Gui)
 endif()
-target_link_libraries(PythonQt ${PYTHON_LIBRARIES})
+target_link_libraries(${PythonQt} ${PYTHON_LIBRARIES})
 
 #
 # That should solve linkage error on Mac when the project is used in a superbuild setup
 # See http://blog.onesadcookie.com/2008/01/installname-magic.html
 #
-set_target_properties(PythonQt PROPERTIES INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set_target_properties(${PythonQt} PROPERTIES INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
 #-----------------------------------------------------------------------------
 # Install library (on windows, put the dll in 'bin' and the archive in 'lib')
 
-install(TARGETS PythonQt
+install(TARGETS ${PythonQt}
 				RUNTIME DESTINATION bin
 				LIBRARY DESTINATION lib
 				ARCHIVE DESTINATION lib)

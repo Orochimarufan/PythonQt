@@ -1,0 +1,16 @@
+# profile for non-mevis users to link to PythonQt
+
+include ( python.prf )  
+
+INCLUDEPATH += $$PWD/../src
+
+# check if debug or release
+CONFIG(debug, debug|release) {
+  DEBUG_EXT = _d 
+} else {
+  DEBUG_EXT = 
+}
+
+win32-msvc*:LIBS += $$PWD/../lib/PythonQt$${DEBUG_EXT}.lib
+win32-g++:LIBS += $$PWD/../lib/libPythonQt$${DEBUG_EXT}.a
+unix:LIBS += -L$$OUT_PWD/../lib -L$$OUT_PWD/../../lib -lPythonQt$${DEBUG_EXT}

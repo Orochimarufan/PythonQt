@@ -662,20 +662,20 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
   if (wrapper->_wrappedPtr) {
     if (wrapper->_obj) {
 #ifdef PY3K
-      return PyUnicode_FromFormat("%s (C++ Object %p wrapped by %s %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
+      return PyUnicode_FromFormat("<%s C++ Object at %p wrapped by %s at %p>", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
 #else
       return PyString_FromFormat("%s (C++ Object %p wrapped by %s %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
 #endif
     } else {
 #ifdef PY3K
-      return PyUnicode_FromFormat("%s (C++ Object %p)", typeName, wrapper->_wrappedPtr);
+      return PyUnicode_FromFormat("<%s C++ Object at %p>", typeName, wrapper->_wrappedPtr);
 #else
       return PyString_FromFormat("%s (C++ Object %p)", typeName, wrapper->_wrappedPtr);
 #endif
     }
   } else {
 #ifdef PY3K
-    return PyUnicode_FromFormat("%s (QObject %p)", typeName, qobj);
+    return PyUnicode_FromFormat("<%s QObject at %p>", typeName, qobj);
 #else
     return PyString_FromFormat("%s (QObject %p)", typeName, qobj);
 #endif
@@ -698,7 +698,7 @@ static PyObject * PythonQtInstanceWrapper_repr(PyObject * obj)
 #endif
     } else {
 #ifdef PY3K
-      return PyUnicode_FromFormat("%s (%s, at: %p)", typeName, str.toLatin1().constData(), wrapper->_wrappedPtr ? wrapper->_wrappedPtr : qobj);
+      return PyUnicode_FromFormat("<%s %s at %p>", typeName, str.toLatin1().constData(), wrapper->_wrappedPtr ? wrapper->_wrappedPtr : qobj);
 #else
       return PyString_FromFormat("%s (%s, at: %p)", typeName, str.toLatin1().constData(), wrapper->_wrappedPtr ? wrapper->_wrappedPtr : qobj);
 #endif
@@ -707,20 +707,20 @@ static PyObject * PythonQtInstanceWrapper_repr(PyObject * obj)
   if (wrapper->_wrappedPtr) {
     if (wrapper->_obj) {
 #ifdef PY3K
-      return PyUnicode_FromFormat("%s (C++ object at: %p wrapped by %s at: %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
+      return PyUnicode_FromFormat("<%s C++ object at %p wrapped by %s at %p>", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
 #else
       return PyString_FromFormat("%s (C++ object at: %p wrapped by %s at: %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
 #endif
     } else {
 #ifdef PY3K
-      return PyUnicode_FromFormat("%s (C++ object at: %p)", typeName, wrapper->_wrappedPtr);
+      return PyUnicode_FromFormat("<%s C++ object at %p>", typeName, wrapper->_wrappedPtr);
 #else
       return PyString_FromFormat("%s (C++ object at: %p)", typeName, wrapper->_wrappedPtr);
 #endif
     }
   } else {
 #ifdef PY3K
-    return PyUnicode_FromFormat("%s (%s at: %p)", typeName, wrapper->classInfo()->className(), qobj);
+    return PyUnicode_FromFormat("<%s %s at %p>", typeName, wrapper->classInfo()->className(), qobj);
 #else
     return PyString_FromFormat("%s (%s at: %p)", typeName, wrapper->classInfo()->className(), qobj);
 #endif

@@ -23,6 +23,10 @@ SET(FILES
 	module_completion.py
 )
 
+SET(DIRS
+	pygments
+)
+
 qt_wrap_cpp(GEN_MOC ${HEADERS})
 
 add_executable(NicePyConsole ${SOURCES} ${GEN_MOC})
@@ -31,13 +35,27 @@ if(PythonQt_Qt5)
 else()
 	qt_use_modules(NicePyConsole Core Gui)
 endif()
-get_property(PythonQt_lib TARGET PythonQt PROPERTY LOCATION)
-get_property(PythonQt_QtAll_lib TARGET PythonQt_QtAll PROPERTY LOCATION)
+
+get_property(PythonQt_lib TARGET ${PythonQt} PROPERTY LOCATION)
+get_property(PythonQt_QtAll_lib TARGET ${PythonQt_QtAll} PROPERTY LOCATION)
 target_link_libraries(NicePyConsole ${PythonQt_lib} ${PythonQt_QtAll_lib} ${PYTHON_LIBRARIES})
 
 foreach(FILE ${FILES})
-	add_custom_command(OUTPUT ${FILE}
-		COMMAND cp "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}" "${CMAKE_CURRENT_BINARY_DIR}/${FILE}"
+	SET(OUT "${CMAKE_CURRENT_BINARY_DIR}/${FILE}")
+	SET(IN "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
+	add_custom_command(OUTPUT "${OUT}"
+		COMMAND "${CMAKE_COMMAND}" -E copy "${IN}" "${OUT}"
+		MAIN_DEPENDENCY "${IN}"
 	)
-	add_dependencies(NicePyConsole ${FILE})
+	add_dependencies(NicePyConsole "${OUT}")
+endforeach()
+
+foreach(DIR ${DIRS})
+	SET(OUT "${CMAKE_CURRENT_BINARY_DIR}/${DIR}")
+	SET(IN "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
+	add_custom_command(OUTPUT "${OUT}"
+		COMMAND "${CMAKE_COMMAND}" -E copy_directory "${IN}" "${OUT}"
+		MAIN_DEPENDENCY "${IN}"
+	)
+	add_dependencies(NicePyConsole "${OUT}")
 endforeach()
