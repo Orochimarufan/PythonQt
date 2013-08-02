@@ -12,14 +12,16 @@ SET(SOURCES
 #-------------------------------------------------------------------
 # Generated stuff
 SET(GEN ../../generated_cpp${generated_cpp_suffix})
+SET(GEN_HEADERS)
+SET(GEN_SOURCES)
 
 foreach(MODULE core gui network opengl sql svg uitools webkit xml)
 	SET(MODULE_TROLL com_trolltech_qt_${MODULE})
 	SET(MODULE_BASE ${GEN}/${MODULE_TROLL}/${MODULE_TROLL})
 	FILE(GLOB HFILES ${MODULE_BASE}*.h)
 	FILE(GLOB CFILES ${MODULE_BASE}*.cpp)
-	LIST(APPEND HEADERS ${HFILES})
-	LIST(APPEND SOURCES ${CFILES})
+	LIST(APPEND GEN_HEADERS ${HFILES})
+	LIST(APPEND GEN_SOURCES ${CFILES})
 endforeach()
 
 ## Core
@@ -136,13 +138,11 @@ endforeach()
 
 #-------------------------------------------------------------------
 # Build
-set(PythonQt_QtAll ${PythonQt_LibraryName}_QtAll${PythonQt_LibrarySuffix} CACHE INTERNAL "")
-
-find_package(${PythonQt})
+set(PythonQt_QtAll ${PythonQt}_QtAll CACHE INTERNAL "")
 
 include_directories(../../src)
 add_definitions(-DPYTHONQT_QTALL_EXPORTS)
-qt_wrap_cpp(GEN_MOC ${HEADERS})
+qt_wrap_cpp(GEN_MOC ${GEN_HEADERS})
 
 SET(QT Core Gui Network OpenGL Sql Svg UiTools WebKit Xml)
 if(PythonQt_Qt5)
@@ -150,15 +150,18 @@ if(PythonQt_Qt5)
 endif()
 
 
-add_library(${PythonQt_QtAll} SHARED ${SOURCES} ${GEN_MOC})
+add_library(${PythonQt_QtAll} SHARED ${SOURCES} ${HEADERS} ${GEN_SOURCES} ${GEN_MOC})
 qt_use_modules(${PythonQt_QtAll} ${QT})
 
 target_link_libraries(${PythonQt_QtAll} ${PythonQt} ${PYTHON_LIBRARIES})
 
+set_target_properties(${PythonQt_QtAll} PROPERTIES PUBLIC_HEADER "${HEADERS}")
+
 install(TARGETS ${PythonQt_QtAll} EXPORT ${PythonQt_QtAll}Targets COMPONENT QtAll
 				RUNTIME DESTINATION bin
 				LIBRARY DESTINATION lib
-				ARCHIVE DESTINATION lib)
+				ARCHIVE DESTINATION lib
+				PUBLIC_HEADER DESTINATION include/PythonQt)
 
 #-----------------------------------------------------------------------------
 # Export CMake Config
@@ -176,7 +179,7 @@ export(PACKAGE ${PythonQt_QtAll})
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
 configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}Config.cmake" @ONLY)
 # install tree
-set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/PythonQt/QtAll")
+set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
 configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake" @ONLY)
 # both
 configure_file(PythonQt_QtAllConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}ConfigVersion.cmake" @ONLY)

@@ -7,6 +7,10 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
 # Debug
+SET(PythonQt_VERSION 2.2.0)
+
+#-----------------------------------------------------------------------------
+# Debug
 option(PythonQt_DEBUG "Enable/Disable PythonQt debug output" OFF)
 if(PythonQt_DEBUG)
 	add_definitions(-DPYTHONQT_DEBUG)
@@ -20,7 +24,7 @@ endif()
 
 #-----------------------------------------------------------------------------
 # Qt
-option(PythonQt_Qt5 "Use Qt 5.x (5.1+)" OFF)
+option(PythonQt_Qt5 "Use Qt 5.x" OFF)
 if(PythonQt_Qt5)
 	include(PythonQt_Qt_5x)
 else(PythonQt_Qt5)
@@ -125,24 +129,21 @@ add_definitions(-DPYTHONQT_USE_RELEASE_PYTHON_FALLBACK)
 
 #-----------------------------------------------------------------------------
 # Library Name
-# The variable PythonQt_LibraryName contains the PythonQt core library name
+# The variable PythonQt contains the PythonQt core library name
 #   It incorporates library mayor versions
-# The variable PythonQt_LibrarySuffix is "" or "_d", if it is a debug build
-set(PythonQt_LibraryName PythonQt)
+set(PythonQt PythonQt)
 
 if(PythonQt_Qt5)
-	set(PythonQt_LibraryName ${PythonQt_LibraryName}5)
+	set(PythonQt ${PythonQt}5)
 endif()
 
 if(PythonQt_Python3)
-	set(PythonQt_LibraryName ${PythonQt_LibraryName}_3)
+	set(PythonQt ${PythonQt}_3)
 endif()
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-	set(PythonQt_LibrarySuffix _d)
-endif()
+set(CMAKE_DEBUG_POSTFIX "_d")
 
-message(STATUS "Building ${PythonQt_LibraryName}${PythonQt_LibrarySuffix} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHON_VERSION} | ${CMAKE_BUILD_TYPE})")
+message(STATUS "Building ${PythonQt} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHON_VERSION} | ${CMAKE_BUILD_TYPE})")
 
 #-----------------------------------------------------------------------------
 # Core

@@ -27,8 +27,6 @@ SET(DIRS
 	pygments
 )
 
-find_package(${PythonQt})
-
 qt_wrap_cpp(GEN_MOC ${HEADERS})
 
 add_executable(NicePyConsole ${SOURCES} ${GEN_MOC})
