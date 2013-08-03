@@ -176,9 +176,11 @@ export(TARGETS ${PythonQt_QtAll} ${PythonQt} FILE "${PROJECT_BINARY_DIR}/${Pytho
 export(PACKAGE ${PythonQt_QtAll})
 
 # build tree
+set(PythonQt_EXPORT_LOCAL ON)
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
 configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}Config.cmake" @ONLY)
 # install tree
+set(PythonQt_EXPORT_LOCAL OFF)
 set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/PythonQt")
 configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake" @ONLY)
 # both

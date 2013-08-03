@@ -10,7 +10,7 @@ include(CTestUseLaunchers OPTIONAL)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
-# Debug
+# Version
 SET(PythonQt_VERSION 2.2.0)
 
 #-----------------------------------------------------------------------------
