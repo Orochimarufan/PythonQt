@@ -132,16 +132,22 @@ ELSE()
   SET(_PYTHON_SC_INCLUDE "distutils.sysconfig.get_python_inc()")
 ENDIF()
 
-EXECUTE_PROCESS(
-  COMMAND "${PYTHON_EXECUTABLE}" -c "import ${_PYTHON_SYSCONFIG}; import sys; sys.stdout.write(${_PYTHON_SYSCONFIG}.get_config_var('LIBDIR'))"
-  OUTPUT_VARIABLE _PYTHON_LIBRARY_PATH
-)
 IF(WIN32)
   EXECUTE_PROCESS(
-    COMMAND "${PYTHON_EXECUTABLE}" -c "import ${_PYTHON_SYSCONFIG}; import sys; sys.stdout.write(${_PYTHON_SYSCONFIG}.get_config_var('LIBRARY'))"
-    OUTPUT_VARIABLE _PYTHON_LIBRARY_NAME
+    COMMAND "${PYTHON_EXECUTABLE}" -c "import ${_PYTHON_SYSCONFIG}; import sys; sys.stdout.write(${_PYTHON_SYSCONFIG}.get_config_var('prefix'))"
+    OUTPUT_VARIABLE _PYTHON_PREFIX
   )
+  EXECUTE_PROCESS(
+    COMMAND "${PYTHON_EXECUTABLE}" -c "import ${_PYTHON_SYSCONFIG}; import sys; sys.stdout.write(${_PYTHON_SYSCONFIG}.get_config_var('py_version_nodot'))"
+    OUTPUT_VARIABLE _PYTHON_VERSION_MAJOR
+  )
+  SET(_PYTHON_LIBRARY_PATH ${_PYTHON_PREFIX}/libs)
+  SET(_PYTHON_LIBRARY_NAME libpython${_PYTHON_VERSION_MAJOR}.a)
 ELSE(WIN32)
+  EXECUTE_PROCESS(
+    COMMAND "${PYTHON_EXECUTABLE}" -c "import ${_PYTHON_SYSCONFIG}; import sys; sys.stdout.write(${_PYTHON_SYSCONFIG}.get_config_var('LIBDIR'))"
+    OUTPUT_VARIABLE _PYTHON_LIBRARY_PATH
+  )
   EXECUTE_PROCESS(
     COMMAND "${PYTHON_EXECUTABLE}" -c "import ${_PYTHON_SYSCONFIG}; import sys; sys.stdout.write(${_PYTHON_SYSCONFIG}.get_config_var('LDLIBRARY'))"
     OUTPUT_VARIABLE _PYTHON_LIBRARY_NAME

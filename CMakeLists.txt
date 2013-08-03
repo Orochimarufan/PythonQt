@@ -1,6 +1,10 @@
 project(PythonQt)
 cmake_minimum_required(VERSION 2.8.10)
 
+IF(POLICY CMP0020)
+    cmake_policy(SET CMP0020 NEW)
+ENDIF()
+
 include(CTestUseLaunchers OPTIONAL)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})

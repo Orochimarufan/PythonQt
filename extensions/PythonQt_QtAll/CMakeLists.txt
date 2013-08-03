@@ -179,7 +179,7 @@ export(PACKAGE ${PythonQt_QtAll})
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
 configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}Config.cmake" @ONLY)
 # install tree
-set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
+set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/PythonQt")
 configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake" @ONLY)
 # both
 configure_file(PythonQt_QtAllConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}ConfigVersion.cmake" @ONLY)

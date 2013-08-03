@@ -1,5 +1,4 @@
 project(PythonQt_Core)
-cmake_minimum_required(VERSION 2.8.10)
 
 #-----------------------------------------------------------------------------
 # Sources
@@ -80,6 +79,7 @@ set(SOURCES_QRC )
 #-----------------------------------------------------------------------------
 # Build the library
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+add_definitions(-DPYTHONQT_EXPORTS)
 
 qt_wrap_cpp(GEN_MOC ${SOURCES_MOC})
 qt_add_resources(GEN_QRC ${SOURCES_QRC})
@@ -125,7 +125,7 @@ export(PACKAGE ${PythonQt})
 set(INCLUDE_DIRS "${PROJECT_SOURCE_DIR}" "${PROJECT_BINARY_DIR}")
 configure_file(PythonQtConfig.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt}Config.cmake" @ONLY)
 # install tree
-set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
+set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/PythonQt")
 configure_file(PythonQtConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt}Config.cmake" @ONLY)
 # both
 configure_file(PythonQtConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake" @ONLY)
