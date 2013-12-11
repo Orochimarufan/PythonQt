@@ -26,9 +26,9 @@ contains(QT_MAJOR_VERSION, 5) {
   QT += widgets
 }
 
-mac {
-  OTHER_FILES += ../scripts/osx-fix-dylib.sh
-}
+#mac {
+#  OTHER_FILES += ../scripts/osx-fix-dylib.sh
+#}
 
 include ( ../build/common.prf )  
 include ( ../build/python.prf )

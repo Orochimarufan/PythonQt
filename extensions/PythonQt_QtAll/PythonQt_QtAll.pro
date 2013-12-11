@@ -39,9 +39,9 @@ contains(QT_MAJOR_VERSION, 5) {
 }
 
 
-mac {
-  OTHER_FILES += ../../scripts/osx-fix-dylib.sh
-}
+#mac {
+#  OTHER_FILES += ../../scripts/osx-fix-dylib.sh
+#}
 
 
 contains( QT_MAJOR_VERSION, 5 ) {
