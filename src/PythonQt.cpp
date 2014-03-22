@@ -547,7 +547,11 @@ PythonQtClassWrapper* PythonQtPrivate::createNewPythonQtClassWrapper(PythonQtCla
   PyObject* moduleName = PyObject_GetAttrString(parentModule, "__name__");
   PyDict_SetItemString(typeDict, "__module__", moduleName);
   if (info->doc() != "") {
+#ifdef PY3K
+    PyObject* docStr = PyUnicode_FromString(info->doc().data());
+#else
     PyObject* docStr = PyString_FromString(info->doc().data());
+#endif
     PyDict_SetItemString(typeDict, "__doc__", docStr);
     Py_DECREF(docStr);
   }
