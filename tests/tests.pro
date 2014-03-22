@@ -5,15 +5,20 @@
 # --------------------------------------------------
 TARGET   = PythonQtTest
 TEMPLATE = app
+DESTDIR = ../lib
 
-contains(QT_MAJOR_VERSION, 5) {
-  QT += testlib widgets
-} else {
-  CONFIG += qtestlib
+mac {
+   CONFIG -= app_bundle
 }
+
+QT += testlib
 
 include ( ../build/common.prf )
 include ( ../build/PythonQt.prf )
+
+contains(QT_MAJOR_VERSION, 5) {
+  QT += widgets
+}
 
 HEADERS +=                    \
   PythonQtTests.h
@@ -21,3 +26,13 @@ HEADERS +=                    \
 SOURCES +=                    \
   PythonQtTestMain.cpp        \
   PythonQtTests.cpp
+
+# run the tests after compiling
+macx {
+    QMAKE_POST_LINK = cd $${DESTDIR} && ./$${TARGET}
+} else:win32 {
+    QMAKE_POST_LINK = \"$${DESTDIR}/$${TARGET}.exe\"
+} else:unix {
+    # linux
+    QMAKE_POST_LINK = cd $${DESTDIR} && LD_LIBRARY_PATH=$$(LD_LIBRARY_PATH):./ xvfb-run -a ./$${TARGET}
+}

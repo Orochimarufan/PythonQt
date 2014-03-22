@@ -6,4 +6,5 @@ SUBDIRS = CPPPyWrapperExample \
           PyGuiExample \
           PyDecoratorsExample \
           PyScriptingConsole \
-          PyLauncher
+          PyLauncher \
+          NicePyConsole
