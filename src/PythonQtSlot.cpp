@@ -413,8 +413,14 @@ meth_dealloc(PythonQtSlotFunctionObject *m)
 }
 
 static PyObject *
-meth_get__doc__(PythonQtSlotFunctionObject * /*m*/, void * /*closure*/)
+meth_get__doc__(PythonQtSlotFunctionObject *m, void * /*closure*/)
 {
+  if( m->m_ml->doc() != "" )
+#ifdef PY3K
+    return PyUnicode_FromString(m->m_ml->doc().data());
+#else
+    return PyString_FromString(m->m_ml->doc().data());
+#endif
   Py_INCREF(Py_None);
   return Py_None;
 }

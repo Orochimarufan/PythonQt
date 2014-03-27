@@ -569,6 +569,7 @@ public:
     ConstructorDecorator = 2,
     DestructorDecorator = 4,
     InstanceDecorator = 8,
+    DocstringDecorator = 16,
     AllDecorators = 0xffff
   };
 

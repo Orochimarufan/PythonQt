@@ -24,5 +24,11 @@ print yourCpp.doSomething(3);
 # show slots available on yourCpp 
 print dir(yourCpp)
 
+# show docstring of yourCpp
+print yourCpp.__doc__
+
+# show docstring of yourCpp.doSomething
+print yourCpp.doSomething.__doc__
+
 # destructor will be called:
 yourCpp = None

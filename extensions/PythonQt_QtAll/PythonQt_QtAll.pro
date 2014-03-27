@@ -7,7 +7,17 @@ DESTDIR    = ../../lib
 include ( ../../build/common.prf )  
 include ( ../../build/PythonQt.prf )  
 
-CONFIG += dll qt
+CONFIG += qt
+
+
+# allow to choose static linking through the environment variable PYTHONQT_STATIC
+PYTHONQT_STATIC = $$(PYTHONQT_STATIC)
+isEmpty(PYTHONQT_STATIC) {
+  CONFIG += dll
+} else {
+  CONFIG += static
+}
+
 
 DEFINES +=  PYTHONQT_QTALL_EXPORTS
 
@@ -29,9 +39,9 @@ contains(QT_MAJOR_VERSION, 5) {
 }
 
 
-mac {
-  OTHER_FILES += ../../scripts/osx-fix-dylib.sh
-}
+#mac {
+#  OTHER_FILES += ../../scripts/osx-fix-dylib.sh
+#}
 
 
 contains( QT_MAJOR_VERSION, 5 ) {
