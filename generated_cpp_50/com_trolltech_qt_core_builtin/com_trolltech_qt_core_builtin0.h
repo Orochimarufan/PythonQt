@@ -1,7 +1,7 @@
 #include <PythonQt.h>
 #include <QDate>
 #include <QGesture>
-#include <QNoImplicitBoolCast>
+//#include <QNoImplicitBoolCast>
 #include <QObject>
 #include <QStringList>
 #include <QTextDocument>

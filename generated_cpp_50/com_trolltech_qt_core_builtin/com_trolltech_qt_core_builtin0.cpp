@@ -4,7 +4,7 @@
 #include <PythonQtSignalReceiver.h>
 #include <QDate>
 #include <QGesture>
-#include <QNoImplicitBoolCast>
+//#include <QNoImplicitBoolCast>
 #include <QStringList>
 #include <QTextDocument>
 #include <QVariant>
