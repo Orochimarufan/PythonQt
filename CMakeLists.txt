@@ -46,7 +46,9 @@ endif()
 if("${generated_cpp_suffix}" STREQUAL "_46")
 	set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
 endif()
-if("${generated_cpp_suffix}" STREQUAL "_51")
+
+# All 5.x use the same for now
+if("${QT_VERSION_MAJOR}" STREQUAL "5")
 	set(generated_cpp_suffix "_50")
 endif()
 
