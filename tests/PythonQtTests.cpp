@@ -269,19 +269,19 @@ void PythonQtTestSlotCalling::testCppFactory()
 
 }
 
-PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag1(PQCppObject2* obj, PQCppObject2Decorator::TestEnumFlag flag) {
+PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag1(PQCppObject2* /*obj*/, PQCppObject2Decorator::TestEnumFlag flag) {
   return flag;
 }
 
-PQCppObject2::TestEnumFlag PQCppObject2Decorator::testEnumFlag2(PQCppObject2* obj, PQCppObject2::TestEnumFlag flag) {
+PQCppObject2::TestEnumFlag PQCppObject2Decorator::testEnumFlag2(PQCppObject2* /*obj*/, PQCppObject2::TestEnumFlag flag) {
   return flag;
 }
 
 // with int overload
-PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* obj, int flag) {
+PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* /*obj*/, int /*flag*/) {
   return (TestEnumFlag)-1;
 }
-PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* obj, PQCppObject2Decorator::TestEnumFlag flag) {
+PQCppObject2Decorator::TestEnumFlag PQCppObject2Decorator::testEnumFlag3(PQCppObject2* /*obj*/, PQCppObject2Decorator::TestEnumFlag flag) {
   return flag;
 }
 
@@ -538,25 +538,25 @@ void PythonQtTestApi::testQColorDecorators()
   QVERIFY(colorClass.call("red", QVariantList() << QColor(255,0,0)).toInt() == 255);
 }
 
-QByteArray PythonQtTestApiHelper::readFileAsBytes(const QString& filename)
+QByteArray PythonQtTestApiHelper::readFileAsBytes(const QString& /*filename*/)
 {
   QByteArray b;
   return b;
 }
 
-QByteArray PythonQtTestApiHelper::readSourceFile(const QString& filename, bool& ok)
+QByteArray PythonQtTestApiHelper::readSourceFile(const QString& /*filename*/, bool& ok)
 {
   QByteArray b;
   ok = true;
   return b;
 }
 
-bool PythonQtTestApiHelper::exists(const QString& filename)
+bool PythonQtTestApiHelper::exists(const QString& /*filename*/)
 {
   return true;
 }
 
-QDateTime PythonQtTestApiHelper::lastModifiedDate(const QString& filename) {
+QDateTime PythonQtTestApiHelper::lastModifiedDate(const QString& /*filename*/) {
   return QDateTime::currentDateTime();
 }
 

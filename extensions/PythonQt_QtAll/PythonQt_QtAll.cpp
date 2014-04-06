@@ -61,7 +61,5 @@ namespace PythonQt_QtAll
     // Does not compile yet:
 //    PythonQt_init_QtXmlPatterns(0);
 //    PythonQt_init_QtPhonon(0);
-  };
-};
-
-
+  }
+}
