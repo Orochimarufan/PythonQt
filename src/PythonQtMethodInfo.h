@@ -101,6 +101,12 @@ public:
   //! add an alias for a typename, e.g. QObjectList and QList<QObject*>.
   static void addParameterTypeAlias(const QByteArray& alias, const QByteArray& name);
 
+  //! set the docstirng
+  void setDoc(const QString& str) {_doc = str;}
+
+  //! get the docstring
+  const QString& doc() const {return _doc; }
+
   protected:
   static void fillParameterInfo(ParameterInfo& type, const QByteArray& name, PythonQtClassInfo* classInfo);
 
@@ -111,6 +117,9 @@ public:
   static QHash<QByteArray, PythonQtMethodInfo*> _cachedSignatures;
 
   QList<ParameterInfo> _parameters;
+
+  //! stores the docstring
+  QString  _doc;
 };
 
 //! stores information about a slot, including a next pointer to overloaded slots

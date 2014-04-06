@@ -187,6 +187,12 @@ public:
   //! clear all members that where cached as "NotFound"
   void clearNotFoundCachedMembers();
 
+  //! set the python docstring (__doc__) for this class
+  void setDoc(const QString& str) {_doc=str;}
+
+  //! get the python docstring (__doc__) for this class
+  const QString& doc() const {return _doc;}
+
 private:
   void createEnumWrappers();
   void createEnumWrappers(const QMetaObject* meta);
@@ -238,6 +244,8 @@ private:
 
   bool                                 _isQObject;
   bool                                 _enumsCreated;
+
+  QString                              _doc;
   
 };
 

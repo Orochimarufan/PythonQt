@@ -89,6 +89,13 @@ public slots:
 
   // add a method to your own CPP object
   int doSomething(YourCPPObject* obj, int arg1) { return obj->doSomething(arg1); }
+
+  // add a docstring to your own CPP object
+  QString doc_YourCPPObject() {return "A C++ Class object";}
+
+  // add a docstrint to YourCPPObject::doSomething
+  QString doc_YourCPPObject_doSomething() {return "this function does something";}
+
 };
 
 
