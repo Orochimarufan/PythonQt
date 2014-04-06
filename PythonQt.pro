@@ -1,4 +1,10 @@
 TEMPLATE = subdirs
 
 CONFIG += ordered
-SUBDIRS = generator src extensions tests examples
+SUBDIRS = src extensions tests examples
+
+#contains(QT_MAJOR_VERSION, 5) {
+#SUBDIRS += generator_50
+#} else {
+#SUBDIRS += generator
+#}

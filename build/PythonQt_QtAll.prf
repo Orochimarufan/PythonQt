@@ -9,5 +9,25 @@ CONFIG(debug, debug|release) {
   DEBUG_EXT = 
 }
 
-win32::LIBS += $$PWD/../lib/PythonQt_QtAll$${DEBUG_EXT}.lib
-unix::LIBS += -L$$PWD/../lib -lPythonQt_QtAll$${DEBUG_EXT}
+win32-msvc* {
+  LIBS += $$PWD/$$DESTDIR/PythonQt_QtAll$${DEBUG_EXT}.lib
+} else {
+  LIBS += -L$$OUT_PWD/$$DESTDIR -lPythonQt_QtAll$${DEBUG_EXT}
+}
+
+
+# statically link PythonQt?
+PYTHONQT_STATIC = $$(PYTHONQT_STATIC)
+isEmpty(PYTHONQT_STATIC) {
+} else {
+  # static linking
+  QT += webkit gui svg sql network xml opengl
+
+  contains(QT_MAJOR_VERSION, 5) {
+    QT += widgets webkitwidgets
+    QT += uitools
+  } else {
+    CONFIG += uitools
+  }
+}
+ 

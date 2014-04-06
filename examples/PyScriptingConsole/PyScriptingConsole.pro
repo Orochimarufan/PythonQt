@@ -9,11 +9,15 @@ TEMPLATE = app
 
 DESTDIR           = ../../lib
 
+contains(QT_MAJOR_VERSION, 5) {
+  QT += widgets
+}
+
 mac:CONFIG-= app_bundle
 
 include ( ../../build/common.prf )  
 include ( ../../build/PythonQt.prf )  
-include ( ../../build/PythonQt_QtAll.prf )  
+include ( ../../build/PythonQt_QtAll.prf )
 
 HEADERS +=                    \
   PyExampleObject.h             

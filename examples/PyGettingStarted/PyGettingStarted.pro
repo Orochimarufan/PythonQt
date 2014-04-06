@@ -11,6 +11,10 @@ DESTDIR           = ../../lib
 
 CONFIG += console
 
+contains(QT_MAJOR_VERSION, 5) {
+  QT += widgets
+}
+
 include ( ../../build/common.prf )  
 include ( ../../build/PythonQt.prf )  
 
