@@ -546,6 +546,11 @@ PythonQtClassWrapper* PythonQtPrivate::createNewPythonQtClassWrapper(PythonQtCla
   PyObject* typeDict = PyDict_New();
   PyObject* moduleName = PyObject_GetAttrString(parentModule, "__name__");
   PyDict_SetItemString(typeDict, "__module__", moduleName);
+  if (!info->doc().isNull()) {
+    PyObject* docStr = PythonQtConv::QStringToPyObject(info->doc());
+    PyDict_SetItemString(typeDict, "__doc__", docStr);
+    Py_DECREF(docStr);
+  }
 
   PyObject* args  = Py_BuildValue("OOO", className, baseClasses, typeDict);
 
@@ -1283,6 +1288,28 @@ void PythonQtPrivate::addDecorators(QObject* o, int decoTypes)
         PythonQtClassInfo* classInfo = lookupClassInfoAndCreateIfNotPresent(nameOfClass);
         PythonQtSlotInfo* newSlot = new PythonQtSlotInfo(NULL, m, i, o, PythonQtSlotInfo::ClassDecorator);
         classInfo->addDecoratorSlot(newSlot);
+      } else if (signature.startsWith("doc_")) {
+        if ((decoTypes & DocstringDecorator) == 0) continue;
+        QByteArray nameOfClassAndMethod = signature.mid(4, signature.indexOf('(')-4);
+        QList<QByteArray> nameOfClassAndMethodAsList = nameOfClassAndMethod.split('_');
+        QByteArray nameOfClass = nameOfClassAndMethodAsList.at(0);
+        PythonQtClassInfo* classInfo = lookupClassInfoAndCreateIfNotPresent(nameOfClass);
+        // TODO: make shure that the function does not take arguments and returns a QString
+        QString docString;
+        void* argList[1] = {&docString};
+        o->qt_metacall(QMetaObject::InvokeMetaMethod, i, argList);
+        if( nameOfClassAndMethodAsList.size() == 1 ) {
+          // __doc__ of class itself
+          classInfo->setDoc(docString);
+        } else {
+          // __doc__ of class method (e.g. public slot)
+          QByteArray nameOfMethod = nameOfClassAndMethodAsList.at(1);
+          PythonQtMemberInfo member = classInfo->member(nameOfMethod);
+          // check if we really found a slot
+          if( member._type == PythonQtMemberInfo::Slot || member._type == PythonQtMemberInfo::Signal ) {
+            member._slot->setDoc(docString);
+          }
+        }
       } else {
         if ((decoTypes & InstanceDecorator) == 0) continue;
         const PythonQtMethodInfo* info = PythonQtMethodInfo::getCachedMethodInfo(m, NULL);

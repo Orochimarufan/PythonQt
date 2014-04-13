@@ -602,6 +602,9 @@ QString PythonQtClassInfo::help()
   decorator();
   QString h;
   h += QString("--- ") + QString(className()) + QString(" ---\n");
+
+  if (!_doc.isNull())
+      h += "Description:\n" + _doc + "\n";
   
   if (_isQObject) {
     h += "Properties:\n";

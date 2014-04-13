@@ -413,8 +413,10 @@ meth_dealloc(PythonQtSlotFunctionObject *m)
 }
 
 static PyObject *
-meth_get__doc__(PythonQtSlotFunctionObject * /*m*/, void * /*closure*/)
+meth_get__doc__(PythonQtSlotFunctionObject *m, void * /*closure*/)
 {
+  if( !m->m_ml->doc().isEmpty() )
+    return PythonQtConv::QStringToPyObject(m->m_ml->doc());
   Py_INCREF(Py_None);
   return Py_None;
 }

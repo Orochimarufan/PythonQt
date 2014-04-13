@@ -7,7 +7,17 @@ DESTDIR    = ../../lib
 include ( ../../build/common.prf )  
 include ( ../../build/PythonQt.prf )  
 
-CONFIG += dll qt
+CONFIG += qt
+
+
+# allow to choose static linking through the environment variable PYTHONQT_STATIC
+PYTHONQT_STATIC = $$(PYTHONQT_STATIC)
+isEmpty(PYTHONQT_STATIC) {
+  CONFIG += dll
+} else {
+  CONFIG += static
+}
+
 
 DEFINES +=  PYTHONQT_QTALL_EXPORTS
 
@@ -17,7 +27,6 @@ HEADERS +=                \
 SOURCES +=                \
   PythonQt_QtAll.cpp
 
-CONFIG += uitools
 QT += webkit gui svg sql network xml xmlpatterns opengl
 #QT += phonon
 
