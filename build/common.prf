@@ -16,8 +16,9 @@
 CONFIG(debug, debug|release) {
   TARGET = $${TARGET}_d 
 }
-mac {
-    QMAKE_POST_LINK += bash $$PWD/../scripts/osx-fix-dylib.sh
-}
+# script for MacOSX, not needed in PythonQt itself, but perhaps for other projects
+#mac {
+#    QMAKE_POST_LINK += bash $$PWD/../scripts/osx-fix-dylib.sh
+#}
 
 #message("Directory - Build-Target: "$$PWD - $$TARGET)
