@@ -49,7 +49,7 @@
 
 #include <QWidget>
 #include <QList>
-#include <vector>
+#include <QVector>
 
 typedef PyObject* PythonQtConvertMetaTypeToPythonCB(const void* inObject, int metaTypeId);
 typedef bool PythonQtConvertPythonToMetaTypeCB(PyObject* inObject, void* outObject, int metaTypeId, bool strict);
@@ -62,8 +62,7 @@ PythonQtConv::registerMetaTypeToPythonConverter(typeId, PythonQtConvertListOfVal
 
 #define PythonQtRegisterToolClassesTemplateConverter(innertype) \
   PythonQtRegisterListTemplateConverter(QList, innertype); \
-  PythonQtRegisterListTemplateConverter(QVector, innertype); \
-  PythonQtRegisterListTemplateConverter(std::vector, innertype);
+  PythonQtRegisterListTemplateConverter(QVector, innertype);
 // TODO: add QHash etc. here!
 
 //! a static class that offers methods for type conversion
@@ -168,7 +167,7 @@ PyObject* PythonQtConvertListOfValueTypeToPythonList(const void* /*QList<T>* */ 
   ListType* list = (ListType*)inList; 
   static const int innerType = PythonQtConv::getInnerTemplateMetaType(QByteArray(QMetaType::typeName(metaTypeId)));
   if (innerType == QVariant::Invalid) {
-    std::cerr << "PythonQtConvertListOfValueTypeToPythonList: unknown inner type " << QMetaType::typeName(metaTypeId) << std::endl;
+    qWarning() << "PythonQtConvertListOfValueTypeToPythonList: unknown inner type " << QMetaType::typeName(metaTypeId);
   }
   PyObject* result = PyTuple_New(list->size());
   int i = 0;
@@ -185,7 +184,7 @@ bool PythonQtConvertPythonListToListOfValueType(PyObject* obj, void* /*QList<T>*
   ListType* list = (ListType*)outList; 
   static const int innerType = PythonQtConv::getInnerTemplateMetaType(QByteArray(QMetaType::typeName(metaTypeId)));
   if (innerType == QVariant::Invalid) {
-    std::cerr << "PythonQtConvertPythonListToListOfValueType: unknown inner type " << QMetaType::typeName(metaTypeId) << std::endl;
+    qWarning() << "PythonQtConvertPythonListToListOfValueType: unknown inner type " << QMetaType::typeName(metaTypeId);
   }
   bool result = false;
   if (PySequence_Check(obj)) {

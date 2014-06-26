@@ -45,7 +45,6 @@
 #include "PythonQtClassInfo.h"
 #include "PythonQtMisc.h"
 #include "PythonQtConversion.h"
-#include <iostream>
 
 #include <exception>
 #include <stdexcept>
@@ -301,7 +300,7 @@ PyObject *PythonQtSlotFunction_CallImpl(PythonQtClassInfo* classInfo, QObject* o
   int argc = args?PyTuple_Size(args):0;
 
 #ifdef PYTHONQT_DEBUG
-  std::cout << "called " << info->metaMethod()->typeName() << " " << info->metaMethod()->signature() << std::endl;
+  qDebug() << "called " << info->metaMethod()->typeName() << " " << info->metaMethod()->signature();
 #endif
 
   PyObject* r = NULL;

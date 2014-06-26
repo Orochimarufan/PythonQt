@@ -204,7 +204,7 @@ PyObject* PythonQtConv::ConvertQtValueToPythonInternal(int type, const void* dat
         wrap->_useQMetaTypeDestroy = true;
         return (PyObject*)wrap;
       }
-      std::cerr << "Unknown type that can not be converted to Python: " << type << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+      qWarning() << "Unknown type that can not be converted to Python: " << type << ", in " << __FILE__ << ":" << __LINE__;
     }
 }
 Py_INCREF(Py_None);

@@ -140,9 +140,9 @@ bool PythonQtClassInfo::lookForPropertyAndCache(const char* memberName)
     if (nameMapped) {
       _cachedMembers.insert(memberName, newInfo);
     }
-  #ifdef PYTHONQT_DEBUG
-    std::cout << "caching property " << memberName << " on " << _meta->className() << std::endl;
-  #endif
+#ifdef PYTHONQT_DEBUG
+    qDebug() << "caching property " << memberName << " on " << _meta->className();
+#endif
     found = true;
   }
   return found;
@@ -281,13 +281,13 @@ bool PythonQtClassInfo::lookForEnumAndCache(const QMetaObject* meta, const char*
           enumValuePtr.setNewRef(PythonQtPrivate::createEnumValueInstance(enumType, e.value(j)));
           PythonQtMemberInfo newInfo(enumValuePtr);
           _cachedMembers.insert(memberName, newInfo);
-  #ifdef PYTHONQT_DEBUG
-          std::cout << "caching enum " << memberName << " on " << meta->className() << std::endl;
-  #endif
+#ifdef PYTHONQT_DEBUG
+          qDebug() << "caching enum " << memberName << " on " << meta->className();
+#endif
           found = true;
           break;
         } else {
-          std::cout << "enum " << e.name() << " not found on " << className() << std::endl;
+          qWarning() << "enum " << e.name() << " not found on " << className();
         }
       }
     }

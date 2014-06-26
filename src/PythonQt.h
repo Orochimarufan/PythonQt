@@ -55,7 +55,6 @@
 #include <QByteArray>
 #include <QStringList>
 #include <QtDebug>
-#include <iostream>
 
 
 class PythonQtClassInfo;

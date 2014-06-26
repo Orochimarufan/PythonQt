@@ -359,7 +359,7 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
           PyDict_SetItemString(dict, name.toLatin1().data(), o);
           Py_DECREF(o);
         } else {
-          std::cerr << "PythonQtInstanceWrapper: something is wrong, could not get attribute " << name.toLatin1().data();
+          qWarning() << "PythonQtInstanceWrapper: something is wrong, could not get attribute " << name.toLatin1().data();
         }
       }
 
@@ -370,7 +370,7 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
           PyDict_SetItemString(dict, name.data(), o);
           Py_DECREF(o);
         } else {
-          std::cerr << "PythonQtInstanceWrapper: dynamic property could not be read " << name.data();
+          qWarning() << "PythonQtInstanceWrapper: dynamic property could not be read " << name.data();
         }
       }
     }
