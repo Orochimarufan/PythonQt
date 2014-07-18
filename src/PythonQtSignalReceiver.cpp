@@ -154,7 +154,7 @@ PythonQtSignalReceiver::PythonQtSignalReceiver(QObject* obj):PythonQtSignalRecei
     _destroyedSignal1Id = QObject::staticMetaObject.indexOfSignal("destroyed()");
     _destroyedSignal2Id = QObject::staticMetaObject.indexOfSignal("destroyed(QObject*)");
     if (_destroyedSignal1Id == -1 || _destroyedSignal2Id == -1) {
-      std::cerr << "PythonQt: could not find destroyed signal index, should never happen!" << std::endl;
+      qWarning() << "PythonQt: could not find destroyed signal index, should never happen!";
     }
   }
 

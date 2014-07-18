@@ -85,7 +85,9 @@ void PythonQtScriptingConsole::stdOut(const QString& s)
   int idx;
   while ((idx = _stdOut.indexOf('\n'))!=-1) {
     consoleMessage(_stdOut.left(idx));
-    std::cout << _stdOut.left(idx).toLatin1().data() << std::endl;
+#ifdef PYTHONQT_DEBUG
+    qDebug() << _stdOut.left(idx).toLatin1().data();
+#endif
     _stdOut = _stdOut.mid(idx+1);
   }
 }
@@ -97,7 +99,9 @@ void PythonQtScriptingConsole::stdErr(const QString& s)
   int idx;
   while ((idx = _stdErr.indexOf('\n'))!=-1) {
     consoleMessage(_stdErr.left(idx));
-    std::cerr << _stdErr.left(idx).toLatin1().data() << std::endl;
+#ifdef PYTHONQT_DEBUG
+    qWarning() << _stdErr.left(idx).toLatin1().data();
+#endif
     _stdErr = _stdErr.mid(idx+1);
   }
 }

@@ -53,7 +53,7 @@
 #include "PythonQtStdDecorators.h"
 #include "PythonQtQFileImporter.h"
 #include <pydebug.h>
-#include <vector>
+
 
 PythonQt* PythonQt::_self = NULL;
 int       PythonQt::_uniqueModuleCount = 0;
@@ -142,7 +142,7 @@ void PythonQt::init(int flags, const QByteArray& pythonQtModuleName)
         Py_INCREF(obj);
         PyModule_AddObject(pack2, names[i], obj);
       } else {
-        std::cerr << "method not found " << names[i] << std::endl;
+        qWarning() << "method not found " << names[i];
       }
     }
   }
@@ -180,12 +180,12 @@ PythonQt::PythonQt(int flags, const QByteArray& pythonQtModuleName)
 
   // add our own python object types for qt object slots
   if (PyType_Ready(&PythonQtSlotFunction_Type) < 0) {
-    std::cerr << "could not initialize PythonQtSlotFunction_Type" << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+    qWarning() << "could not initialize PythonQtSlotFunction_Type" << ", in " << __FILE__ << ":" << __LINE__;
   }
   Py_INCREF(&PythonQtSlotFunction_Type);
 
   if (PyType_Ready(&PythonQtSignalFunction_Type) < 0) {
-    std::cerr << "could not initialize PythonQtSignalFunction_Type" << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+    qWarning() << "could not initialize PythonQtSignalFunction_Type" << ", in " << __FILE__ << ":" << __LINE__;
   }
   Py_INCREF(&PythonQtSignalFunction_Type);
 
@@ -193,26 +193,26 @@ PythonQt::PythonQt(int flags, const QByteArray& pythonQtModuleName)
   PythonQtClassWrapper_Type.tp_base = &PyType_Type;
   // add our own python object types for classes
   if (PyType_Ready(&PythonQtClassWrapper_Type) < 0) {
-    std::cerr << "could not initialize PythonQtClassWrapper_Type" << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+    qWarning() << "could not initialize PythonQtClassWrapper_Type" << ", in " << __FILE__ << ":" << __LINE__;
   }
   Py_INCREF(&PythonQtClassWrapper_Type);
 
   // add our own python object types for CPP instances
   if (PyType_Ready(&PythonQtInstanceWrapper_Type) < 0) {
     PythonQt::handleError();
-    std::cerr << "could not initialize PythonQtInstanceWrapper_Type" << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+    qWarning() << "could not initialize PythonQtInstanceWrapper_Type" << ", in " << __FILE__ << ":" << __LINE__;
   }
   Py_INCREF(&PythonQtInstanceWrapper_Type);
 
   // add our own python object types for redirection of stdout
   if (PyType_Ready(&PythonQtStdOutRedirectType) < 0) {
-    std::cerr << "could not initialize PythonQtStdOutRedirectType" << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+    qWarning() << "could not initialize PythonQtStdOutRedirectType" << ", in " << __FILE__ << ":" << __LINE__;
   }
   Py_INCREF(&PythonQtStdOutRedirectType);
 
   // add our own python object types for redirection of stdin
   if (PyType_Ready(&PythonQtStdInRedirectType) < 0) {
-    std::cerr << "could not initialize PythonQtStdInRedirectType" << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+    qWarning() << "could not initialize PythonQtStdInRedirectType" << ", in " << __FILE__ << ":" << __LINE__;
   }
   Py_INCREF(&PythonQtStdInRedirectType);
 
@@ -246,7 +246,7 @@ void PythonQt::setRedirectStdInCallback(PythonQtInputChangedCB* callback, void *
 {
   if (!callback)
     {
-    std::cerr << "PythonQt::setRedirectStdInCallback - callback parameter is NULL !" << std::endl;
+    qWarning() << "PythonQt::setRedirectStdInCallback - callback parameter is NULL !";
     return;
     }
 
@@ -1011,7 +1011,7 @@ QStringList PythonQt::introspectObject(PyObject* object, ObjectType type)
             }
             break;
           default:
-            std::cerr << "PythonQt: introspection: unknown case" << ", in " << __FILE__ << ":" << __LINE__ << std::endl;
+            qWarning() << "PythonQt: introspection: unknown case" << ", in " << __FILE__ << ":" << __LINE__;
           }
         }
         Py_DECREF(value);
@@ -1355,12 +1355,12 @@ int custom_system_exit_exception_handler()
 
   PyErr_Fetch(&exception, &value, &tb);
 #ifdef PY3K
-  std::cout << std::endl;
+  //std::cout;
 #else
   if (Py_FlushLine())
     PyErr_Clear();
 #endif
-  fflush(stdout);
+  //fflush(stdout);
   if (value == NULL || value == Py_None)
     goto done;
   if (PyExceptionInstance_Check(value)) {
@@ -1483,7 +1483,7 @@ void PythonQt::setModuleImportPath(PyObject* module, const QStringList& paths)
 void PythonQt::stdOutRedirectCB(const QString& str)
 {
   if (!PythonQt::self()) {
-    std::cout << str.toLatin1().data() << std::endl;
+    qDebug() << str.toLatin1().data();
     return;
   }
   Q_EMIT PythonQt::self()->pythonStdOut(str);
@@ -1492,7 +1492,7 @@ void PythonQt::stdOutRedirectCB(const QString& str)
 void PythonQt::stdErrRedirectCB(const QString& str)
 {
   if (!PythonQt::self()) {
-    std::cerr << str.toLatin1().data() << std::endl;
+    qWarning() << str.toLatin1().data();
     return;
   }
   Q_EMIT PythonQt::self()->pythonStdErr(str);

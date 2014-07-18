@@ -47,11 +47,6 @@
 #include "PythonQtConversion.h"
 #include "PythonQtSlot.h"
 
-#include <iostream>
-
-#include <exception>
-#include <stdexcept>
-
 #include <QByteArray>
 
 //-----------------------------------------------------------------------------------

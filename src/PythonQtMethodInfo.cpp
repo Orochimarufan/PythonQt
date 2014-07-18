@@ -41,7 +41,10 @@
 
 #include "PythonQtMethodInfo.h"
 #include "PythonQtClassInfo.h"
-#include <iostream>
+
+#ifdef PYTHONQT_DEBUG
+#include <QtDebug>
+#endif
 
 QHash<QByteArray, PythonQtMethodInfo*> PythonQtMethodInfo::_cachedSignatures;
 QHash<QByteArray, QByteArray> PythonQtMethodInfo::_parameterNameAliases;
@@ -56,7 +59,7 @@ PythonQtMethodInfo::PythonQtMethodInfo(const QMetaMethod& meta, PythonQtClassInf
 #endif
   sig = sig.mid(sig.indexOf('('));
   QByteArray fullSig = QByteArray(meta.typeName()) + " " + sig;
-  std::cout << "caching " << fullSig.data() << std::endl;
+  qDebug() << "caching " << fullSig.data();
 #endif
 
   ParameterInfo type;
