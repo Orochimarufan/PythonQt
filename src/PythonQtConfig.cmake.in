@@ -7,7 +7,7 @@
 set(PythonQt @PythonQt@)
 set(PythonQt_Qt5 @PythonQt_Qt5@)
 set(PythonQt_Python3 @PythonQt_Python3@)
-set(PythonQt_Python @PYTHON_VERSION@)
+set(PythonQt_Python @PYTHONLIBS_VERSION_STRING@)
 
 # Compute paths
 get_filename_component(PYTHONQT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)

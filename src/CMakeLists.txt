@@ -79,12 +79,18 @@ set(SOURCES_QRC )
 #-----------------------------------------------------------------------------
 # Build the library
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_definitions(-DPYTHONQT_EXPORTS)
 
 qt_wrap_cpp(GEN_MOC ${SOURCES_MOC})
 qt_add_resources(GEN_QRC ${SOURCES_QRC})
 
-add_library(${PythonQt} SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
+add_library(${PythonQt} ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
+
+if(CMAKE_BUILD_SHARED_LIBS)
+	target_compile_definitions(${PythonQt} PRIVATE PYTHONQT_EXPORTS)
+else(CMAKE_BUILD_SHARED_LIBS)
+	target_compile_definitions(${PythonQt} PUBLIC PYTHONQT_STATIC)
+endif(CMAKE_BUILD_SHARED_LIBS)
+
 if(PythonQt_Qt5)
 	qt_use_modules(${PythonQt} Core Gui Widgets)
 else()
