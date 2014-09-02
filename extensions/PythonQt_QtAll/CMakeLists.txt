@@ -150,7 +150,7 @@ if(PythonQt_Qt5)
 endif()
 
 
-add_library(${PythonQt_QtAll} SHARED ${SOURCES} ${HEADERS} ${GEN_SOURCES} ${GEN_MOC})
+add_library(${PythonQt_QtAll} ${SOURCES} ${HEADERS} ${GEN_SOURCES} ${GEN_MOC})
 qt_use_modules(${PythonQt_QtAll} ${QT})
 
 target_link_libraries(${PythonQt_QtAll} ${PythonQt} ${PYTHON_LIBRARIES})
