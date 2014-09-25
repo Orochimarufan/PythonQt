@@ -149,7 +149,7 @@ endif()
 
 set(CMAKE_DEBUG_POSTFIX "_d")
 
-message(STATUS "Building ${PythonQt} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHON_VERSION} | ${CMAKE_BUILD_TYPE})")
+message(STATUS "Building ${PythonQt} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE})")
 
 #-----------------------------------------------------------------------------
 # Core
