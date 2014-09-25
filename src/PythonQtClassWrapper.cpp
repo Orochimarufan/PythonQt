@@ -260,8 +260,9 @@ static int PythonQtClassWrapper_init(PythonQtClassWrapper* self, PyObject* args,
     //  ...
     // class MyWidget(MyWidgetBase):
     //  ...
-    while( superType && Py_TYPE(superType) != &PythonQtClassWrapper_Type )
-        superType = superType->tp_base;
+    while (superType && Py_TYPE(superType) != &PythonQtClassWrapper_Type) {
+      superType = superType->tp_base;
+    }
 
     if (!superType || (Py_TYPE(superType) != &PythonQtClassWrapper_Type)) {
       PyErr_Format(PyExc_TypeError, "type %s is not derived from PythonQtClassWrapper", ((PyTypeObject*)self)->tp_name);
@@ -277,11 +278,7 @@ static int PythonQtClassWrapper_init(PythonQtClassWrapper* self, PyObject* args,
 
 static PyObject *PythonQtClassWrapper_classname(PythonQtClassWrapper* type)
 {
-#ifdef PY3K
-  return PyUnicode_FromString((QString("Class_") + type->classInfo()->className()).toLatin1().data());
-#else
   return PyString_FromString((QString("Class_") + type->classInfo()->className()).toLatin1().data());
-#endif
 }
 
 static PyObject *PythonQtClassWrapper_help(PythonQtClassWrapper* type)
@@ -337,11 +334,7 @@ static PyObject *PythonQtClassWrapper_getattro(PyObject *obj, PyObject *name)
   const char *attributeName;
   PythonQtClassWrapper *wrapper = (PythonQtClassWrapper *)obj;
 
-#ifdef PY3K
-  if ((attributeName = PyUnicode_AsUTF8(name)) == NULL) {
-#else
   if ((attributeName = PyString_AsString(name)) == NULL) {
-#endif
     return NULL;
   }
   if (obj == (PyObject*)&PythonQtInstanceWrapper_Type) {
@@ -368,11 +361,7 @@ static PyObject *PythonQtClassWrapper_getattro(PyObject *obj, PyObject *name)
       }
     }
     if (wrapper->classInfo()->constructors()) {
-#ifdef PY3K
-      PyObject* initName = PyUnicode_FromString("__init__");
-#else
       PyObject* initName = PyString_FromString("__init__");
-#endif
       PyObject* func = PyType_Type.tp_getattro(obj, initName);
       Py_DECREF(initName);
       PyDict_SetItemString(dict, "__init__", func);
@@ -401,8 +390,9 @@ static PyObject *PythonQtClassWrapper_getattro(PyObject *obj, PyObject *name)
       PyObject* enumValue = member._enumValue;
       Py_INCREF(enumValue);
       return enumValue;
-    } else if (member._type == PythonQtMemberInfo::EnumWrapper) {
-      PyObject* enumWrapper = member._enumWrapper;
+    } else if (member._type == PythonQtMemberInfo::EnumWrapper ||
+               member._type == PythonQtMemberInfo::NestedClass) {
+      PyObject* enumWrapper = member._pythonType;
       Py_INCREF(enumWrapper);
       return enumWrapper;
     } else if (member._type == PythonQtMemberInfo::Slot) {
@@ -486,7 +476,11 @@ PyTypeObject PythonQtClassWrapper_Type = {
     0,                   /* tp_weaklistoffset */
     0,                   /* tp_iter */
     0,                   /* tp_iternext */
+    #ifdef PY3K
     PythonQtClassWrapper_methods,                   /* tp_methods */
+    #else
+    0,                   /* tp_methods */
+    #endif
     0,                   /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */

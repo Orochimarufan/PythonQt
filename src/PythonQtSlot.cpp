@@ -157,11 +157,7 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
         className = objectToCall->metaObject()->className();
       }
 
-#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-      profilingCB(PythonQt::Enter, className, info->metaMethod()->methodSignature());
-#else
-      profilingCB(PythonQt::Enter, className, info->metaMethod()->signature());
-#endif
+      profilingCB(PythonQt::Enter, className, info->signature(), args);
     }
 
     // invoke the slot via metacall
@@ -173,6 +169,11 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
     } else {
       try {
         obj->qt_metacall(QMetaObject::InvokeMetaMethod, info->slotIndex(), argList);
+      } catch (std::out_of_range & e) {
+        hadException = true;
+        QByteArray what("std::out_of_range: ");
+        what += e.what();
+        PyErr_SetString(PyExc_IndexError, what.constData());
       } catch (std::bad_alloc & e) {
         hadException = true;
         QByteArray what("std::bad_alloc: ");
@@ -192,16 +193,12 @@ bool PythonQtCallSlot(PythonQtClassInfo* classInfo, QObject* objectToCall, PyObj
         hadException = true;
         QByteArray what("std::exception: ");
         what += e.what();
-#ifdef PY3K
         PyErr_SetString(PyExc_RuntimeError, what.constData());
-#else
-        PyErr_SetString(PyExc_StandardError, what.constData());
-#endif
       }
     }
   
     if (profilingCB) {
-      profilingCB(PythonQt::Leave, NULL, NULL);
+      profilingCB(PythonQt::Leave, NULL, NULL, NULL);
     }
 
     // handle the return value (which in most cases still needs to be converted to a Python object)
@@ -301,7 +298,7 @@ PyObject *PythonQtSlotFunction_CallImpl(PythonQtClassInfo* classInfo, QObject* o
   int argc = args?PyTuple_Size(args):0;
 
 #ifdef PYTHONQT_DEBUG
-  std::cout << "called " << info->metaMethod()->typeName() << " " << info->metaMethod()->signature() << std::endl;
+  std::cout << "called " << info->metaMethod()->typeName() << " " << info->signature() << std::endl;
 #endif
 
   PyObject* r = NULL;
@@ -424,19 +421,7 @@ meth_get__doc__(PythonQtSlotFunctionObject *m, void * /*closure*/)
 static PyObject *
 meth_get__name__(PythonQtSlotFunctionObject *m, void * /*closure*/)
 {
-#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-#ifdef PY3K
-  return PyUnicode_FromString(m->m_ml->metaMethod()->methodSignature());
-#else
-  return PyString_FromString(m->m_ml->metaMethod()->methodSignature());
-#endif
-#else
-#ifdef PY3K
-  return PyUnicode_FromString(m->m_ml->metaMethod()->signature());
-#else
-  return PyString_FromString(m->m_ml->metaMethod()->signature());
-#endif
-#endif
+  return PyString_FromString(m->m_ml->signature());
 }
 
 static int
@@ -570,12 +555,8 @@ PyObject *PythonQtMemberFunction_typeName(PythonQtSlotInfo* theInfo)
   info = theInfo;
   PyObject* result = PyTuple_New(count);
   for (int j = 0;j<count;j++) {
-    QByteArray name = info->metaMethod()->typeName();
-#ifdef PY3K
-    PyTuple_SET_ITEM(result, j, PyUnicode_FromString(name.constData()));
-#else
+    QByteArray name = PythonQtUtils::typeName(*info->metaMethod());
     PyTuple_SET_ITEM(result, j, PyString_FromString(name.constData()));
-#endif
     info = info->nextInfo();
   }
   return result;
@@ -605,7 +586,7 @@ meth_repr(PythonQtSlotFunctionObject *f)
     return PyString_FromFormat("<unbound qt slot %s of %s type>",
 #endif
       f->m_ml->slotName().data(),
-      self->classInfo()->className());
+      self->classInfo()->className().constData());
   } else {
 #ifdef PY3K
     return PyUnicode_FromFormat("<qt slot %s of %s instance at %p",
@@ -625,11 +606,7 @@ meth_compare(PythonQtSlotFunctionObject *a, PythonQtSlotFunctionObject *b)
     return (a->m_self < b->m_self) ? -1 : 1;
   if (a->m_ml == b->m_ml)
     return 0;
-#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-  if (strcmp(a->m_ml->metaMethod()->methodSignature(), b->m_ml->metaMethod()->methodSignature()) < 0)
-#else
-  if (strcmp(a->m_ml->metaMethod()->signature(), b->m_ml->metaMethod()->signature()) < 0)
-#endif
+  if (strcmp(a->m_ml->signature().constData(), b->m_ml->signature().constData()) < 0)
     return -1;
   else
     return 1;
@@ -679,9 +656,8 @@ meth_richcompare(PythonQtSlotFunctionObject *a, PythonQtSlotFunctionObject *b, i
     Py_RETURN_FALSE;
 }
 
-
 PyTypeObject PythonQtSlotFunction_Type = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
     "builtin_qt_slot",
     sizeof(PythonQtSlotFunctionObject),
     0,

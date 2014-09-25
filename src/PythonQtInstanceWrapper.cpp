@@ -93,6 +93,13 @@ static void PythonQtInstanceWrapper_deleteObject(PythonQtInstanceWrapper* self, 
       PythonQt::priv()->removeWrapperPointer(self->_objPointerCopy);
     }
     if (self->_obj) {
+      if (self->_isShellInstance) {
+        PythonQtShellSetInstanceWrapperCB* cb = self->classInfo()->shellSetInstanceWrapperCB();
+        if (cb) {
+          // remove the pointer to the Python wrapper from the C++ object:
+          (*cb)(self->_obj, NULL);
+        }
+      }
       if (force || self->_ownedByPythonQt) {
         if (force || !self->_obj->parent()) {
           delete self->_obj;
@@ -395,16 +402,16 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
 
         PythonQt::ProfilingCB* profilingCB = PythonQt::priv()->profilingCB();
         if (profilingCB) {
-          QString methodName = "getProperty(";
+          QString methodName = "getProperty('";
           methodName += attributeName;
-          methodName += ")";
-          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), methodName.toLatin1());
+          methodName += "')";
+          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), methodName.toLatin1(), NULL);
         }
 
         PyObject* value = PythonQtConv::QVariantToPyObject(member._property.read(wrapper->_obj));
 
         if (profilingCB) {
-          profilingCB(PythonQt::Leave, NULL, NULL);
+          profilingCB(PythonQt::Leave, NULL, NULL, NULL);
         }
 
         return value;
@@ -433,8 +440,9 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
     }
     break;
   case PythonQtMemberInfo::EnumWrapper:
-    {
-      PyObject* enumWrapper = member._enumWrapper;
+  case PythonQtMemberInfo::NestedClass:
+  {
+      PyObject* enumWrapper = member._pythonType;
       Py_INCREF(enumWrapper);
       return enumWrapper;
     }
@@ -446,6 +454,26 @@ static PyObject *PythonQtInstanceWrapper_getattro(PyObject *obj,PyObject *name)
       PythonQtMemberInfo member = wrapper->classInfo()->member(getterString + attributeName);
       if (member._type == PythonQtMemberInfo::Slot) {
         return PythonQtSlotFunction_CallImpl(wrapper->classInfo(), wrapper->_obj, member._slot, NULL, NULL, wrapper->_wrappedPtr);
+      }
+
+      {
+        static const QByteArray dynamicGetterString("py_dynamic_get_attrib");
+        // check for a dynamic getter slot
+        PythonQtMemberInfo member = wrapper->classInfo()->member(dynamicGetterString);
+        if (member._type == PythonQtMemberInfo::Slot) {
+          PyObject* args = PyTuple_New(1);
+          Py_INCREF(name);
+          PyTuple_SET_ITEM(args, 0, name);
+          PyObject* result = PythonQtSlotFunction_CallImpl(wrapper->classInfo(), wrapper->_obj, member._slot, args, NULL, wrapper->_wrappedPtr);
+          Py_DECREF(args);
+          if (result) {
+            return result;
+          } else {
+            // in case of result == NULL, expect that the code as thrown a std::exception
+            // and clear the Python error:
+            PyErr_Clear();
+          }
+        }
       }
 
       // handle dynamic properties
@@ -525,16 +553,16 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
       if (v.isValid()) {
         PythonQt::ProfilingCB* profilingCB = PythonQt::priv()->profilingCB();
         if (profilingCB) {
-          QString methodName = "setProperty(";
+          QString methodName = "setProperty('";
           methodName += attributeName;
-          methodName += ")";
-          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), methodName.toLatin1());
+          methodName += "')";
+          profilingCB(PythonQt::Enter, wrapper->_obj->metaObject()->className(), methodName.toLatin1(), NULL);
         }
 
         success = prop.write(wrapper->_obj, v);
 
         if (profilingCB) {
-          profilingCB(PythonQt::Leave, NULL, NULL);
+          profilingCB(PythonQt::Leave, NULL, NULL, NULL);
         }
       }
       if (success) {
@@ -555,7 +583,10 @@ static int PythonQtInstanceWrapper_setattro(PyObject *obj,PyObject *name,PyObjec
     error = QString("EnumValue '") + attributeName + "' can not be overwritten on " + obj->ob_type->tp_name + " object";
   } else if (member._type == PythonQtMemberInfo::EnumWrapper) {
     error = QString("Enum '") + attributeName + "' can not be overwritten on " + obj->ob_type->tp_name + " object";
-  } else if (member._type == PythonQtMemberInfo::NotFound) {
+  } else if (member._type == PythonQtMemberInfo::NestedClass) {
+    error = QString("Nested class '") + attributeName + "' can not be overwritten on " + obj->ob_type->tp_name + " object";
+  }
+  else if (member._type == PythonQtMemberInfo::NotFound) {
     // check for a setter slot
     static const QByteArray setterString("py_set_");
     PythonQtMemberInfo setter = wrapper->classInfo()->member(setterString + attributeName);
@@ -634,6 +665,16 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
   // QByteArray should be directly returned as a str
   if (wrapper->classInfo()->metaTypeId()==QVariant::ByteArray) {
     QByteArray* b = (QByteArray*) wrapper->_wrappedPtr;
+#ifdef PY3K
+    // Note: In Python 2, this was used to access the data() of a byte array.
+    // Since in Python 3 str() will return a unicode, this is no longer possible.
+    // The user needs to call .data() to get access to the data as bytes.
+    if (b->data()) {
+      return PyUnicode_FromStringAndSize(b->data(), b->size());
+    } else {
+      return PyUnicode_New(0, 0);
+    }
+#else
     if (b->data()) {
 #ifdef PY3K
       return PyUnicode_FromStringAndSize(b->data(), b->size());
@@ -647,6 +688,7 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
       return PyString_FromString("");
 #endif
     }
+#endif
   }
 
   const char* typeName = obj->ob_type->tp_name;
@@ -661,11 +703,7 @@ static PyObject * PythonQtInstanceWrapper_str(PyObject * obj)
   }
   if (wrapper->_wrappedPtr) {
     if (wrapper->_obj) {
-#ifdef PY3K
-      return PyUnicode_FromFormat("<%s C++ Object at %p wrapped by %s at %p>", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
-#else
-      return PyString_FromFormat("%s (C++ Object %p wrapped by %s %p)", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
-#endif
+      return PyString_FromFormat("%s (C++ Object %p wrapped by %s %p))", typeName, wrapper->_wrappedPtr, wrapper->_obj->metaObject()->className(), qobj);
     } else {
 #ifdef PY3K
       return PyUnicode_FromFormat("<%s C++ Object at %p>", typeName, wrapper->_wrappedPtr);
@@ -719,11 +757,7 @@ static PyObject * PythonQtInstanceWrapper_repr(PyObject * obj)
 #endif
     }
   } else {
-#ifdef PY3K
-    return PyUnicode_FromFormat("<%s %s at %p>", typeName, wrapper->classInfo()->className(), qobj);
-#else
-    return PyString_FromFormat("%s (%s at: %p)", typeName, wrapper->classInfo()->className(), qobj);
-#endif
+    return PyString_FromFormat("%s (%s at: %p)", typeName, wrapper->classInfo()->className().constData(), qobj);
   }
 }
 
@@ -819,7 +853,11 @@ PyTypeObject PythonQtInstanceWrapper_Type = {
     PythonQtInstanceWrapper_getattro,                         /*tp_getattro*/
     PythonQtInstanceWrapper_setattro,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE /*| Py_TPFLAGS_CHECKTYPES FIXME Py_TPFLAGS_CHECKTYPES removal */, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE
+#ifndef PY3K
+    | Py_TPFLAGS_CHECKTYPES
+#endif
+    , /*tp_flags*/
     "PythonQtInstanceWrapper object",           /* tp_doc */
     0,                   /* tp_traverse */
     0,                   /* tp_clear */
@@ -827,7 +865,11 @@ PyTypeObject PythonQtInstanceWrapper_Type = {
     0,                   /* tp_weaklistoffset */
     0,                   /* tp_iter */
     0,                   /* tp_iternext */
-    PythonQtInstanceWrapper_methods,             /* tp_methods */
+#ifdef PY3K
+    PythonQtInstanceWrapper_methods,
+#else
+    0,             /* tp_methods */
+#endif
     0,             /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */

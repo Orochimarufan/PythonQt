@@ -17,43 +17,20 @@ SET(SOURCES
 	PythonCompleterPopup.cpp
 )
 
-SET(FILES
-	PygmentsHighlighter.py
-	PythonCompleter.py
-	module_completion.py
-)
-
-SET(DIRS
-	pygments
+SET(RESOURCES
+    NPC.qrc
 )
 
 qt_wrap_cpp(GEN_MOC ${HEADERS})
+qt_add_resources(GEN_RC ${RESOURCES})
 
-add_executable(NicePyConsole ${SOURCES} ${GEN_MOC})
+add_executable(NicePyConsole ${SOURCES} ${GEN_MOC} ${GEN_RC})
 if(PythonQt_Qt5)
-	qt_use_modules(NicePyConsole Core Gui Widgets)
+        qt_use_modules(NicePyConsole Core Gui Widgets)
+        # QtAll
+        qt_use_modules(NicePyConsole Network OpenGL Sql Svg UiTools WebKit Xml WebKitWidgets Multimedia)
 else()
 	qt_use_modules(NicePyConsole Core Gui)
 endif()
 
 target_link_libraries(NicePyConsole ${PythonQt} ${PythonQt_QtAll} ${PYTHON_LIBRARIES})
-
-foreach(FILE ${FILES})
-	SET(OUT "${CMAKE_CURRENT_BINARY_DIR}/${FILE}")
-	SET(IN "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
-	add_custom_command(OUTPUT "${OUT}"
-		COMMAND "${CMAKE_COMMAND}" -E copy "${IN}" "${OUT}"
-		MAIN_DEPENDENCY "${IN}"
-	)
-	add_dependencies(NicePyConsole "${OUT}")
-endforeach()
-
-foreach(DIR ${DIRS})
-	SET(OUT "${CMAKE_CURRENT_BINARY_DIR}/${DIR}")
-	SET(IN "${CMAKE_CURRENT_SOURCE_DIR}/${DIR}")
-	add_custom_command(OUTPUT "${OUT}"
-		COMMAND "${CMAKE_COMMAND}" -E copy_directory "${IN}" "${OUT}"
-		MAIN_DEPENDENCY "${IN}"
-	)
-	add_dependencies(NicePyConsole "${OUT}")
-endforeach()

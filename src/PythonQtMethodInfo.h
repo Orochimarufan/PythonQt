@@ -62,13 +62,16 @@ public:
     Variant = -2
   };
 
-  //! stores the QVariant id (if available) and the name of the type
+  //! stores various informations about a parameter/type name
   struct ParameterInfo {
     QByteArray name;
+    QByteArray innerName; // if the type is a template, this stores the inner name
     PyObject*  enumWrapper; // if it is an enum, a pointer to the enum wrapper
-    int typeId; // a mixture from QMetaType and ParameterType
-    char pointerCount; // the number of pointers indirections
+    int  typeId; // a mixture from QMetaType and ParameterType
+    char pointerCount; // the number of pointer indirections
+    char innerNamePointerCount; // the number of pointer indirections in the inner name 
     bool isConst;
+    bool isQList;
   };
 
   PythonQtMethodInfo() {};
@@ -107,14 +110,27 @@ public:
   //! get the docstring
   const QString& doc() const {return _doc; }
 
-  protected:
-  static void fillParameterInfo(ParameterInfo& type, const QByteArray& name, PythonQtClassInfo* classInfo);
+  //! fill the parameter info for the given type name
+  static void fillParameterInfo(ParameterInfo& type, const QByteArray& name, PythonQtClassInfo* classInfo = NULL);
+
+  //! returns a parameter info for the given metatype (and creates and caches one if it is not yet present)
+  static const ParameterInfo& getParameterInfoForMetaType(int type);
+
+  //! returns the inner type id of a simple template of the form SomeObject<InnerType>
+  static int getInnerTemplateMetaType(const QByteArray& typeName);
+
+  //! returns the inner type name of a simple template of the form SomeObject<InnerType>
+  static QByteArray getInnerTemplateTypeName(const QByteArray& typeName);
+
+protected:
 
   static QHash<QByteArray, int> _parameterTypeDict;
   static QHash<QByteArray, QByteArray> _parameterNameAliases;
 
   //! stores the cached signatures of methods to speedup mapping from Qt to Python types
   static QHash<QByteArray, PythonQtMethodInfo*> _cachedSignatures;
+
+  static QHash<int, ParameterInfo> _cachedParameterInfos;
 
   QList<ParameterInfo> _parameters;
 
@@ -183,8 +199,11 @@ public:
   //! get the full signature including return type
   QString fullSignature();
 
+  //! get the Qt signature of the slot
+  QByteArray signature() const;
+
   //! get the short slot name
-  QByteArray slotName();
+  QByteArray slotName() const;
 
 private:
   int               _slotIndex;

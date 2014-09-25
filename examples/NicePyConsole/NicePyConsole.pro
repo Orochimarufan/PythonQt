@@ -33,3 +33,6 @@ OTHER_FILES +=              \
   PygmentsHighlighter.py    \
   PythonCompleter.py        \
   module_completion.py
+
+RESOURCES += \
+    NPC.qrc

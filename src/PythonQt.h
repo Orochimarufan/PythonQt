@@ -42,6 +42,7 @@
 */
 //----------------------------------------------------------------------------------
 
+#include "PythonQtUtils.h"
 #include "PythonQtSystem.h"
 #include "PythonQtInstanceWrapper.h"
 #include "PythonQtClassWrapper.h"
@@ -156,7 +157,7 @@ public:
 
   //! callback for profiling. className and methodName are only passed when state == Enter, otherwise
   //! they are NULL.
-  typedef void ProfilingCB(ProfilingCallbackState state, const char* className, const char* methodName);
+  typedef void ProfilingCB(ProfilingCallbackState state, const char* className, const char* methodName, PyObject* args);
 
   //---------------------------------------------------------------------------
   //! \name Singleton Initialization
@@ -637,7 +638,7 @@ public:
   void addDecorators(QObject* o, int decoTypes);
 
   //! helper method that creates a PythonQtClassWrapper object  (returns a new reference)
-  PythonQtClassWrapper* createNewPythonQtClassWrapper(PythonQtClassInfo* info, PyObject* module);
+  PythonQtClassWrapper* createNewPythonQtClassWrapper(PythonQtClassInfo* info, PyObject* module, const QByteArray& pythonClassName);
 
   //! create a new instance of the given enum type with given value (returns a new reference)
   static PyObject*  createEnumValueInstance(PyObject* enumType, unsigned int enumValue);

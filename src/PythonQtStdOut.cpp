@@ -61,9 +61,7 @@ static PyObject *PythonQtStdOutRedirect_write(PyObject *self, PyObject *args)
       PyObject* obj = PyTuple_GET_ITEM(args,0);
       if (PyUnicode_Check(obj)) {
 #ifdef PY3K
-        Py_UCS4 *x = PyUnicode_AsUCS4Copy(obj);
-        output = QString::fromUcs4(x, PyUnicode_GetLength(obj));
-        PyMem_Free(x);
+        output = QString::fromUtf8(PyUnicode_AsUTF8(obj));
 #else
         PyObject *tmp = PyUnicode_AsUTF8String(obj);
         if(tmp) {

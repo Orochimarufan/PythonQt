@@ -146,11 +146,11 @@ qt_wrap_cpp(GEN_MOC ${GEN_HEADERS})
 
 SET(QT Core Gui Network OpenGL Sql Svg UiTools WebKit Xml)
 if(PythonQt_Qt5)
-	LIST(APPEND QT Widgets WebKitWidgets)
+        LIST(APPEND QT Widgets WebKitWidgets Multimedia)
 endif()
 
 
-add_library(${PythonQt_QtAll} ${SOURCES} ${HEADERS} ${GEN_SOURCES} ${GEN_MOC})
+add_library(${PythonQt_QtAll} SHARED ${SOURCES} ${HEADERS} ${GEN_SOURCES} ${GEN_MOC})
 qt_use_modules(${PythonQt_QtAll} ${QT})
 
 target_link_libraries(${PythonQt_QtAll} ${PythonQt} ${PYTHON_LIBRARIES})

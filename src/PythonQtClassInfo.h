@@ -44,10 +44,10 @@ class PythonQtSlotInfo;
 
 struct PythonQtMemberInfo {
   enum Type {
-    Invalid, Slot, Signal, EnumValue, EnumWrapper, Property, NotFound 
+    Invalid, Slot, Signal, EnumValue, EnumWrapper, Property, NestedClass, NotFound 
   };
 
-  PythonQtMemberInfo():_type(Invalid),_slot(NULL),_enumWrapper(NULL),_enumValue(0) { }
+  PythonQtMemberInfo():_type(Invalid),_slot(NULL),_pythonType(NULL),_enumValue(0) { }
   
   PythonQtMemberInfo(PythonQtSlotInfo* info);
 
@@ -59,7 +59,7 @@ struct PythonQtMemberInfo {
 
   // TODO: this could be a union...
   PythonQtSlotInfo* _slot;
-  PyObject*         _enumWrapper;
+  PyObject*         _pythonType;
   PythonQtObjectPtr _enumValue;
   QMetaProperty     _property;
 };
@@ -112,8 +112,14 @@ public:
   //! add a decorator slot, ownership is passed to classinfo
   void addDecoratorSlot(PythonQtSlotInfo* info);
 
+  //! add a nested class, so that it can be shown as outer class member
+  void addNestedClass(PythonQtClassInfo* info);
+
   //! get the classname (either of the QObject or of the wrapped CPP object)
-  const char* className();
+  const QByteArray& className() const;
+
+  //! get the unscoped classname (without ParentClass::) for nested classes
+  QByteArray unscopedClassName() const;
 
   //! returns if the QObject
   bool isQObject() { return _isQObject; }
@@ -187,6 +193,18 @@ public:
   //! clear all members that where cached as "NotFound"
   void clearNotFoundCachedMembers();
 
+  //! get nested classes
+  const QList<PythonQtClassInfo*>& nestedClasses() { return _nestedClasses; }
+
+  //! Create a copy of the given C++ object (which is known to be of a derived class), wrapped by Python and owned by PythonQt.
+  //! This will downcast if possible and return a copy of the down casted object.
+  //! This either requires a copy constructor on the class or it needs to be registered
+  //! as a meta type.
+  PyObject* copyObject(void* cppObject);
+
+  //! Get the copy constructor for this class
+  PythonQtSlotInfo* getCopyConstructor();
+
   //! set the python docstring (__doc__) for this class
   void setDoc(const QString& str) {_doc=str;}
 
@@ -214,7 +232,7 @@ private:
   bool lookForMethodAndCache(const char* memberName);
   bool lookForEnumAndCache(const QMetaObject* m, const char* memberName);
 
-  PythonQtSlotInfo* findDecoratorSlots(const char* memberName, int memberNameLen, PythonQtSlotInfo* tail, bool &found, QHash<QByteArray, PythonQtMemberInfo>& memberCache, int upcastingOffset);
+  PythonQtSlotInfo* findDecoratorSlots(const char* memberName, PythonQtSlotInfo* tail, bool &found, QHash<QByteArray, PythonQtMemberInfo>& memberCache, int upcastingOffset);
   int findCharOffset(const char* sigStart, char someChar);
  
   QHash<QByteArray, PythonQtMemberInfo> _cachedMembers;
@@ -232,6 +250,8 @@ private:
 
   QList<PythonQtPolymorphicHandlerCB*> _polymorphicHandlers;
 
+  QList<PythonQtClassInfo*>            _nestedClasses;
+
   QObject*                             _decoratorProvider;
   PythonQtQObjectCreatorFunctionCB*    _decoratorProviderCB;
   
@@ -244,6 +264,7 @@ private:
 
   bool                                 _isQObject;
   bool                                 _enumsCreated;
+  bool                                 _searchPolymorphicHandlerOnParent;
 
   QString                              _doc;
   

@@ -47,12 +47,8 @@
 bool ShellGenerator::shouldGenerate(const AbstractMetaClass *meta_class) const
 {
     uint cg = meta_class->typeEntry()->codeGeneration();
-    if (meta_class->name().startsWith("QtScript")) return false;
-    if (meta_class->name().startsWith("QFuture")) return false;
+    // ignore the "Global" namespace, which contains the QtMsgType enum
     if (meta_class->name().startsWith("Global")) return false;
-    if (meta_class->name().startsWith("QStyleOptionComplex")) return false;
-    if (meta_class->name().startsWith("QTextLayout")) return false;
-    if (meta_class->name().startsWith("QPersistentModelIndex")) return false;
     return ((cg & TypeEntry::GenerateCode) != 0);
 }
 
@@ -107,7 +103,7 @@ void ShellGenerator::writeTypeInfo(QTextStream &s, const AbstractMetaType *type,
 
     if (type->isReference() && !(options & ExcludeReference) && !(options & ConvertReferenceToPtr))
         s << "&";
-  
+
     if (type->isReference() && (options & ConvertReferenceToPtr)) {
       s << "*";
     }
@@ -130,12 +126,18 @@ void ShellGenerator::writeFunctionArguments(QTextStream &s, const AbstractMetaCl
             s << ", ";
         AbstractMetaArgument *arg = arguments.at(i);
         writeTypeInfo(s, arg->type(), option);
-        if (!(option & SkipName))
+        if (!(option & SkipName)) {
+          if (option & UseIndexedName) {
+            s << " " << arg->indexedName();
+          }
+          else {
             s << " " << arg->argumentName();
-        if ((option & IncludeDefaultExpression) && !arg->originalDefaultValueExpression().isEmpty()) {
+          }
+        }
+        if ((option & IncludeDefaultExpression) && !arg->defaultValueExpression().isEmpty()) {
             s << " = "; 
 
-          QString expr = arg->originalDefaultValueExpression();
+            QString expr = arg->defaultValueExpression();
           if (expr != "0") {
             QString qualifier;
             if (arg->type()->typeEntry()->isEnum() && expr.indexOf("::") < 0) {
@@ -147,13 +149,8 @@ void ShellGenerator::writeFunctionArguments(QTextStream &s, const AbstractMetaCl
               s << qualifier << "::";
             }
           }
-          if (expr.contains("defaultConnection")) {
-            expr.replace("defaultConnection","QSqlDatabase::defaultConnection");
-          }
-          if (expr == "MediaSource()") {
-            expr = "Phonon::MediaSource()";
-          }
-          s << expr; 
+          
+            s << expr; 
         }
     }
 }
@@ -222,9 +219,9 @@ void ShellGenerator::writeFunctionSignature(QTextStream &s,
       function_name = meta_function->name();
     }
 
-  if (meta_function->attributes() & AbstractMetaAttributes::SetterFunction)
+    if (meta_function->attributes() & AbstractMetaAttributes::SetterFunction)
     s << "py_set_";
-  else if (meta_function->attributes() & AbstractMetaAttributes::GetterFunction)
+    else if (meta_function->attributes() & AbstractMetaAttributes::GetterFunction)
     s << "py_get_";
 
   s << name_prefix << function_name;
@@ -250,14 +247,15 @@ void ShellGenerator::writeFunctionSignature(QTextStream &s,
     s << ")";
     if (meta_function->isConstant())
         s << " const";
+    if (!meta_function->exception().isEmpty())
+        s << " " << meta_function->exception();
 }
-
 bool function_sorter(AbstractMetaFunction *a, AbstractMetaFunction *b);
 
 AbstractMetaFunctionList ShellGenerator::getFunctionsToWrap(const AbstractMetaClass* meta_class)
 {
   AbstractMetaFunctionList functions = meta_class->queryFunctions( 
-    AbstractMetaClass::NormalFunctions | AbstractMetaClass::WasPublic
+    AbstractMetaClass::NormalFunctions | AbstractMetaClass::WasVisible
     | AbstractMetaClass::NotRemovedFromTargetLang | AbstractMetaClass::ClassImplements
     );
   AbstractMetaFunctionList functions2 = meta_class->queryFunctions( 
@@ -295,7 +293,7 @@ AbstractMetaFunctionList ShellGenerator::getProtectedFunctionsThatNeedPromotion(
   AbstractMetaFunctionList functions; 
   AbstractMetaFunctionList functions1 = getFunctionsToWrap(meta_class); 
   foreach(AbstractMetaFunction* func, functions1) {
-    if (!func->isPublic() || func->isVirtual()) {
+    if (func->wasProtected() || func->isVirtual()) {
       functions << func;
     }
   }
@@ -379,4 +377,3 @@ bool ShellGenerator::isBuiltIn(const QString& name) {
   }
   return builtIn.contains(name);
 }
-

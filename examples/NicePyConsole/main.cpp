@@ -26,6 +26,11 @@ int main(int argc, char **argv)
     PythonQt::init(PythonQt::IgnoreSiteModule | PythonQt::RedirectStdOut);
     PythonQt_QtAll::init();
 
+    // Load pygments from resources
+    PythonQt::self()->installDefaultImporter();
+    PyObject *path = PySys_GetObject("path");
+    PyList_Append(path, PyUnicode_FromString(":/lib"));
+
     // get the python-context and create the console widget
     PythonQtObjectPtr mainContext = PythonQt::self()->getMainModule();
     NicePyConsole console(NULL, mainContext);

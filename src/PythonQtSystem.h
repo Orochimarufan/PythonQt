@@ -46,6 +46,8 @@
 #define PYTHONQT_EXPORT __declspec(dllexport)
 #elif defined(WIN32) && !defined(PYTHONQT_EXPORTS ) && !defined(PYTHONQT_STATIC) 
 #define PYTHONQT_EXPORT __declspec(dllimport)
+#elif __GNUC__ >= 4
+#define PYTHONQT_EXPORT __attribute__ ((visibility ("default")))
 #else
 #define PYTHONQT_EXPORT
 #endif

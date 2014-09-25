@@ -109,19 +109,7 @@ meth_get__doc__(PythonQtSignalFunctionObject * /*m*/, void * /*closure*/)
 static PyObject *
 meth_get__name__(PythonQtSignalFunctionObject *m, void * /*closure*/)
 {
-#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-#ifdef PY3K
-  return PyUnicode_FromString(m->m_ml->metaMethod()->methodSignature());
-#else
-  return PyString_FromString(m->m_ml->metaMethod()->methodSignature());
-#endif
-#else
-#ifdef PY3K
-  return PyUnicode_FromString(m->m_ml->metaMethod()->signature());
-#else
-  return PyString_FromString(m->m_ml->metaMethod()->signature());
-#endif
-#endif
+  return PyString_FromString(m->m_ml->signature());
 }
 
 static int
@@ -201,11 +189,7 @@ static PyObject *PythonQtSignalFunction_connect(PythonQtSignalFunctionObject* ty
       if (argc==1) {
         // connect with Python callable
         PyObject* callable = PyTuple_GET_ITEM(args, 0);
-#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-        bool result = PythonQt::self()->addSignalHandler(self->_obj, QByteArray("2") + type->m_ml->metaMethod()->methodSignature(), callable);
-#else
-        bool result = PythonQt::self()->addSignalHandler(self->_obj, QByteArray("2") + type->m_ml->metaMethod()->signature(), callable);
-#endif
+        bool result = PythonQt::self()->addSignalHandler(self->_obj, QByteArray("2") + type->m_ml->signature(), callable);
         return PythonQtConv::GetPyBool(result);
       } else {
         PyErr_SetString(PyExc_ValueError, "Called connect with wrong number of arguments");
@@ -221,11 +205,7 @@ static PyObject *PythonQtSignalFunction_disconnect(PythonQtSignalFunctionObject*
     PythonQtInstanceWrapper* self = (PythonQtInstanceWrapper*) type->m_self;
     if (self->_obj) {
       Py_ssize_t argc = PyTuple_Size(args);
-#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-      QByteArray signal = QByteArray("2") + type->m_ml->metaMethod()->methodSignature();
-#else
-      QByteArray signal = QByteArray("2") + type->m_ml->metaMethod()->signature();
-#endif
+      QByteArray signal = QByteArray("2") + type->m_ml->signature();
       if (argc==1) {
         // disconnect with Python callable
         PyObject* callable = PyTuple_GET_ITEM(args, 0);
@@ -282,7 +262,7 @@ meth_repr(PythonQtSignalFunctionObject *f)
     return PyString_FromFormat("<unbound qt signal %s of %s type>",
 #endif
       f->m_ml->slotName().data(),
-      self->classInfo()->className());
+      self->classInfo()->className().constData());
   } else {
 #ifdef PY3K
     return PyUnicode_FromFormat("<qt signal %s of %s instance at %p>",
@@ -302,11 +282,7 @@ meth_compare(PythonQtSignalFunctionObject *a, PythonQtSignalFunctionObject *b)
     return (a->m_self < b->m_self) ? -1 : 1;
   if (a->m_ml == b->m_ml)
     return 0;
-#if( QT_VERSION >= QT_VERSION_CHECK(5,0,0) )
-  if (strcmp(a->m_ml->metaMethod()->methodSignature(), b->m_ml->metaMethod()->methodSignature()) < 0)
-#else
-  if (strcmp(a->m_ml->metaMethod()->signature(), b->m_ml->metaMethod()->signature()) < 0)
-#endif
+  if (strcmp(a->m_ml->signature().constData(), b->m_ml->signature().constData()) < 0)
     return -1;
   else
     return 1;
@@ -357,7 +333,7 @@ meth_richcompare(PythonQtSignalFunctionObject *a, PythonQtSignalFunctionObject *
 }
 
 PyTypeObject PythonQtSignalFunction_Type = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
     "builtin_qt_signal",
     sizeof(PythonQtSignalFunctionObject),
     0,

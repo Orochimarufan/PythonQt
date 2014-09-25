@@ -12,8 +12,6 @@ SET(SOURCES
 	PythonQtTests.cpp
 )
 
-include_directories(../src)
-
 qt_wrap_cpp(GEN_HEADERS ${HEADERS})
 
 add_executable(PythonQtTest ${SOURCES} ${GEN_HEADERS})
@@ -22,5 +20,5 @@ if(PythonQt_Qt5)
 else()
 	qt_use_modules(PythonQtTest Test Gui)
 endif()
-get_property(PythonQt_lib TARGET ${PythonQt} PROPERTY LOCATION)
-target_link_libraries(PythonQtTest ${PythonQt_lib} ${PYTHON_LIBRARIES})
+
+target_link_libraries(PythonQtTest ${PythonQt} ${PYTHON_LIBRARIES})
