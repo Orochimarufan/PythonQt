@@ -28,7 +28,7 @@ add_executable(NicePyConsole ${SOURCES} ${GEN_MOC} ${GEN_RC})
 if(PythonQt_Qt5)
         qt_use_modules(NicePyConsole Core Gui Widgets)
         # QtAll
-        qt_use_modules(NicePyConsole Network OpenGL Sql Svg UiTools WebKit Xml WebKitWidgets Multimedia)
+        qt_use_modules(NicePyConsole Network OpenGL PrintSupport Sql Svg UiTools WebKit Xml WebKitWidgets Multimedia)
 else()
 	qt_use_modules(NicePyConsole Core Gui)
 endif()

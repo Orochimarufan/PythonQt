@@ -146,7 +146,7 @@ qt_wrap_cpp(GEN_MOC ${GEN_HEADERS})
 
 SET(QT Core Gui Network OpenGL Sql Svg UiTools WebKit Xml)
 if(PythonQt_Qt5)
-        LIST(APPEND QT Widgets WebKitWidgets Multimedia)
+	list(APPEND QT PrintSupport Widgets WebKitWidgets Multimedia)
 endif()
 
 
