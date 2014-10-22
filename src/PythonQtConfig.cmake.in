@@ -9,6 +9,9 @@ set(PythonQt_Qt5 @PythonQt_Qt5@)
 set(PythonQt_Python3 @PythonQt_Python3@)
 set(PythonQt_Python @PYTHONLIBS_VERSION_STRING@)
 
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(PythonLibs @PYTHONLIBS_VERSION_STRING@ REQUIRED)
+
 # Compute paths
 get_filename_component(PYTHONQT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 set(PythonQt_INCLUDE_DIRS "@INCLUDE_DIRS@")
