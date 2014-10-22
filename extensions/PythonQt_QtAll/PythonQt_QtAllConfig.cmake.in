@@ -10,7 +10,8 @@ set(PythonQt_QtAll_QT @QT@)
 
 set(__PYTHONQT_LOCAL @PythonQt_EXPORT_LOCAL@)
 if(NOT __PYTHONQT_LOCAL)
-	find_package(@PythonQt@)
+	find_package(@PythonQt@ REQUIRED)
+	find_package(Qt5 REQUIRED COMPONENTS ${PythonQt_QtAll_QT})
 endif()
 
 # Compute paths
