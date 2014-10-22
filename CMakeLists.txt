@@ -114,19 +114,10 @@ add_definitions(-DPYTHONQT_USE_RELEASE_PYTHON_FALLBACK)
 
 #-----------------------------------------------------------------------------
 # Library Name
-# The variable PythonQt contains the PythonQt core library name
-#   It incorporates library mayor versions
-if(PythonQt_Qt5)
-    if(PythonQt_Python3)
-        set(PythonQt Qt5Python3)
-    else()
-        set(PythonQt Qt5Python)
-    endif()
-elseif(PythonQt_Python3)
-    set(PythonQt PythonQt_3)
-else()
-    set(PythonQt PythonQt)
-endif()
+# To maintain ABI compatibility, the Qt major version as well as the Python major and minor version
+string(SUBSTRING ${PYTHONLIBS_VERSION_STRING} 0 1 python_major)
+string(SUBSTRING ${PYTHONLIBS_VERSION_STRING} 2 1 python_minor)
+set(PythonQt Qt${QT_VERSION_MAJOR}Python${python_major}${python_minor})
 
 set(CMAKE_DEBUG_POSTFIX "_d")
 
