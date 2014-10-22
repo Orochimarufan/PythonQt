@@ -141,7 +141,6 @@ endforeach()
 set(PythonQt_QtAll ${PythonQt}_QtAll CACHE INTERNAL "")
 
 include_directories(../../src)
-add_definitions(-DPYTHONQT_QTALL_EXPORTS)
 qt_wrap_cpp(GEN_MOC ${GEN_HEADERS})
 
 SET(QT Core Gui Network OpenGL Sql Svg UiTools WebKit Xml)
@@ -149,11 +148,16 @@ if(PythonQt_Qt5)
 	list(APPEND QT PrintSupport Widgets WebKitWidgets Multimedia)
 endif()
 
-
-add_library(${PythonQt_QtAll} SHARED ${SOURCES} ${HEADERS} ${GEN_SOURCES} ${GEN_MOC})
+add_library(${PythonQt_QtAll} ${SOURCES} ${HEADERS} ${GEN_SOURCES} ${GEN_MOC})
 qt_use_modules(${PythonQt_QtAll} ${QT})
 
 target_link_libraries(${PythonQt_QtAll} ${PythonQt} ${PYTHON_LIBRARIES})
+
+if(BUILD_SHARED_LIBS)
+	target_compile_definitions(${PythonQt_QtAll} PRIVATE PYTHONQT_QTALL_EXPORTS)
+else(BUILD_SHARED_LIBS)
+	target_compile_definitions(${PythonQt_QtAll} PUBLIC  PYTHONQT_QTALL_STATIC)
+endif(BUILD_SHARED_LIBS)
 
 set_target_properties(${PythonQt_QtAll} PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
@@ -190,4 +194,3 @@ install(EXPORT ${PythonQt_QtAll}Targets DESTINATION "${LIB_CMAKE_PATH}" COMPONEN
 install(FILES ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake
 			  ${PROJECT_BINARY_DIR}/${PythonQt_QtAll}ConfigVersion.cmake
 		DESTINATION "${LIB_CMAKE_PATH}" COMPONENT QtAll-dev)
-

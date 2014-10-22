@@ -90,7 +90,7 @@ endif()
 #add_dependencies(generator pythonqt_generator)
 
 # TODO
-
+option(BUILD_SHARED_LIBS "build shared instead of static library")
 #-----------------------------------------------------------------------------
 # Find Python
 option(PythonQt_Python3 "Use Python 3.x (3.3+)" OFF)
@@ -121,7 +121,13 @@ set(PythonQt Qt${QT_VERSION_MAJOR}Python${python_major}${python_minor})
 
 set(CMAKE_DEBUG_POSTFIX "_d")
 
-message(STATUS "Building ${PythonQt} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE})")
+if (${BUILD_SHARED_LIBS})
+    set(LINK_TYPE "Shared")
+else()
+    set(LINK_TYPE "Static")
+endif()
+
+message(STATUS "Building ${PythonQt} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE} | ${LINK_TYPE})")
 
 #-----------------------------------------------------------------------------
 # Core

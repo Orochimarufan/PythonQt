@@ -40,9 +40,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 qt_wrap_cpp(GEN_MOC ${SOURCES_MOC})
 qt_add_resources(GEN_QRC ${SOURCES_QRC})
 
-add_library(${PythonQt} SHARED ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
+add_library(${PythonQt} ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
 
-target_compile_definitions(${PythonQt} PRIVATE PYTHONQT_EXPORTS)
+if(BUILD_SHARED_LIBS)
+	target_compile_definitions(${PythonQt} PRIVATE PYTHONQT_EXPORTS)
+else(BUILD_SHARED_LIBS)
+	target_compile_definitions(${PythonQt} PUBLIC  PYTHONQT_STATIC)
+endif(BUILD_SHARED_LIBS)
 
 if(PythonQt_Qt5)
     qt_use_modules(${PythonQt} Core Gui Widgets)
