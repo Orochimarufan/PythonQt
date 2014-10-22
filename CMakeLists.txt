@@ -93,7 +93,7 @@ endif()
 
 #-----------------------------------------------------------------------------
 # Find Python
-option(PythonQt_Python3 "Use Python 3.x (3.3+)" ON)
+option(PythonQt_Python3 "Use Python 3.x (3.3+)" OFF)
 option(PythonQt_Python "Use specific Python Version" OFF)
 if(PythonQt_Python)
 	find_package(PythonLibs ${PythonQt_Python} REQUIRED EXACT)
