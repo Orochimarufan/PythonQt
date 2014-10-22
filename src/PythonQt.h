@@ -88,7 +88,7 @@ template<class T1, class T2> int PythonQtUpcastingOffset() {
 typedef QObject* PythonQtQObjectCreatorFunctionCB();
 
 //! helper template to create a derived QObject class
-template<class T> QObject* PythonQtCreateObject() { return new T(); };
+template<class T> QObject* PythonQtCreateObject() { return new T(); }
 
 //! The main interface to the Python Qt binding, realized as a singleton
 /*!
