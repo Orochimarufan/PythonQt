@@ -3,62 +3,18 @@ project(PythonQt_Core)
 #-----------------------------------------------------------------------------
 # Sources
 
-set(SOURCES
-    PythonQtBoolResult.cpp
-    PythonQtClassInfo.cpp
-    PythonQtClassWrapper.cpp
-    PythonQtConversion.cpp
-    PythonQt.cpp
-    PythonQtImporter.cpp
-    PythonQtInstanceWrapper.cpp
-    PythonQtMethodInfo.cpp
-    PythonQtMisc.cpp
-    PythonQtObjectPtr.cpp
-    PythonQtQFileImporter.cpp
-    PythonQtSignalReceiver.cpp
-    PythonQtSlot.cpp
-    PythonQtSignal.cpp
-    PythonQtStdDecorators.cpp
-    PythonQtStdIn.cpp
-    PythonQtStdOut.cpp
-    gui/PythonQtScriptingConsole.cpp
+file(GLOB_RECURSE SOURCES#compile gui subfolder
+	./*.cpp
 
-    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_core_builtin/com_trolltech_qt_core_builtin0.cpp
-    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_core_builtin/com_trolltech_qt_core_builtin_init.cpp
-    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_gui_builtin/com_trolltech_qt_gui_builtin0.cpp
-    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_gui_builtin/com_trolltech_qt_gui_builtin_init.cpp
+    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_core_builtin/*.cpp
+    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_gui_builtin/*.cpp
 )
 
 #-----------------------------------------------------------------------------
 # List headers.
 # This is list is used for the install command.
 
-set(HEADERS
-    PythonQtBoolResult.h
-    PythonQtClassInfo.h
-    PythonQtClassWrapper.h
-    PythonQtConversion.h
-    PythonQtCppWrapperFactory.h
-    PythonQtDoc.h
-    PythonQt.h
-    PythonQtImporter.h
-    PythonQtImportFileInterface.h
-    PythonQtInstanceWrapper.h
-    PythonQtMethodInfo.h
-    PythonQtMisc.h
-    PythonQtObjectPtr.h
-    PythonQtPythonInclude.h
-    PythonQtQFileImporter.h
-    PythonQtSignal.h
-    PythonQtSignalReceiver.h
-    PythonQtSlot.h
-    PythonQtStdDecorators.h
-    PythonQtStdIn.h
-    PythonQtStdOut.h
-    PythonQtSystem.h
-    PythonQtUtils.h
-    PythonQtVariants.h
-)
+file(GLOB HEADERS ./*.h)#exlude gui subfolder here, as it’s installed explicitly
 
 #-----------------------------------------------------------------------------
 # Headers that should run through moc
@@ -69,13 +25,13 @@ set(SOURCES_MOC
     PythonQtStdDecorators.h
     gui/PythonQtScriptingConsole.h
 
-    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_core_builtin/com_trolltech_qt_core_builtin0.h
-    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_gui_builtin/com_trolltech_qt_gui_builtin0.h
+    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_core_builtin/*.h
+    ../generated_cpp${generated_cpp_suffix}/com_trolltech_qt_gui_builtin/*.h
 )
 
 #-----------------------------------------------------------------------------
 # Resources
-set(SOURCES_QRC )
+set(SOURCES_QRC)
 
 #-----------------------------------------------------------------------------
 # Build the library
@@ -134,8 +90,8 @@ configure_file(PythonQtConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIREC
 # both
 configure_file(PythonQtConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake" @ONLY)
 
+install(DIRECTORY ./gui DESTINATION include/PythonQt FILES_MATCHING PATTERN "*.h")#install gui subfolder explicitly
 install(EXPORT ${PythonQt}Targets DESTINATION "${LIB_CMAKE_PATH}" COMPONENT core-dev)
 install(FILES ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt}Config.cmake
               ${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake
         DESTINATION "${LIB_CMAKE_PATH}" COMPONENT core-dev)
-
