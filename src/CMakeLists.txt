@@ -19,7 +19,7 @@ file(GLOB HEADERS ./*.h)#exlude gui subfolder here, as it’s installed explicit
 #-----------------------------------------------------------------------------
 # Headers that should run through moc
 
-set(SOURCES_MOC
+file(GLOB SOURCES_MOC
     PythonQt.h
     PythonQtSignalReceiver.h
     PythonQtStdDecorators.h
