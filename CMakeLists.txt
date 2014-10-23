@@ -93,6 +93,7 @@ endif()
 option(BUILD_SHARED_LIBS "build shared instead of static library")
 #-----------------------------------------------------------------------------
 # Find Python
+option(PythonQtAll "Build complete Qt wrapper library" ON)
 option(PythonQt_Python3 "Use Python 3.x (3.3+)" OFF)
 option(PythonQt_Python "Use specific Python Version" OFF)
 if(PythonQt_Python)
@@ -126,8 +127,10 @@ if (${BUILD_SHARED_LIBS})
 else()
     set(LINK_TYPE "Static")
 endif()
-
-message(STATUS "Building ${PythonQt} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE} | ${LINK_TYPE})")
+if (${PythonQtAll})
+    set(WrapAll " + ${PythonQt_QtAll}")
+endif()
+message(STATUS "Building ${PythonQt}${WrapAll} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE} | ${LINK_TYPE})")
 
 #-----------------------------------------------------------------------------
 # Core
@@ -143,15 +146,16 @@ add_dependencies(test PythonQtTest)
 
 #-----------------------------------------------------------------------------
 # Extenseions (QtAll)
-add_subdirectory(extensions)
-# QtAll alias
-add_custom_target(QtAll)
-add_dependencies(QtAll ${PythonQt_QtAll})
-
+if (${PythonQtAll})
+    add_subdirectory(extensions)
+    # QtAll alias
+    add_custom_target(QtAll)
+    add_dependencies(QtAll ${PythonQt_QtAll})
 #-----------------------------------------------------------------------------
 # Examples
-include_directories(extensions/PythonQt_QtAll)
-add_subdirectory(examples EXCLUDE_FROM_ALL)
+    include_directories(extensions/PythonQt_QtAll)
+    add_subdirectory(examples EXCLUDE_FROM_ALL)
+endif()
 
 #-----------------------------------------------------------------------------
 # uninstall target
