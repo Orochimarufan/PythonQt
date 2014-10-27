@@ -3,7 +3,7 @@ project(PythonQt_QtAll)
 file(GLOB SOURCES *.cpp)
 file(GLOB HEADERS *.h)
 
-set(QT Core Gui Network OpenGL Sql Svg UiTools WebKit Xml CACHE INTERNAL "")
+set(QT Core Gui Network OpenGL Sql Svg UiTools WebKit Xml CACHE INTERNAL "")#for find_package in root CMakeLists
 if(PythonQt_Qt5)
 	set(QT ${QT} PrintSupport Widgets WebKitWidgets Multimedia MultimediaWidgets XmlPatterns CACHE INTERNAL "")
 endif()
