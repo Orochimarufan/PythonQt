@@ -92,7 +92,12 @@ configure_file(PythonQtConfig.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt}Config.
 set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
 configure_file(PythonQtConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt}Config.cmake" @ONLY)
 # both
-configure_file(PythonQtConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake" @ONLY)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+	"${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake"
+	VERSION ${PythonQt_VERSION}
+	COMPATIBILITY AnyNewerVersion
+)
 
 install(DIRECTORY ./gui DESTINATION include/PythonQt FILES_MATCHING PATTERN "*.h")#install gui subfolder explicitly
 install(EXPORT ${PythonQt}Targets DESTINATION "${LIB_CMAKE_PATH}" COMPONENT core-dev)

@@ -188,7 +188,12 @@ set(PythonQt_EXPORT_LOCAL OFF)
 set(INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/PythonQt")
 configure_file(PythonQt_QtAllConfig.cmake.in "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake" @ONLY)
 # both
-configure_file(PythonQt_QtAllConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/${PythonQt_QtAll}ConfigVersion.cmake" @ONLY)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+	"${PROJECT_BINARY_DIR}/${PythonQt_QtAll}ConfigVersion.cmake"
+	VERSION ${PythonQt_VERSION}
+	COMPATIBILITY AnyNewerVersion
+)
 
 install(EXPORT ${PythonQt_QtAll}Targets DESTINATION "${LIB_CMAKE_PATH}" COMPONENT QtAll-dev)
 install(FILES ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${PythonQt_QtAll}Config.cmake
