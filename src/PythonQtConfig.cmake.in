@@ -12,3 +12,6 @@ find_package(PythonLibs @PYTHONLIBS_VERSION_STRING@ REQUIRED)
 
 # Our library dependencies (contains definitions for IMPORTED targets)
 include("${CMAKE_CURRENT_LIST_DIR}/@PythonQt@Targets.cmake")
+set_target_properties(${PythonQt} PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}#emulate IMPORTED target for Python
+)
