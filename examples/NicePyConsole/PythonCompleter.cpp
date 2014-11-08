@@ -13,7 +13,7 @@ PythonCompleter::PythonCompleter(SimpleConsole *parent, PythonQtObjectPtr contex
     _parentContext = context;
 
     // initialize python
-    _context.evalFile("PythonCompleter.py");
+    _context.evalFile(":/lib/PythonCompleter.py");
 
     // generate string list model
     // (which we will change dynamically later)
