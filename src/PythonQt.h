@@ -42,6 +42,7 @@
 */
 //----------------------------------------------------------------------------------
 
+#include <iostream>
 #include "PythonQtUtils.h"
 #include "PythonQtSystem.h"
 #include "PythonQtInstanceWrapper.h"
@@ -56,8 +57,6 @@
 #include <QByteArray>
 #include <QStringList>
 #include <QtDebug>
-#include <iostream>
-
 
 class PythonQtClassInfo;
 class PythonQtPrivate;
@@ -88,7 +87,7 @@ template<class T1, class T2> int PythonQtUpcastingOffset() {
 typedef QObject* PythonQtQObjectCreatorFunctionCB();
 
 //! helper template to create a derived QObject class
-template<class T> QObject* PythonQtCreateObject() { return new T(); };
+template<class T> QObject* PythonQtCreateObject() { return new T(); }
 
 //! The main interface to the Python Qt binding, realized as a singleton
 /*!
@@ -137,11 +136,9 @@ public:
     Type_InplaceLShift = 1 << 18,
     Type_InplaceRShift = 1 << 19,
 
-    // Not yet needed/nicely mappable/generated...
-    //Type_Positive = 1 << 29,
-    //Type_Negative = 1 << 29,
-    //Type_Abs = 1 << 29,
-    //Type_Hash = 1 << 29,
+    Type_Length = 1 << 20,
+    Type_MappingSetItem = 1 << 21,
+    Type_MappingGetItem = 1 << 22,
 
     Type_Invert = 1 << 29,
     Type_RichCompare = 1 << 30,

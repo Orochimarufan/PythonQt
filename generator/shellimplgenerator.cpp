@@ -200,8 +200,9 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
         s << meta_class->qualifiedCppName() << "::";
         s << fun->originalName() << "(";
         for (int i = 0; i < args.size(); ++i) {
-          if (i > 0)
+          if (i > 0) {
             s << ", ";
+          }
           s << args.at(i)->indexedName();
         }
         s << ");";
@@ -242,7 +243,7 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
       continue;
     }
     writeFunctionSignature(s, fun, meta_class, QString(),
-      Option(ConvertReferenceToPtr | FirstArgIsWrappedObject | OriginalName | ShowStatic | UnderscoreSpaces),
+      Option(ConvertReferenceToPtr | FirstArgIsWrappedObject | OriginalName | ShowStatic | UnderscoreSpaces | ProtectedEnumAsInts),
       "PythonQtWrapper_");
     s << endl << "{" << endl;
     s << "  ";
@@ -277,7 +278,11 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
         s << wrappedObject << op << " " << args.at(0)->argumentName();
       } else {
         if (fun->isStatic()) {
-          s << meta_class->qualifiedCppName() << "::";
+          if (fun->wasProtected()) {
+            s << promoterClassName(meta_class) << "::promoted_";
+          } else {
+            s << meta_class->qualifiedCppName() << "::";
+          }
         } else {
           if (fun->wasProtected() || fun->isVirtual()) {
             s << " (("  << promoterClassName(meta_class) << "*)theWrappedObject)->promoted_";

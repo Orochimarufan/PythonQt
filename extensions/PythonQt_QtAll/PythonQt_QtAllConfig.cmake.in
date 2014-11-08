@@ -1,30 +1,13 @@
 # - Config file for the PythonQt package
 # It defines the following variables
 #  PythonQt_QtAll              - the PythonQt QtAll target
-#  PythonQt_QtAll_INCLUDE_DIRS - include directories for PythonQt
-#  PythonQt_QtAll_LIBRARIES    - libraries to link against
 #  PythonQt_QtAll_QT           - linked Qt modules
 
 set(PythonQt_QtAll @PythonQt_QtAll@)
 set(PythonQt_QtAll_QT @QT@)
 
-set(__PYTHONQT_LOCAL @PythonQt_EXPORT_LOCAL@)
-if(NOT __PYTHONQT_LOCAL)
-	find_package(@PythonQt@)
-endif()
-
-# Compute paths
-get_filename_component(PYTHONQT_QTALL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(PythonQt_QtAll_INCLUDE_DIRS "@INCLUDE_DIRS@")
+find_package(@PythonQt@ CONFIG REQUIRED)
+find_package(Qt5 CONFIG REQUIRED COMPONENTS ${PythonQt_QtAll_QT})
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET @PythonQt_QtAll@)
-  include("${PYTHONQT_QTALL_CMAKE_DIR}/@PythonQt_QtAll@Targets.cmake")
-endif()
-
-if(__PYTHONQT_LOCAL)
-	find_package(@PythonQt@)
-endif()
-
-# These are IMPORTED targets created by @PythonQt_QtAll@Targets.cmake
-set(PythonQt_QtAll_LIBRARIES @PythonQt_QtAll@)
+include("${CMAKE_CURRENT_LIST_DIR}/@PythonQt_QtAll@Targets.cmake")

@@ -6,27 +6,23 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 #-----------------------------------------------------------------------------
 # Policy
 IF(POLICY CMP0020)
-    cmake_policy(SET CMP0020 NEW)
+	cmake_policy(SET CMP0020 NEW)
 ENDIF()
 
 IF(POLICY CMP0026) # Location property
-    cmake_policy(SET CMP0026 NEW)
+	cmake_policy(SET CMP0026 NEW)
 ENDIF()
 
 IF(POLICY CMP0028) # ALIAS with ::
-    cmake_policy(SET CMP0028 NEW)
-ENDIF()
-
-IF(POLICY CMP0037) # Reserved names
-    cmake_policy(SET CMP0037 OLD) # we use "test"
+	cmake_policy(SET CMP0028 NEW)
 ENDIF()
 
 IF(POLICY CMP0046) # Missing Deps
-    cmake_policy(SET CMP0046 NEW)
+	cmake_policy(SET CMP0046 NEW)
 ENDIF()
 
 IF(POLICY CMP0043) # Ignore COMPILE_DEFINITIONS_<Config>
-    cmake_policy(SET CMP0043 NEW)
+	cmake_policy(SET CMP0043 NEW)
 ENDIF()
 
 include(CTestUseLaunchers OPTIONAL)
@@ -45,11 +41,11 @@ else()
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-    if(PythonQt_DEBUG)
-        set(CMAKE_BUILD_TYPE Debug)
-    else()
-	set(CMAKE_BUILD_TYPE Release)
-    endif()
+	if(PythonQt_DEBUG)
+		set(CMAKE_BUILD_TYPE Debug)
+	else()
+		set(CMAKE_BUILD_TYPE Release)
+	endif()
 endif()
 
 #-----------------------------------------------------------------------------
@@ -66,21 +62,21 @@ endif(PythonQt_Qt5)
 # associated with the Qt version being used.
 
 if("${QT_VERSION_MAJOR}" STREQUAL "5")
-    # NEW
-    if(NOT ("${QT_VERSION_MINOR}" LESS "3"))
-        set(generated_cpp_suffix "_53")
-    else()
+	# NEW
+	if(NOT ("${QT_VERSION_MINOR}" LESS "3"))
+		set(generated_cpp_suffix "_53")
+	else()
 	set(generated_cpp_suffix "_50")
-    endif()
+	endif()
 else()
-    # OLD
-    set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
-    if("${generated_cpp_suffix}" STREQUAL "_48")
-            set(generated_cpp_suffix "")
-    endif()
-    if("${generated_cpp_suffix}" STREQUAL "_46")
-            set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
-    endif()
+	# OLD
+	set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
+	if("${generated_cpp_suffix}" STREQUAL "_48")
+			set(generated_cpp_suffix "")
+	endif()
+	if("${generated_cpp_suffix}" STREQUAL "_46")
+			set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
+	endif()
 endif()
 
 #-----------------------------------------------------------------------------
@@ -89,11 +85,11 @@ endif()
 #add_custom_target(generator)
 #add_dependencies(generator pythonqt_generator)
 
-# TODO
-
+option(BUILD_SHARED_LIBS "build shared instead of static library")
 #-----------------------------------------------------------------------------
 # Find Python
-option(PythonQt_Python3 "Use Python 3.x (3.3+)" ON)
+option(PythonQtAll "Build complete Qt wrapper library" ON)
+option(PythonQt_Python3 "Use Python 3.x (3.3+)" OFF)
 option(PythonQt_Python "Use specific Python Version" OFF)
 if(PythonQt_Python)
 	find_package(PythonLibs ${PythonQt_Python} REQUIRED EXACT)
@@ -114,47 +110,35 @@ add_definitions(-DPYTHONQT_USE_RELEASE_PYTHON_FALLBACK)
 
 #-----------------------------------------------------------------------------
 # Library Name
-# The variable PythonQt contains the PythonQt core library name
-#   It incorporates library mayor versions
-if(PythonQt_Qt5)
-    if(PythonQt_Python3)
-        set(PythonQt Qt5Python3)
-    else()
-        set(PythonQt Qt5Python)
-    endif()
-elseif(PythonQt_Python3)
-    set(PythonQt PythonQt_3)
-else()
-    set(PythonQt PythonQt)
-endif()
+# To maintain ABI compatibility, the Qt major version as well as the Python major and minor version are needed
+string(SUBSTRING ${PYTHONLIBS_VERSION_STRING} 0 1 python_major)
+string(SUBSTRING ${PYTHONLIBS_VERSION_STRING} 2 1 python_minor)
+set(PythonQt Qt${QT_VERSION_MAJOR}Python${python_major}${python_minor})
 
 set(CMAKE_DEBUG_POSTFIX "_d")
-
-message(STATUS "Building ${PythonQt} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE})")
 
 #-----------------------------------------------------------------------------
 # Core
 add_subdirectory(src)
-include_directories(src)
-
+#-----------------------------------------------------------------------------
+# Extenseions (QtAll)
+if (${PythonQtAll})
+	add_subdirectory(extensions)
+	#find Qt imported targets for use in examples
+	#the necessaty is a bug and will be probably be fixed in CMake 3.1 (http://public.kitware.com/Bug/view.php?id=15101)
+	find_package(Qt5 CONFIG REQUIRED COMPONENTS ${QT})
+	# Examples, depending on QtAll
+	add_subdirectory(examples EXCLUDE_FROM_ALL)
+endif()
 #-----------------------------------------------------------------------------
 # Tests
 add_subdirectory(tests EXCLUDE_FROM_ALL)
-# test alias
-add_custom_target(test COMMAND tests/PythonQtTest WORKING_DIRECTORY ${CURRENT_BINARY_DIR})
-add_dependencies(test PythonQtTest)
-
-#-----------------------------------------------------------------------------
-# Extenseions (QtAll)
-add_subdirectory(extensions)
-# QtAll alias
-add_custom_target(QtAll)
-add_dependencies(QtAll ${PythonQt_QtAll})
-
-#-----------------------------------------------------------------------------
-# Examples
-include_directories(extensions/PythonQt_QtAll)
-add_subdirectory(examples EXCLUDE_FROM_ALL)
+add_custom_target(tests
+	COMMAND PythonQt_Tests
+	DEPENDS ${PythonQt}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src#preliminary hack to find the dll on windows
+)
+add_dependencies(tests PythonQt_Tests)
 
 #-----------------------------------------------------------------------------
 # uninstall target
@@ -162,6 +146,14 @@ configure_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
 	IMMEDIATE @ONLY)
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-add_custom_target(uninstall
-	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+if(${BUILD_SHARED_LIBS})
+	set(LINK_TYPE "Shared")
+else()
+	set(LINK_TYPE "Static")
+endif()
+if(${PythonQtAll})
+	set(WrapAll " + ${PythonQt_QtAll}")
+endif()
+message(STATUS "Building ${PythonQt}${WrapAll} (Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE} | ${LINK_TYPE})")

@@ -1,21 +1,13 @@
 project(PyScriptingConsole)
 
-set(SOURCES
-    main.cpp
-    PyExampleObject.cpp
-)
+file(GLOB SOURCES *.cpp)
+file(GLOB HEADERS *.h)
 
-set(HEADERS
-    PyExampleObject.h
-)
-
-qt_wrap_cpp(MOC ${HEADERS})
-
-add_executable(PyScriptingConsole ${MOC} ${SOURCES})
-target_link_libraries(PyScriptingConsole ${PythonQt} ${PythonQt_QtAll})
-
-qt_use_modules(PyScriptingConsole Core Gui Network OpenGL Svg UiTools WebKit Xml Multimedia Sql)
-if(PythonQt_Qt5)
-    qt_use_modules(PyScriptingConsole Widgets WebKitWidgets)
+if(NOT TARGET ${PythonQt_QtAll})
+	find_package(${PythonQt_QtAll} CONFIG REQUIRED)
 endif()
 
+qt_wrap_cpp(GEN_MOC ${HEADERS})#replacable by automoc
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${GEN_MOC})
+target_link_libraries(${PROJECT_NAME} ${PythonQt_QtAll})

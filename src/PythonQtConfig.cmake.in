@@ -1,22 +1,17 @@
 # - Config file for the PythonQt package
 # It defines the following variables
-#  PythonQt              - the PythonQt core target (PythonQt PythonQt_3 PythonQt5 PythonQt5_3)
-#  PythonQt_INCLUDE_DIRS - include directories for PythonQt
-#  PythonQt_LIBRARIES    - libraries to link against
+#  PythonQt              - the PythonQt core target (QtXPythonYZ)
 
-set(PythonQt @PythonQt@)
-set(PythonQt_Qt5 @PythonQt_Qt5@)
-set(PythonQt_Python3 @PythonQt_Python3@)
-set(PythonQt_Python @PYTHONLIBS_VERSION_STRING@)
+set(PythonQt @PythonQt@)#library name
+set(PythonQt_Qt5 @PythonQt_Qt5@)#flag
+set(PythonQt_Python3 @PythonQt_Python3@)#flag
+set(PythonQt_Python @PYTHONLIBS_VERSION_STRING@)#linked python version
 
-# Compute paths
-get_filename_component(PYTHONQT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(PythonQt_INCLUDE_DIRS "@INCLUDE_DIRS@")
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(PythonLibs @PYTHONLIBS_VERSION_STRING@ REQUIRED)
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-if(NOT TARGET @PythonQt@)
-  include("${PYTHONQT_CMAKE_DIR}/@PythonQt@Targets.cmake")
-endif()
-
-# These are IMPORTED targets created by @PythonQt@Targets.cmake
-set(PythonQt_LIBRARIES @PythonQt@)
+include("${CMAKE_CURRENT_LIST_DIR}/@PythonQt@Targets.cmake")
+set_target_properties(${PythonQt} PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS}#emulate IMPORTED target for Python
+)

@@ -33,12 +33,10 @@
  *
  */
 
-#ifdef WIN32
-#ifdef PYTHONQT_QTALL_EXPORTS
+#if defined(WIN32) && defined(PYTHONQT_QTALL_EXPORTS) && !defined(PYTHONQT_QTALL_STATIC)
 #define PYTHONQT_QTALL_EXPORT __declspec(dllexport)
-#else
+#elif defined(WIN32) && !defined(PYTHONQT_QTALL_EXPORTS) && !defined(PYTHONQT_QTALL_STATIC)
 #define PYTHONQT_QTALL_EXPORT __declspec(dllimport)
-#endif
 #else
 #define PYTHONQT_QTALL_EXPORT
 #endif
