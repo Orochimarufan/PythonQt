@@ -151,13 +151,18 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
       s << ";" << endl;
     }
     s << endl;
+    writeInjectedCode(s, meta_class, TypeSystem::PyShellDeclaration);
+    writeInjectedCode(s, meta_class, TypeSystem::PyInheritShellDeclaration, true);
     s << "  PythonQtInstanceWrapper* _wrapper; " << endl;
 
     s << "};" << endl << endl;
   }
 
   // Promoter-------------------------------------------------------------------
-  AbstractMetaFunctionList promoteFunctions = getProtectedFunctionsThatNeedPromotion(meta_class);
+  AbstractMetaFunctionList promoteFunctions;
+  if (meta_class->typeEntry()->shouldCreatePromoter()) {
+    promoteFunctions = getProtectedFunctionsThatNeedPromotion(meta_class);
+  }
   if (!promoteFunctions.isEmpty()) {
     s << "class " << promoterClassName(meta_class)
       << " : public " << meta_class->qualifiedCppName() << endl << "{ public:" << endl;
@@ -191,7 +196,9 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
       if (fun->type()) {
         s << "return ";
       }
-      s << meta_class->qualifiedCppName() << "::";
+      if (!fun->isAbstract()) {
+        s << meta_class->qualifiedCppName() << "::";
+      }
       s << fun->originalName() << "(";
       for (int i = 0; i < args.size(); ++i) {
         if (i > 0) {
@@ -283,7 +290,8 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
     bool copyConstructorSeen = false;
     bool defaultConstructorSeen = false;
     foreach (const AbstractMetaFunction *fun, ctors) {
-      if (!fun->isPublic() || fun->isAbstract()) { continue; }
+      if (fun->isAbstract() || (!meta_class->generateShellClass() && !fun->isPublic())) { continue; }
+
       s << meta_class->qualifiedCppName() << "* ";
       writeFunctionSignature(s, fun, 0, "new_",
         Option(IncludeDefaultExpression | OriginalName | ShowStatic));
@@ -314,6 +322,10 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
 
   foreach (const AbstractMetaFunction *function, functions) {
     if (!function->isSlot() || function->isVirtual()) {
+      
+      // for debugging:
+      //functionHasNonConstReferences(function);
+      
       s << "   ";
       writeFunctionSignature(s, function, 0, QString(),
         Option(ConvertReferenceToPtr | FirstArgIsWrappedObject | IncludeDefaultExpression | OriginalName | ShowStatic | UnderscoreSpaces | ProtectedEnumAsInts));
@@ -330,14 +342,15 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
   AbstractMetaFieldList fields = meta_class->fields();
   qSort(fields.begin(), fields.end(), field_lessThan);
 
+  // TODO: move "So" check to typesystem, e.g. allow star in rejection...
   // Field accessors
   foreach (const AbstractMetaField *field, fields ) {
-    if (field->isPublic()) {
+    if (field->isPublic() && !field->type()->name().startsWith("So")) {
       writeFieldAccessors(s, field);
     }
   }
 
-  writeInjectedCode(s, meta_class);
+  writeInjectedCode(s, meta_class, TypeSystem::PyWrapperDeclaration);
 
   
   s  << "};" << endl << endl;
@@ -350,12 +363,16 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
 
 }
 
-void ShellHeaderGenerator::writeInjectedCode(QTextStream &s, const AbstractMetaClass *meta_class)
+void ShellHeaderGenerator::writeInjectedCode(QTextStream &s, const AbstractMetaClass *meta_class, int type, bool recursive)
 {
-  CodeSnipList code_snips = meta_class->typeEntry()->codeSnips();
-  foreach (const CodeSnip &cs, code_snips) {
-    if (cs.language == TypeSystem::PyWrapperDeclaration) {
-      s << cs.code() << endl;
+  const AbstractMetaClass *cls = meta_class;
+  do {
+    CodeSnipList code_snips = cls->typeEntry()->codeSnips();
+    foreach(const CodeSnip &cs, code_snips) {
+      if (cs.language == type) {
+        s << cs.code() << endl;
+      }
     }
-  }
+    cls = cls->baseClass();
+  } while (recursive && cls);
 }
