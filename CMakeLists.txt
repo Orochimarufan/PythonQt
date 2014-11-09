@@ -72,7 +72,7 @@ else()
 	# OLD
 	set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
 	if("${generated_cpp_suffix}" STREQUAL "_48")
-			set(generated_cpp_suffix "")
+			set(generated_cpp_suffix "_48")
 	endif()
 	if("${generated_cpp_suffix}" STREQUAL "_46")
 			set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
@@ -113,7 +113,7 @@ add_definitions(-DPYTHONQT_USE_RELEASE_PYTHON_FALLBACK)
 # To maintain ABI compatibility, the Qt major version as well as the Python major and minor version are needed
 string(SUBSTRING ${PYTHONLIBS_VERSION_STRING} 0 1 python_major)
 string(SUBSTRING ${PYTHONLIBS_VERSION_STRING} 2 1 python_minor)
-set(PythonQt Qt${QT_VERSION_MAJOR}Python${python_major}${python_minor})
+set(PythonQt Qt${QT_VERSION_MAJOR}Python${python_major}${python_minor} CACHE INTERNAL "")
 
 set(CMAKE_DEBUG_POSTFIX "_d")
 
