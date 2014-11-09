@@ -37,3 +37,4 @@ PYTHONQT_GENERATED_PATH = $$PWD/../generated_cpp
     }
   }
 }
+
