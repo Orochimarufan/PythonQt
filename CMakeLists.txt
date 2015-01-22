@@ -72,7 +72,7 @@ else()
 	# OLD
 	set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
 	if("${generated_cpp_suffix}" STREQUAL "_48")
-			set(generated_cpp_suffix "")
+			set(generated_cpp_suffix "_48")
 	endif()
 	if("${generated_cpp_suffix}" STREQUAL "_46")
 			set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
