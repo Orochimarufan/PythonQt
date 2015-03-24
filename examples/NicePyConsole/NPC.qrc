@@ -3,74 +3,162 @@
         <file>module_completion.py</file>
         <file>PygmentsHighlighter.py</file>
         <file>PythonCompleter.py</file>
-        <file>pygments/__init__.py</file>
-        <file>pygments/cmdline.py</file>
-        <file>pygments/console.py</file>
-        <file>pygments/filter.py</file>
-        <file>pygments/formatter.py</file>
-        <file>pygments/lexer.py</file>
-        <file>pygments/plugin.py</file>
-        <file>pygments/scanner.py</file>
-        <file>pygments/style.py</file>
-        <file>pygments/token.py</file>
-        <file>pygments/unistring.py</file>
-        <file>pygments/util.py</file>
         <file>pygments/filters/__init__.py</file>
-        <file>pygments/formatters/__init__.py</file>
-        <file>pygments/formatters/_mapping.py</file>
+        <file>pygments/formatter.py</file>
+        <file>pygments/modeline.py</file>
+        <file>pygments/util.py</file>
+        <file>pygments/sphinxext.py</file>
+        <file>pygments/console.py</file>
+        <file>pygments/plugin.py</file>
         <file>pygments/formatters/bbcode.py</file>
+        <file>pygments/formatters/terminal.py</file>
+        <file>pygments/formatters/rtf.py</file>
+        <file>pygments/formatters/terminal256.py</file>
         <file>pygments/formatters/html.py</file>
         <file>pygments/formatters/img.py</file>
+        <file>pygments/formatters/_mapping.py</file>
+        <file>pygments/formatters/svg.py</file>
         <file>pygments/formatters/latex.py</file>
         <file>pygments/formatters/other.py</file>
-        <file>pygments/formatters/rtf.py</file>
-        <file>pygments/formatters/svg.py</file>
-        <file>pygments/formatters/terminal.py</file>
-        <file>pygments/formatters/terminal256.py</file>
-        <file>pygments/lexers/__init__.py</file>
-        <file>pygments/lexers/_asybuiltins.py</file>
-        <file>pygments/lexers/_clbuiltins.py</file>
-        <file>pygments/lexers/_luabuiltins.py</file>
-        <file>pygments/lexers/_mapping.py</file>
-        <file>pygments/lexers/_phpbuiltins.py</file>
-        <file>pygments/lexers/_postgres_builtins.py</file>
-        <file>pygments/lexers/_scilab_builtins.py</file>
-        <file>pygments/lexers/_vimbuiltins.py</file>
-        <file>pygments/lexers/agile.py</file>
-        <file>pygments/lexers/asm.py</file>
+        <file>pygments/formatters/__init__.py</file>
+        <file>pygments/token.py</file>
+        <file>pygments/filter.py</file>
+        <file>pygments/lexers/snobol.py</file>
+        <file>pygments/lexers/dsls.py</file>
+        <file>pygments/lexers/foxpro.py</file>
         <file>pygments/lexers/compiled.py</file>
-        <file>pygments/lexers/dotnet.py</file>
-        <file>pygments/lexers/functional.py</file>
-        <file>pygments/lexers/hdl.py</file>
-        <file>pygments/lexers/jvm.py</file>
-        <file>pygments/lexers/math.py</file>
-        <file>pygments/lexers/other.py</file>
-        <file>pygments/lexers/parsers.py</file>
+        <file>pygments/lexers/_stan_builtins.py</file>
+        <file>pygments/lexers/haxe.py</file>
+        <file>pygments/lexers/installers.py</file>
+        <file>pygments/lexers/idl.py</file>
+        <file>pygments/lexers/resource.py</file>
+        <file>pygments/lexers/pascal.py</file>
+        <file>pygments/lexers/dalvik.py</file>
         <file>pygments/lexers/shell.py</file>
-        <file>pygments/lexers/special.py</file>
-        <file>pygments/lexers/sql.py</file>
-        <file>pygments/lexers/templates.py</file>
-        <file>pygments/lexers/text.py</file>
+        <file>pygments/lexers/rust.py</file>
+        <file>pygments/lexers/nix.py</file>
         <file>pygments/lexers/web.py</file>
-        <file>pygments/styles/__init__.py</file>
-        <file>pygments/styles/autumn.py</file>
-        <file>pygments/styles/borland.py</file>
-        <file>pygments/styles/bw.py</file>
-        <file>pygments/styles/colorful.py</file>
-        <file>pygments/styles/default.py</file>
-        <file>pygments/styles/emacs.py</file>
-        <file>pygments/styles/friendly.py</file>
+        <file>pygments/lexers/rdf.py</file>
+        <file>pygments/lexers/ooc.py</file>
+        <file>pygments/lexers/configs.py</file>
+        <file>pygments/lexers/go.py</file>
+        <file>pygments/lexers/theorem.py</file>
+        <file>pygments/lexers/_lua_builtins.py</file>
+        <file>pygments/lexers/graph.py</file>
+        <file>pygments/lexers/python.py</file>
+        <file>pygments/lexers/diff.py</file>
+        <file>pygments/lexers/math.py</file>
+        <file>pygments/lexers/functional.py</file>
+        <file>pygments/lexers/nimrod.py</file>
+        <file>pygments/lexers/esoteric.py</file>
+        <file>pygments/lexers/textfmts.py</file>
+        <file>pygments/lexers/matlab.py</file>
+        <file>pygments/lexers/_php_builtins.py</file>
+        <file>pygments/lexers/eiffel.py</file>
+        <file>pygments/lexers/console.py</file>
+        <file>pygments/lexers/special.py</file>
+        <file>pygments/lexers/d.py</file>
+        <file>pygments/lexers/igor.py</file>
+        <file>pygments/lexers/pawn.py</file>
+        <file>pygments/lexers/lisp.py</file>
+        <file>pygments/lexers/html.py</file>
+        <file>pygments/lexers/graphics.py</file>
+        <file>pygments/lexers/_openedge_builtins.py</file>
+        <file>pygments/lexers/prolog.py</file>
+        <file>pygments/lexers/css.py</file>
+        <file>pygments/lexers/erlang.py</file>
+        <file>pygments/lexers/robotframework.py</file>
+        <file>pygments/lexers/factor.py</file>
+        <file>pygments/lexers/webmisc.py</file>
+        <file>pygments/lexers/iolang.py</file>
+        <file>pygments/lexers/fantom.py</file>
+        <file>pygments/lexers/ecl.py</file>
+        <file>pygments/lexers/fortran.py</file>
+        <file>pygments/lexers/_sourcemod_builtins.py</file>
+        <file>pygments/lexers/c_cpp.py</file>
+        <file>pygments/lexers/data.py</file>
+        <file>pygments/lexers/scripting.py</file>
+        <file>pygments/lexers/_mapping.py</file>
+        <file>pygments/lexers/templates.py</file>
+        <file>pygments/lexers/hdl.py</file>
+        <file>pygments/lexers/textedit.py</file>
+        <file>pygments/lexers/_lasso_builtins.py</file>
+        <file>pygments/lexers/_scilab_builtins.py</file>
+        <file>pygments/lexers/_postgres_builtins.py</file>
+        <file>pygments/lexers/parsers.py</file>
+        <file>pygments/lexers/apl.py</file>
+        <file>pygments/lexers/urbi.py</file>
+        <file>pygments/lexers/automation.py</file>
+        <file>pygments/lexers/r.py</file>
+        <file>pygments/lexers/text.py</file>
+        <file>pygments/lexers/nit.py</file>
+        <file>pygments/lexers/_cl_builtins.py</file>
+        <file>pygments/lexers/other.py</file>
+        <file>pygments/lexers/modeling.py</file>
+        <file>pygments/lexers/haskell.py</file>
+        <file>pygments/lexers/chapel.py</file>
+        <file>pygments/lexers/_vim_builtins.py</file>
+        <file>pygments/lexers/asm.py</file>
+        <file>pygments/lexers/jvm.py</file>
+        <file>pygments/lexers/basic.py</file>
+        <file>pygments/lexers/agile.py</file>
+        <file>pygments/lexers/actionscript.py</file>
+        <file>pygments/lexers/ambient.py</file>
+        <file>pygments/lexers/inferno.py</file>
+        <file>pygments/lexers/markup.py</file>
+        <file>pygments/lexers/c_like.py</file>
+        <file>pygments/lexers/rebol.py</file>
+        <file>pygments/lexers/javascript.py</file>
+        <file>pygments/lexers/ml.py</file>
+        <file>pygments/lexers/sql.py</file>
+        <file>pygments/lexers/smalltalk.py</file>
+        <file>pygments/lexers/business.py</file>
+        <file>pygments/lexers/_cocoa_builtins.py</file>
+        <file>pygments/lexers/int_fiction.py</file>
+        <file>pygments/lexers/testing.py</file>
+        <file>pygments/lexers/felix.py</file>
+        <file>pygments/lexers/_asy_builtins.py</file>
+        <file>pygments/lexers/php.py</file>
+        <file>pygments/lexers/julia.py</file>
+        <file>pygments/lexers/ruby.py</file>
+        <file>pygments/lexers/perl.py</file>
+        <file>pygments/lexers/dotnet.py</file>
+        <file>pygments/lexers/objective.py</file>
+        <file>pygments/lexers/tcl.py</file>
+        <file>pygments/lexers/algebra.py</file>
+        <file>pygments/lexers/dylan.py</file>
+        <file>pygments/lexers/__init__.py</file>
+        <file>pygments/lexers/make.py</file>
+        <file>pygments/regexopt.py</file>
+        <file>pygments/scanner.py</file>
+        <file>pygments/style.py</file>
+        <file>pygments/cmdline.py</file>
         <file>pygments/styles/fruity.py</file>
-        <file>pygments/styles/manni.py</file>
-        <file>pygments/styles/monokai.py</file>
-        <file>pygments/styles/murphy.py</file>
+        <file>pygments/styles/colorful.py</file>
+        <file>pygments/styles/emacs.py</file>
+        <file>pygments/styles/trac.py</file>
         <file>pygments/styles/native.py</file>
         <file>pygments/styles/pastie.py</file>
-        <file>pygments/styles/perldoc.py</file>
-        <file>pygments/styles/rrt.py</file>
+        <file>pygments/styles/friendly.py</file>
+        <file>pygments/styles/igor.py</file>
         <file>pygments/styles/tango.py</file>
-        <file>pygments/styles/trac.py</file>
+        <file>pygments/styles/paraiso_light.py</file>
+        <file>pygments/styles/paraiso_dark.py</file>
+        <file>pygments/styles/autumn.py</file>
+        <file>pygments/styles/manni.py</file>
+        <file>pygments/styles/rrt.py</file>
+        <file>pygments/styles/bw.py</file>
+        <file>pygments/styles/monokai.py</file>
+        <file>pygments/styles/perldoc.py</file>
+        <file>pygments/styles/borland.py</file>
+        <file>pygments/styles/default.py</file>
+        <file>pygments/styles/xcode.py</file>
         <file>pygments/styles/vim.py</file>
+        <file>pygments/styles/__init__.py</file>
         <file>pygments/styles/vs.py</file>
+        <file>pygments/styles/murphy.py</file>
+        <file>pygments/lexer.py</file>
+        <file>pygments/__init__.py</file>
+        <file>pygments/unistring.py</file>
     </qresource>
 </RCC>

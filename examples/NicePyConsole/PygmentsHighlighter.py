@@ -15,14 +15,14 @@ import sys
 # adjust sys.path
 dot_in_path = '.' in sys.path
 if not dot_in_path:
-    sys.path.insert(0,'.')
+    sys.path.insert(0, '.')
 
 # Third-party imports
-from pygments.lexers        import PythonLexer
-from pygments.formatters    import HtmlFormatter
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
 
 # PythonQt imports
-from PythonQt               import QtGui
+from PythonQt import QtGui
 
 
 # undo sys.path modifications
@@ -57,7 +57,7 @@ class PygmentsHighlighter(object):
             return self._format_cache[token]
 
         # get format from document
-        code, html = self._formatter._format_lines([(token, u'dummy')]).next()
+        code, html = next(self._formatter._format_lines([(token, u'dummy')]))
         self._document.setHtml(html)
         char_format = QtGui.QTextCursor(self._document).charFormat()
 

@@ -3,9 +3,9 @@
 
 copied code with some modifications from IPython!"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 from __future__ import print_function
 
 # Stdlib imports
@@ -17,9 +17,9 @@ from time import time
 from zipimport import zipimporter
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Time in seconds after which the rootmodules will be stored in (nonpermanent) cache
 TIMEOUT_STORAGE = 2
@@ -32,6 +32,7 @@ import_re = re.compile(r'.*(\.so|\.py[cod]?)$')
 
 # global cache
 cache = dict()
+
 
 def module_list(path):
     """
@@ -62,15 +63,16 @@ def module_list(path):
 
     def is_importable_file(path):
         """Returns True if the provided path is a valid importable module"""
-        name, extension = os.path.splitext( path )
+        name, extension = os.path.splitext(path)
         return import_re.match(path)  # and py3compat.isidentifier(name)
 
     # Now find actual path matches for packages or modules
     folder_list = [p for p in folder_list
-                   if isfile(pjoin(path, p,'__init__.py'))
-                   or is_importable_file(p) ]
+                   if isfile(pjoin(path, p, '__init__.py'))
+                   or is_importable_file(p)]
 
     return [basename(p).split('.')[0] for p in folder_list]
+
 
 def get_root_modules():
     """
@@ -126,8 +128,8 @@ def try_import(mod, only_modules=False):
 
     completions = []
     if (not hasattr(m, '__file__')) or (not only_modules) or m_is_init:
-        completions.extend( [attr for attr in dir(m) if
-                             is_importable(m, attr, only_modules)])
+        completions.extend([attr for attr in dir(m) if
+                            is_importable(m, attr, only_modules)])
 
     completions.extend(getattr(m, '__all__', []))
     if m_is_init:
@@ -155,7 +157,7 @@ def module_completion(line):
         return ['import ']
 
     # 'from xy<tab>' or 'import xy<tab>'
-    if nwords < 3 and (words[0] in ['import','from']) :
+    if nwords < 3 and (words[0] in ['import', 'from']):
         if nwords == 1:
             return get_root_modules()
         mod = words[1].split('.')
@@ -168,4 +170,3 @@ def module_completion(line):
     if nwords >= 3 and words[0] == 'from':
         mod = words[1]
         return try_import(mod)
-

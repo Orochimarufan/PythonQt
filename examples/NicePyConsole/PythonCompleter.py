@@ -16,7 +16,7 @@ import rlcompleter
 # adjust sys.path
 dot_in_path = '.' in sys.path
 if not dot_in_path:
-    sys.path.insert(0,'.')
+    sys.path.insert(0, '.')
 
 # Third-party imports
 from pygments.lexers import PythonLexer
@@ -62,15 +62,16 @@ def pythonqt_specific_completions(context, parent):
         # 2. check if it is really an instance of a PythonQt-Wrapper class
         if repr(type(type(base_object))) == "<type 'PythonQt.PythonQtClassWrapper'>":
             # 3. look for the names of it's children
-            if( hasattr(base_object, 'children') and callable(base_object.children) ):
+            if(hasattr(base_object, 'children') and callable(base_object.children)):
                 for child in base_object.children():
-                    if( hasattr(child, 'objectName') and child.objectName != '' ):
+                    if(hasattr(child, 'objectName') and child.objectName != ''):
                         completions.append(child.objectName)
         return completions
     except:
         return list()
 
-def autocompleteCode(code, parent = sys.modules['__main__']):
+
+def autocompleteCode(code, parent=sys.modules['__main__']):
     """ try to find useful completions for code """
 
     # get last line and context
@@ -79,13 +80,11 @@ def autocompleteCode(code, parent = sys.modules['__main__']):
     context = get_context(line)
     word = '.'.join(context)
 
-
     completions = None
 
     # module completion
     if line.startswith('from ') or line.startswith('import '):
         completions = module_completion(line)
-
 
     # rlcompleter
     if completions is None:
@@ -101,7 +100,7 @@ def autocompleteCode(code, parent = sys.modules['__main__']):
 
     # we only need the last part of the completion
     # (e.g. my_function from my_class.my_function)
-    completions = [ c.split('.')[-1] for c in completions ]
+    completions = [c.split('.')[-1] for c in completions]
 
     # sort completions and remove duplicates
     completions = sorted(set(completions), key=(lambda s: s.lower()))
@@ -113,7 +112,6 @@ def autocompleteCode(code, parent = sys.modules['__main__']):
 
     # return results
     return completions
-
 
 
 def get_context(string):

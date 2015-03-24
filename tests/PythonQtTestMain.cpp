@@ -41,7 +41,6 @@
 
 #include "PythonQt.h"
 #include "PythonQtTests.h"
-#include <QApplication>
 
 #include <QApplication>
 

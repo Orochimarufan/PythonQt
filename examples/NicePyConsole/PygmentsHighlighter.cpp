@@ -23,19 +23,21 @@ PygmentsHighlighter::PygmentsHighlighter(QTextDocument *parentDoc) :
     _context.addObject(objectName(),this);
 
     // initialize python
-    _context.evalFile("PygmentsHighlighter.py");
+    _context.evalFile(":/lib/PygmentsHighlighter.py");
 }
 
 
 // just delegate the protected method setFormat from base class
 void PygmentsHighlighter::_setFormat(int start, int count, const QTextCharFormat &format)
 {
+    //qDebug() << "setFormat " << start << " " << count << " format " << format;
     setFormat(start, count, format);
 }
 
 
 void PygmentsHighlighter::highlightBlock(const QString &text)
 {
+    //qDebug() << "highlightBlock" << text;
     // call python function to do everything
     QVariantList args;
     args.append(text);

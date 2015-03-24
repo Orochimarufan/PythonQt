@@ -1,4 +1,4 @@
 TEMPLATE = subdirs
 
 CONFIG += ordered
-SUBDIRS = src extensions tests examples generator
+SUBDIRS = generator src extensions tests examples
