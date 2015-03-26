@@ -1,0 +1,4 @@
+# normalized line endings: core.autocrlf true
+* text=auto
+# makepkg hates CRLF
+PKGBUILD text eol=lf

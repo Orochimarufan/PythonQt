@@ -1,0 +1,56 @@
+# Maintainer: Norbert Pfeiler <norbert.pfeiler@gmail.com>
+
+_realname=qt5-python27
+pkgname="$MINGW_PACKAGE_PREFIX-$_realname"
+pkgver=3.0
+pkgrel=1
+arch=('any')
+pkgdesc="PythonQt fork featuring Qt 5.x and Python 3.x support and improved CMake build system (Qt5 + Python2 version)"
+license=('LGPL')
+url="https://github.com/knossos-project/PythonQt"
+makedepends=("$MINGW_PACKAGE_PREFIX-cmake"
+  "$MINGW_PACKAGE_PREFIX-gcc"
+  "$MINGW_PACKAGE_PREFIX-ninja"
+  "git")
+depends=("$MINGW_PACKAGE_PREFIX-qt5"
+  #"$MINGW_PACKAGE_PREFIX-python2"
+  )
+provides=("$MINGW_PACKAGE_PREFIX-pythonqt")
+conflicts=("$MINGW_PACKAGE_PREFIX-pythonqt")
+replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26"
+  "$MINGW_PACKAGE_PREFIX-qt5-python25"
+  "$MINGW_PACKAGE_PREFIX-qt5-python24"
+  "$MINGW_PACKAGE_PREFIX-qt5-python23"
+  "$MINGW_PACKAGE_PREFIX-qt5-python22"
+  "$MINGW_PACKAGE_PREFIX-qt5-python21"
+  "$MINGW_PACKAGE_PREFIX-qt5-python20"
+)
+source=(git+https://github.com/knossos-project/PythonQt.git)
+md5sums=('SKIP')
+
+build() {
+  mkdir -p "$srcdir/build-$MINGW_CHOST-$_realname"
+  cd "$srcdir/build-$MINGW_CHOST-$_realname"
+
+  #link to the system python installation 
+  if [[ $CARCH == x86_64 ]]; then
+    echo x64
+    export PYTHON_PREFIX="/c/Windows/System32"
+  elif [[ $CARCH == i686 ]]; then
+    echo x32
+    export PYTHON_PREFIX="/c/Windows/SysWOW64"
+  fi
+
+  cmake -G Ninja -DCMAKE_PREFIX_PATH:STRING="$PYTHON_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="$pkgdir$MINGW_PREFIX" -DPythonQt_Qt5=TRUE -DPythonQt_Python3=FALSE ../PythonQt
+  ninja
+}
+
+check() {
+  cd "$srcdir/build-$MINGW_CHOST-$_realname"
+  ninja tests
+}
+
+package() {
+  cd "$srcdir/build-$MINGW_CHOST-$_realname"
+  ninja install
+}
