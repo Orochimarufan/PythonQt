@@ -51,3 +51,7 @@ endmacro()
 macro(qt_wrap_cpp)
   qt4_wrap_cpp(${ARGN})
 endmacro()
+
+if(QT_IS_STATIC)#from Qt4ConfigDependentSettings.cmake
+	set(QT_STATIC ON)
+endif()
