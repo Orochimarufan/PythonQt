@@ -1,5 +1,9 @@
 project(PythonQt_Tests)
 
+# automatically link plugins when linking to a static qt
+# so far only of effect in msys2
+set(CMAKE_AUTOSTATICPLUGINS ON)
+
 file(GLOB SOURCES *.cpp)
 file(GLOB HEADERS *.h)
 
