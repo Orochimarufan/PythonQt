@@ -127,8 +127,12 @@ namespace TypeSystem {
         InvalidOwnership,
         DefaultOwnership,
         TargetLangOwnership,
-        CppOwnership
+        CppOwnership,
+        TargetLangThisOwnership
     };
+
+    //! A better normalized signature, which takes care of PODs with the same name
+    QByteArray normalizedSignature(const char* signature);
 };
 
 struct ReferenceCount

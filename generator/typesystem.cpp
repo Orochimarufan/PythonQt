@@ -960,9 +960,10 @@ bool Handler::startElement(const QString &, const QString &n,
 
                 static QHash<QString, TypeSystem::Ownership> ownershipNames;
                 if (ownershipNames.isEmpty()) {
-                    ownershipNames["java"] = TypeSystem::TargetLangOwnership;
+                    ownershipNames["python"] = TypeSystem::TargetLangOwnership;
                     ownershipNames["c++"] = TypeSystem::CppOwnership;
                     ownershipNames["default"] = TypeSystem::DefaultOwnership;
+                    ownershipNames["new-owner-of-this"] = TypeSystem::TargetLangThisOwnership;
                 }
 
                 QString ownershipAttribute = attributes["owner"].toLower();
@@ -1130,7 +1131,7 @@ bool Handler::startElement(const QString &, const QString &n,
                 }
                 QString signature = attributes["signature"];
 
-                signature = QMetaObject::normalizedSignature(signature.toLocal8Bit().constData());
+                signature = TypeSystem::normalizedSignature(signature.toLocal8Bit().constData());
                 if (signature.isEmpty()) {
                     m_error = "No signature for modified function";
                     return false;
@@ -1900,7 +1901,7 @@ QString FunctionModification::toString() const
 static void removeFunction(ComplexTypeEntry *e, const char *signature)
 {
     FunctionModification mod;
-    mod.signature = QMetaObject::normalizedSignature(signature);
+    mod.signature = TypeSystem::normalizedSignature(signature);
     mod.removal = TypeSystem::All;
 
     e->addFunctionModification(mod);
@@ -1921,7 +1922,7 @@ static void injectCode(ComplexTypeEntry *e,
     snip.argumentMap = args;
 
     FunctionModification mod;
-    mod.signature = QMetaObject::normalizedSignature(signature);
+    mod.signature = TypeSystem::normalizedSignature(signature);
     mod.snips << snip;
     mod.modifiers = Modification::CodeInjection;
     e->addFunctionModification(mod);
@@ -2016,4 +2017,18 @@ static void addRemoveFunctionToTemplates(TypeDatabase *db)
         injectCode(qlist, "takeAt(int)", code_with_return, args1);
     }
 
+}
+
+QByteArray TypeSystem::normalizedSignature(const char* signature)
+{
+  QByteArray result = QMetaObject::normalizedSignature(signature);
+  result.replace("unsigned ", "u");
+  result.replace("qreal", "double");
+  result.replace("long long", "longlong");
+  result.replace("qlonglong", "longlong");
+  result.replace("qulonglong", "ulonglong");
+  result.replace("qint64", "longlong");
+  result.replace("quint64", "ulonglong");
+  result.replace("QStringList<QString>", "QStringList");
+  return result;
 }
