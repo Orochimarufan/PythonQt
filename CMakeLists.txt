@@ -61,22 +61,12 @@ endif(PythonQt_Qt5)
 # The variable "generated_cpp_suffix" allows to conditionnally compile the generated wrappers
 # associated with the Qt version being used.
 
-if("${QT_VERSION_MAJOR}" STREQUAL "5")
-	# NEW
-	if(NOT ("${QT_VERSION_MINOR}" LESS "3"))
-		set(generated_cpp_suffix "_53")
-	else()
-	set(generated_cpp_suffix "_50")
-	endif()
-else()
-	# OLD
-	set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
-	if("${generated_cpp_suffix}" STREQUAL "_48")
-			set(generated_cpp_suffix "_48")
-	endif()
-	if("${generated_cpp_suffix}" STREQUAL "_46")
-			set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
-	endif()
+set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
+if("${generated_cpp_suffix}" STREQUAL "_51" OR "${generated_cpp_suffix}" STREQUAL "_52")
+	set(generated_cpp_suffix "_50") # Also use 5.0 wrappers for 5.1.x and 5.2.x version
+endif()
+if("${generated_cpp_suffix}" STREQUAL "_46")
+	set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
 endif()
 
 #-----------------------------------------------------------------------------
