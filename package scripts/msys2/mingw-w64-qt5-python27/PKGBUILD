@@ -28,6 +28,11 @@ replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26"
 source=(git+https://github.com/knossos-project/PythonQt.git)
 md5sums=('SKIP')
 
+pkgver() {
+  cd "PythonQt"
+  git describe --always --dirty --tags | sed 's/^v//;s/-/+/;s/-/./g'
+}
+
 build() {
   mkdir -p "$srcdir/build-$MINGW_CHOST-$_realname"
   cd "$srcdir/build-$MINGW_CHOST-$_realname"
