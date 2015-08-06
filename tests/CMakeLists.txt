@@ -2,7 +2,9 @@ project(PythonQt_Tests)
 
 # automatically link plugins when linking to a static qt
 # so far only of effect in msys2
-set(CMAKE_AUTOSTATICPLUGINS ON)
+if(NOT BUILD_SHARED_LIBS)
+    set(CMAKE_AUTOSTATICPLUGINS ON)#https://github.com/Alexpux/MINGW-packages/issues/577
+endif()
 
 file(GLOB SOURCES *.cpp)
 file(GLOB HEADERS *.h)
