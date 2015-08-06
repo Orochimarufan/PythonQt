@@ -463,8 +463,8 @@ public Q_SLOTS:
   QColor* getQColor5() { _called = true; static QColor c(1,2,3); return &c; }
 
   PyObject* getPyObject(PyObject* obj) { _called = true; return obj; }
-  PyObject* getPyObjectFromVariant(const QVariant& val) { _called = true; return PythonQtObjectPtr(val); }
-  QVariant  getPyObjectFromVariant2(const QVariant& val) { _called = true; return val; }
+  PyObject* getPyObjectFromVariant(const QVariant& val) { _called = true; return PythonQtObjectPtr(val); };
+  QVariant  getPyObjectFromVariant2(const QVariant& val) { _called = true; return val; };
   // this does not yet work but is not required to work:
   //PyObject* getPyObjectFromPtr(const PythonQtObjectPtr& val) { _called = true; return val; };
 
