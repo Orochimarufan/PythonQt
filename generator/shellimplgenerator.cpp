@@ -248,7 +248,7 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
   // write member functions
   for (int i = 0; i < functions.size(); ++i) {
     AbstractMetaFunction *fun = functions.at(i);
-    bool needsWrapping = (!fun->isSlot() || fun->isVirtual());
+    bool needsWrapping = functionNeedsNormalWrapperSlot(fun, meta_class);
     if (!needsWrapping) {
       continue;
     }
@@ -294,7 +294,8 @@ void ShellImplGenerator::write(QTextStream &s, const AbstractMetaClass *meta_cla
             s << meta_class->qualifiedCppName() << "::";
           }
         } else {
-          if (fun->wasProtected() || (fun->isVirtual() && meta_class->typeEntry()->shouldCreatePromoter())) {
+          if (fun->wasProtected()) {
+            //|| (fun->isVirtual() && meta_class->typeEntry()->shouldCreatePromoter())) {
             s << " (("  << promoterClassName(meta_class) << "*)theWrappedObject)->promoted_";
           } else {
             s << " theWrappedObject->";

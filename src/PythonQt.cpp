@@ -519,9 +519,9 @@ PyObject* PythonQtPrivate::wrapPtr(void* ptr, const QByteArray& name, bool passO
     if (!info) {
       // maybe it is a PyObject, which we can return directly
       if (name == "PyObject") {
-        PyObject* p = (PyObject*)ptr;
-        Py_INCREF(p);
-        return p;
+        // do not increment its ref-count, it is the job of the slot returning the value
+        // to ensure an extra ref on return.
+        return (PyObject*)ptr;
       }
 
       // we do not know the metaobject yet, but we might know it by its name:
@@ -596,7 +596,7 @@ PyObject* PythonQtPrivate::wrapPtr(void* ptr, const QByteArray& name, bool passO
       info->setMetaObject(wrapper->metaObject());
     }
 
-    if (possibleStillAliveWrapper && possibleStillAliveWrapper->classInfo() == info) {
+    if (possibleStillAliveWrapper && possibleStillAliveWrapper->classInfo()->inherits(info)) {
       wrap = possibleStillAliveWrapper;
       Py_INCREF(wrap);
     } else {
@@ -900,12 +900,10 @@ QVariant PythonQt::evalScript(PyObject* object, const QString& script, int start
 
 void PythonQt::evalFile(PyObject* module, const QString& filename)
 {
+  // NOTE: error checking is done by parseFile and evalCode
   PythonQtObjectPtr code = parseFile(filename);
-  clearError();
   if (code) {
     evalCode(module, code);
-  } else {
-    handleError();
   }
 }
 
@@ -1435,6 +1433,18 @@ void PythonQtPrivate::registerQObjectClassNames(const QStringList& names)
 void PythonQtPrivate::removeSignalEmitter(QObject* obj)
 {
   _signalReceivers.remove(obj);
+}
+
+void PythonQt::removeSignalHandlers()
+{
+  QList<PythonQtSignalReceiver*> signalReceivers = _p->_signalReceivers.values();
+
+  // just delete all signal receivers, they will remove themselves via removeSignalEmitter()
+  foreach(PythonQtSignalReceiver* receiver, signalReceivers) {
+    delete receiver;
+  }
+  // just to be sure, clear the receiver map as well
+  _p->_signalReceivers.clear();
 }
 
 namespace
