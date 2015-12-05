@@ -339,10 +339,22 @@ PythonQtImporter_load_module(PyObject *obj, PyObject *args)
 
 
 PyObject *
-PythonQtImporter_get_data(PyObject* /*obj*/, PyObject* /*args*/)
+PythonQtImporter_get_data(PyObject* /*obj*/, PyObject*args)
 {
-  // EXTRA, NOT YET IMPLEMENTED
-  return NULL;
+    char *path;
+
+    if (!PyArg_ParseTuple(args, "s:PythonQtImporter.get_data"), &path)
+        return NULL;
+
+    if (PythonQt::importInterface()->exists(path))
+    {
+        QByteArray data = PythonQt::importInterface()->readFileAsBytes(path);
+
+        return PyBytes_FromStringAndSize(data.constData(), data.size());
+    }
+
+    PyErr_Format(PyExc_FileNotFoundError, "Resource not found: %s", path);
+    return NULL;
 }
 
 PyObject *
@@ -359,9 +371,38 @@ PythonQtImporter_get_code(PyObject *obj, PyObject *args)
 }
 
 PyObject *
-PythonQtImporter_get_source(PyObject * /*obj*/, PyObject * /*args*/)
+PythonQtImporter_get_source(PyObject *obj, PyObject *args)
 {
-  // EXTRA, NOT YET IMPLEMENTED
+  PythonQtImporter *self = reinterpret_cast<PythonQtImporter *>(obj);
+  char *fullname;
+
+  if (!PyArg_ParseTuple(args, "s:PythonQtImporter.get_code", &fullname))
+      return NULL;
+
+  QString subname = PythonQtImport::getSubName(fullname);
+  QString path = *self->_path + "/" + subname;
+
+  for (st_mlab_searchorder *zso = mlab_searchorder; *zso->suffix; ++zso)
+  {
+      QString filename = path + zso->suffix;
+      if (PythonQt::importInterface()->exists(filename))
+      {
+          if (!zso->type & IS_BYTECODE)
+          {
+              bool ok;
+              QByteArray qdata = PythonQt::importInterface()->readSourceFile(filename, ok);
+
+              if (!ok)
+                Py_RETURN_NONE;
+
+              return PythonQtConv::QStringToPyObject(QString::fromUtf8(qdata));
+          }
+          else
+              Py_RETURN_NONE;
+      }
+  }
+
+  PyErr_Format(PyExc_ImportError, "Cannot find module %s", fullname);
   return NULL;
 }
 
