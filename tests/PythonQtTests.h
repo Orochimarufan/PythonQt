@@ -69,6 +69,7 @@ private Q_SLOTS:
   void testVariables();
   void testRedirect();
   void testImporter();
+  void testImporterData();
   void testQColorDecorators();
   void testQtNamespace();
   void testConnects();

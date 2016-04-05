@@ -339,11 +339,11 @@ PythonQtImporter_load_module(PyObject *obj, PyObject *args)
 
 
 PyObject *
-PythonQtImporter_get_data(PyObject* /*obj*/, PyObject*args)
+PythonQtImporter_get_data(PyObject* /*obj*/, PyObject* args)
 {
     char *path;
 
-    if (!PyArg_ParseTuple(args, "s:PythonQtImporter.get_data"), &path)
+    if (!PyArg_ParseTuple(args, "s:PythonQtImporter.get_data", &path))
         return NULL;
 
     if (PythonQt::importInterface()->exists(path))
@@ -353,7 +353,12 @@ PythonQtImporter_get_data(PyObject* /*obj*/, PyObject*args)
         return PyBytes_FromStringAndSize(data.constData(), data.size());
     }
 
-    PyErr_Format(PyExc_FileNotFoundError, "Resource not found: %s", path);
+    PyObject *err_args = Py_BuildValue("iss", ENOENT, strerror(ENOENT), path);
+#ifdef PY3K
+    PyErr_SetObject(PyExc_FileNotFoundError, err_args);
+#else
+    PyErr_SetObject(PyExc_IOError, err_args);
+#endif
     return NULL;
 }
 
