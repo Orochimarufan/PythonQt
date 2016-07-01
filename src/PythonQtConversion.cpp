@@ -881,7 +881,7 @@ quint64 PythonQtConv::PyObjGetULongLong(PyObject* val, bool strict, bool &ok) {
   } else
 #endif
   if (Py_TYPE(val) == &PyLong_Type) {
-    d = PyLong_AsLongLong(val);
+    d = PyLong_AsUnsignedLongLong(val);
   } else if (!strict) {
     if (PyObject_TypeCheck(val, &PyInt_Type)) {
       // support for derived int classes, e.g. for our enums
@@ -894,8 +894,8 @@ quint64 PythonQtConv::PyObjGetULongLong(PyObject* val, bool strict, bool &ok) {
       d = 1;
     } else {
       PyErr_Clear();
-      // PyLong_AsLongLong will try conversion to an int if the object is not an int:
-      d = PyLong_AsLongLong(val);
+      // PyLong_AsUnsignedLongLong will try conversion to an int if the object is not an int:
+      d = PyLong_AsUnsignedLongLong(val);
       if (PyErr_Occurred()) {
         PyErr_Clear();
         ok = false;
