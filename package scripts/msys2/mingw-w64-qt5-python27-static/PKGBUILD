@@ -2,7 +2,7 @@
 
 _realname=qt5-python27
 pkgname="$MINGW_PACKAGE_PREFIX-$_realname"-static
-qtver=5.6.1
+_qtver=5.6.1
 pkgver=3.1
 pkgrel=1
 arch=('any')
@@ -13,7 +13,7 @@ makedepends=("$MINGW_PACKAGE_PREFIX-cmake"
   "$MINGW_PACKAGE_PREFIX-gcc"
   "$MINGW_PACKAGE_PREFIX-ninja"
   "git")
-depends=("$MINGW_PACKAGE_PREFIX-qt5-static" #=$qtver
+depends=("$MINGW_PACKAGE_PREFIX-qt5-static" #=$_qtver
   #"$MINGW_PACKAGE_PREFIX-python2"
   )
 provides=("$MINGW_PACKAGE_PREFIX-pythonqt-static")
@@ -27,7 +27,7 @@ replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26-static"
   "$MINGW_PACKAGE_PREFIX-qt5-python20-static"
 )
 source=(git+https://github.com/knossos-project/PythonQt.git
-  "qmetaobjectbuilder_p.h::http://code.qt.io/cgit/qt/qtbase.git/plain/src/corelib/kernel/qmetaobjectbuilder_p.h?h=$qtver")
+  "qmetaobjectbuilder_p.h::http://code.qt.io/cgit/qt/qtbase.git/plain/src/corelib/kernel/qmetaobjectbuilder_p.h?h=$_qtver")
 md5sums=('SKIP'
          '00687b25624ff9861501982c8380922f')
 
