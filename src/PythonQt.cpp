@@ -100,7 +100,7 @@ void PythonQt::init(int flags, const QByteArray& pythonQtModuleName)
     PythonQtRegisterToolClassesTemplateConverter(quint32);
     PythonQtRegisterToolClassesTemplateConverter(qint64);
     PythonQtRegisterToolClassesTemplateConverter(quint64);
-
+    
     PythonQtMethodInfo::addParameterTypeAlias("QList<qreal>", "QList<double>");
     PythonQtMethodInfo::addParameterTypeAlias("QVector<qreal>", "QVector<double>");
     PythonQtMethodInfo::addParameterTypeAlias("QList<unsigned int>", "QList<quint32>");
