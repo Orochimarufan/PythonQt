@@ -39,9 +39,9 @@ void PythonQt_init_QtSvg(PyObject*);
 void PythonQt_init_QtSql(PyObject*);
 void PythonQt_init_QtNetwork(PyObject*);
 void PythonQt_init_QtCore(PyObject*);
-#ifndef QT_STATIC
+#ifdef PYTHONQT_WITH_WEBKIT
 void PythonQt_init_QtWebKit(PyObject*);
-#endif//QT_STATIC
+#endif
 void PythonQt_init_QtOpenGL(PyObject*);
 void PythonQt_init_QtXml(PyObject*);
 void PythonQt_init_QtUiTools(PyObject*);
@@ -60,9 +60,9 @@ namespace PythonQt_QtAll
     PythonQt_init_QtXml(0);
     PythonQt_init_QtSvg(0);
     PythonQt_init_QtSql(0);
-#ifndef QT_STATIC
+#ifdef PYTHONQT_WITH_WEBKIT
     PythonQt_init_QtWebKit(0);
-#endif//QT_STATIC
+#endif
     PythonQt_init_QtOpenGL(0);
     PythonQt_init_QtUiTools(0);
 #if QT_VERSION >= 0x050000

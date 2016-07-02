@@ -72,6 +72,13 @@ if("${generated_cpp_suffix}" STREQUAL "_46")
 	set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
 endif()
 
+set(WEBKIT_AVAILABLE ON)
+if(NOT "${generated_cpp_suffix}" STREQUAL "_56" AND NOT "${generated_cpp_suffix}" STREQUAL "_57" OR QT_STATIC)
+	set(WEBKIT_AVAILABLE OFF)
+endif()
+include(CMakeDependentOption)
+CMAKE_DEPENDENT_OPTION(PYTHONQT_WITH_WEBKIT "include QtWebKit wrappers" ON "WEBKIT_AVAILABLE" OFF)
+
 #-----------------------------------------------------------------------------
 # Generator
 #add_subdirectory(generator EXCLUDE_FROM_ALL)

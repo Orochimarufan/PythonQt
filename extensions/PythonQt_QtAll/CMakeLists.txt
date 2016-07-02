@@ -4,7 +4,7 @@ file(GLOB SOURCES *.cpp)
 file(GLOB HEADERS *.h)
 
 set(QT Core Gui Network OpenGL Sql Svg UiTools Xml CACHE INTERNAL "")#for find_package in root CMakeLists
-if(NOT QT_STATIC)#WebKit is not available in static builds
+if(PYTHONQT_WITH_WEBKIT)
 	set(QT ${QT} WebKit)
 	set(WebKitWidgets WebKitWidgets)
 endif()
@@ -45,6 +45,7 @@ target_include_directories(${PythonQt_QtAll} PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:include>
 )
+target_compile_definitions(${PythonQt_QtAll} PUBLIC $<$<STREQUAL:${PYTHONQT_WITH_WEBKIT},ON>:PYTHONQT_WITH_WEBKIT>)
 qt_use_modules(${PythonQt_QtAll} ${QT})
 
 if(BUILD_SHARED_LIBS)
