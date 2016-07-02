@@ -2,7 +2,8 @@
 
 _realname=qt5-python27
 pkgname="$MINGW_PACKAGE_PREFIX-$_realname"-static
-pkgver=3.0
+qtver=5.6.1
+pkgver=3.1
 pkgrel=1
 arch=('any')
 pkgdesc="PythonQt fork featuring Qt 5.x and Python 3.x support and improved CMake build system (static Qt5 + Python2 version)"
@@ -12,7 +13,7 @@ makedepends=("$MINGW_PACKAGE_PREFIX-cmake"
   "$MINGW_PACKAGE_PREFIX-gcc"
   "$MINGW_PACKAGE_PREFIX-ninja"
   "git")
-depends=("$MINGW_PACKAGE_PREFIX-qt5-static"
+depends=("$MINGW_PACKAGE_PREFIX-qt5-static" #=$qtver
   #"$MINGW_PACKAGE_PREFIX-python2"
   )
 provides=("$MINGW_PACKAGE_PREFIX-pythonqt-static")
@@ -25,12 +26,19 @@ replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26-static"
   "$MINGW_PACKAGE_PREFIX-qt5-python21-static"
   "$MINGW_PACKAGE_PREFIX-qt5-python20-static"
 )
-source=(git+https://github.com/knossos-project/PythonQt.git)
-md5sums=('SKIP')
+source=(git+https://github.com/knossos-project/PythonQt.git
+  "qmetaobjectbuilder_p.h::http://code.qt.io/cgit/qt/qtbase.git/plain/src/corelib/kernel/qmetaobjectbuilder_p.h?h=$qtver")
+md5sums=('SKIP'
+         '00687b25624ff9861501982c8380922f')
 
 pkgver() {
   cd "PythonQt"
   git describe --always --dirty --tags | sed 's/^v//;s/-/+/;s/-/./g'
+}
+
+prepare() {
+  mkdir -p PythonQt/src/private
+  cp qmetaobjectbuilder_p.h PythonQt/src/private/qmetaobjectbuilder_p.h
 }
 
 build() {
