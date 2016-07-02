@@ -18,14 +18,7 @@ depends=("$MINGW_PACKAGE_PREFIX-qt5-static" #=$_qtver
   )
 provides=("$MINGW_PACKAGE_PREFIX-pythonqt-static")
 conflicts=("$MINGW_PACKAGE_PREFIX-pythonqt-static")
-replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26-static"
-  "$MINGW_PACKAGE_PREFIX-qt5-python25-static"
-  "$MINGW_PACKAGE_PREFIX-qt5-python24-static"
-  "$MINGW_PACKAGE_PREFIX-qt5-python23-static"
-  "$MINGW_PACKAGE_PREFIX-qt5-python22-static"
-  "$MINGW_PACKAGE_PREFIX-qt5-python21-static"
-  "$MINGW_PACKAGE_PREFIX-qt5-python20-static"
-)
+replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26-static") # conflicting older versions is the idea
 source=(git+https://github.com/knossos-project/PythonQt.git
   "qmetaobjectbuilder_p.h::http://code.qt.io/cgit/qt/qtbase.git/plain/src/corelib/kernel/qmetaobjectbuilder_p.h?h=$_qtver")
 md5sums=('SKIP'
