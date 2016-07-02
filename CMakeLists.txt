@@ -76,7 +76,7 @@ if("${generated_cpp_suffix}" STREQUAL "_46")
 endif()
 
 set(WEBKIT_AVAILABLE ON)
-if(NOT "${generated_cpp_suffix}" STREQUAL "_56" AND NOT "${generated_cpp_suffix}" STREQUAL "_57" OR QT_STATIC)
+if("${generated_cpp_suffix}" STREQUAL "_56" OR "${generated_cpp_suffix}" STREQUAL "_57" OR QT_STATIC)
 	set(WEBKIT_AVAILABLE OFF)
 endif()
 include(CMakeDependentOption)
