@@ -838,14 +838,24 @@ AbstractMetaFunctionList AbstractMetaClass::queryFunctionsByName(const QString &
     return returned;
 }
 
-bool AbstractMetaClass::hasDefaultIsNull() const 
+QString AbstractMetaClass::getDefaultNonZeroFunction() const
 {
-  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isNull")) {
-    if (fun->actualMinimumArgumentCount()==0) {
-      return true;
+  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isEmpty")) {
+    if (fun->actualMinimumArgumentCount()==0 && fun->isPublic()) {
+      return "isEmpty";
     }
   }
-  return false;
+  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isValid")) {
+    if (fun->actualMinimumArgumentCount() == 0 && fun->isPublic()) {
+      return "isValid";
+    }
+  }
+  foreach(const AbstractMetaFunction* fun, queryFunctionsByName("isNull")) {
+    if (fun->actualMinimumArgumentCount() == 0 && fun->isPublic()) {
+      return "isNull";
+    }
+  }
+  return QString();
 }
 
 /*******************************************************************************

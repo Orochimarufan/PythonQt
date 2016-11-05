@@ -267,7 +267,11 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
   QList<FlagsTypeEntry*> flags;
   foreach(AbstractMetaEnum* enum1, enums1) {
     // catch gadgets and enums that are not exported on QObjects...
-    if ((enum1->wasProtected() || enum1->wasPublic()) && (!meta_class->isQObject() || !enum1->hasQEnumsDeclaration())) {
+    // since we don't parse Q_FLAG(S), we also need to generate for Q_ENUM which might
+    // have a missing Q_FLAG(S) declaration.
+    if ((enum1->wasProtected() || enum1->wasPublic()) && 
+      (!meta_class->isQObject() || !enum1->hasQEnumsDeclaration() || enum1->typeEntry()->flags()))
+    {
       enums << enum1;
       if (enum1->typeEntry()->flags()) {
         flags << enum1->typeEntry()->flags();
@@ -395,8 +399,13 @@ void ShellHeaderGenerator::write(QTextStream &s, const AbstractMetaClass *meta_c
   if (meta_class->hasDefaultToStringFunction() || meta_class->hasToStringCapability()) {
     s << "    QString py_toString(" << meta_class->qualifiedCppName() << "*);" << endl; 
   }
-  if (meta_class->hasDefaultIsNull()) {
-    s << "    bool __nonzero__(" << meta_class->qualifiedCppName() << "* obj) { return !obj->isNull(); }" << endl; 
+  QString nonZeroFunc = meta_class->getDefaultNonZeroFunction();
+  if (!nonZeroFunc.isEmpty()) {
+    s << "    bool __nonzero__(" << meta_class->qualifiedCppName() << "* obj) { return ";
+    if (nonZeroFunc != "isValid") {
+      s << "!";
+    }
+    s << "obj->" << nonZeroFunc << "(); }" << endl;
   }
 
   AbstractMetaFieldList fields = meta_class->fields();
