@@ -526,6 +526,7 @@ void PythonQtTestApi::testVariables()
 }
 
 static QByteArray testSource = "PQ_test = True\n";
+static QByteArray testSourcePy3 = "b'PQ_test = True\\n'";
 
 void PythonQtTestApi::testImporter()
 {
@@ -542,7 +543,7 @@ void PythonQtTestApi::testImporterData()
     PythonQtObjectPtr loader = PythonQt::self()->lookupObject(PythonQt::self()->importModule("bla"), "__loader__");
     QVERIFY(loader);
     QByteArray content = loader.call("get_data", QVariantList() << "test").toByteArray();
-    QVERIFY(content == testSource);
+    QVERIFY(content == testSource || content == testSourcePy3);
     PyObject *res = PyObject_CallMethod(loader.object(), "get_data", "s", "NOEXIST");
     QVERIFY(!res);
     QVERIFY(PyErr_ExceptionMatches(PyExc_IOError));
