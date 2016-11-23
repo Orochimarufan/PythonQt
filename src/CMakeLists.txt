@@ -61,8 +61,9 @@ install(TARGETS ${PythonQt} EXPORT ${PythonQt}Targets COMPONENT core-dev
 	RUNTIME DESTINATION bin COMPONENT core
 	LIBRARY DESTINATION lib COMPONENT core
 	ARCHIVE DESTINATION lib COMPONENT core
-	PUBLIC_HEADER DESTINATION include/PythonQt)
-install(DIRECTORY ./gui DESTINATION include/PythonQt FILES_MATCHING PATTERN "*.h")#install gui subfolder explicitly
+	INCLUDES DESTINATION include/${PythonQt}
+	PUBLIC_HEADER DESTINATION include/${PythonQt}/PythonQt)
+install(DIRECTORY ./gui DESTINATION include/${PythonQt}/PythonQt FILES_MATCHING PATTERN "*.h")#install gui subfolder explicitly
 set(LIB_CMAKE_PATH "lib/cmake/${PythonQt}")
 install(EXPORT ${PythonQt}Targets DESTINATION ${LIB_CMAKE_PATH} COMPONENT core-dev)
 install(FILES ${PROJECT_BINARY_DIR}/${PythonQt}Config.cmake

@@ -68,7 +68,8 @@ install(TARGETS ${PythonQt_QtAll} EXPORT ${PythonQt_QtAll}Targets COMPONENT QtAl
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
-	PUBLIC_HEADER DESTINATION include/PythonQt)
+	INCLUDES DESTINATION include/${PythonQt}
+	PUBLIC_HEADER DESTINATION include/${PythonQt}/PythonQt)
 set(LIB_CMAKE_PATH "lib/cmake/${PythonQt_QtAll}")
 install(EXPORT ${PythonQt_QtAll}Targets DESTINATION ${LIB_CMAKE_PATH} COMPONENT QtAll-dev)
 install(FILES ${PROJECT_BINARY_DIR}/${PythonQt_QtAll}Config.cmake

@@ -16,8 +16,6 @@ makedepends=("$MINGW_PACKAGE_PREFIX-cmake"
 depends=("$MINGW_PACKAGE_PREFIX-qt5" #=$_qtver
   #"$MINGW_PACKAGE_PREFIX-python2"
   )
-provides=("$MINGW_PACKAGE_PREFIX-pythonqt")
-conflicts=("$MINGW_PACKAGE_PREFIX-pythonqt")
 replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26") # conflicting older versions is the idea
 source=(git+https://github.com/knossos-project/PythonQt.git
   "qmetaobjectbuilder_p.h::http://code.qt.io/cgit/qt/qtbase.git/plain/src/corelib/kernel/qmetaobjectbuilder_p.h?h=$_qtver")
