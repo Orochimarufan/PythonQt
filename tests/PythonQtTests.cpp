@@ -531,7 +531,7 @@ static QByteArray testSourcePy3 = "b'PQ_test = True\\n'";
 void PythonQtTestApi::testImporter()
 {
   PythonQt::self()->setImporter(_helper);
-  PythonQt::self()->overwriteSysPath(QStringList() << "c:\\test");
+  PythonQt::self()->overwriteSysPath(QStringList() << QDir::tempPath());
   PyRun_SimpleString("import bla\n");
   QVERIFY(PythonQt::self()->importModule("bla").getVariable("PQ_test") == QVariant::fromValue(true));
 }
