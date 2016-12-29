@@ -18,7 +18,7 @@ depends=("$MINGW_PACKAGE_PREFIX-qt5" #=$_qtver
   )
 replaces=("$MINGW_PACKAGE_PREFIX-qt5-python26") # conflicting older versions is the idea
 source=(git+https://github.com/knossos-project/PythonQt.git
-  "qmetaobjectbuilder_p.h::http://code.qt.io/cgit/qt/qtbase.git/plain/src/corelib/kernel/qmetaobjectbuilder_p.h?h=$_qtver")
+  "qmetaobjectbuilder_p.h::http://code.qt.io/cgit/qt/qtbase.git/plain/src/corelib/kernel/qmetaobjectbuilder_p.h?h=v$_qtver")
 md5sums=('SKIP'
          '00687b25624ff9861501982c8380922f')
 
