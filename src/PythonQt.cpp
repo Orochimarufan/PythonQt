@@ -102,7 +102,7 @@ void PythonQt::init(int flags, const QByteArray& pythonQtModuleName)
     PythonQtRegisterToolClassesTemplateConverter(quint32);
     PythonQtRegisterToolClassesTemplateConverter(qint64);
     PythonQtRegisterToolClassesTemplateConverter(quint64);
-    
+
 #ifdef PYTHONQT_SUPPORT_ML_TYPES
     PythonQtMethodInfo::addParameterTypeAlias("QList<MLfloat>", "QList<float>");
     PythonQtMethodInfo::addParameterTypeAlias("QVector<MLfloat>", "QVector<float>");
@@ -1992,10 +1992,13 @@ bool PythonQtPrivate::isMethodDescriptor(PyObject* object) const
 }
 
 // We need this for the dynamic meta object building:
+#ifdef DYNAMIC_META_OBJECT_IMPLEMENTATION
 #include <private/qmetaobjectbuilder_p.h>
+#endif// DYNAMIC_META_OBJECT_IMPLEMENTATION
 
 const QMetaObject* PythonQtPrivate::getDynamicMetaObject(PythonQtInstanceWrapper* wrapper, const QMetaObject* prototypeMetaObject)
 {
+#ifdef DYNAMIC_META_OBJECT_IMPLEMENTATION
   PythonQtDynamicClassInfo* info = wrapper->dynamicClassInfo();
   if (info) {
     if (!info->_dynamicMetaObject) {
@@ -2003,9 +2006,11 @@ const QMetaObject* PythonQtPrivate::getDynamicMetaObject(PythonQtInstanceWrapper
     }
     return info->_dynamicMetaObject;
   }
+#endif// DYNAMIC_META_OBJECT_IMPLEMENTATION
   return prototypeMetaObject;
 }
 
+#ifdef DYNAMIC_META_OBJECT_IMPLEMENTATION
 void PythonQtPrivate::buildDynamicMetaObject(PythonQtClassWrapper* type, const QMetaObject* prototypeMetaObject)
 {
   QMetaObjectBuilder builder;
@@ -2093,7 +2098,7 @@ void PythonQtPrivate::buildDynamicMetaObject(PythonQtClassWrapper* type, const Q
     type->_dynamicClassInfo->_dynamicMetaObject = prototypeMetaObject;
   }
 }
-
+#endif// DYNAMIC_META_OBJECT_IMPLEMENTATION
 
 int PythonQtPrivate::handleMetaCall(QObject* object, PythonQtInstanceWrapper* wrapper, QMetaObject::Call call, int id, void** args)
 {

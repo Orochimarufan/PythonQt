@@ -26,6 +26,9 @@ qt_wrap_cpp(GEN_MOC ${SOURCES_MOC})
 qt_add_resources(GEN_QRC ${SOURCES_QRC})
 
 add_library(${PythonQt} ${SOURCES} ${GEN_MOC} ${GEN_QRC} ${HEADERS})
+if(PythonQt_DynamicMetaObject)
+	target_compile_definitions(${PythonQt} PRIVATE DYNAMIC_META_OBJECT_IMPLEMENTATION)
+endif()
 target_link_libraries(${PythonQt} ${PYTHON_LIBRARIES})
 target_include_directories(${PythonQt} PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -67,5 +70,5 @@ install(DIRECTORY ./gui DESTINATION include/${PythonQt}/PythonQt FILES_MATCHING 
 set(LIB_CMAKE_PATH "lib/cmake/${PythonQt}")
 install(EXPORT ${PythonQt}Targets DESTINATION ${LIB_CMAKE_PATH} COMPONENT core-dev)
 install(FILES ${PROJECT_BINARY_DIR}/${PythonQt}Config.cmake
-			  ${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake
+	          ${PROJECT_BINARY_DIR}/${PythonQt}ConfigVersion.cmake
 	DESTINATION ${LIB_CMAKE_PATH} COMPONENT core-dev)

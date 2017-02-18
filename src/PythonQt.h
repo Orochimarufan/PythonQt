@@ -745,7 +745,7 @@ public:
 
   void buildDynamicMetaObject(PythonQtClassWrapper* type, const QMetaObject* prototypeMetaObject);
 
-  //! redirected from shell classes, tries to call the given meta call on the Python wrapper. 
+  //! redirected from shell classes, tries to call the given meta call on the Python wrapper.
   int handleMetaCall(QObject* object, PythonQtInstanceWrapper* wrapper, QMetaObject::Call call, int id, void** args);
 
   //! calls the given method on Python function with same name.
