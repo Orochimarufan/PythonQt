@@ -8,11 +8,11 @@
 #ifndef PYTHONCOMPLETER_H
 #define PYTHONCOMPLETER_H
 
-// Qt-includes
-#include <QCompleter>
-
 // PythonQt-includes
 #include <PythonQt.h>
+
+// Qt-includes
+#include <QCompleter>
 
 // forward declarations
 class SimpleConsole;

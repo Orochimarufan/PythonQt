@@ -5,9 +5,6 @@
 */
 #include "PygmentsHighlighter.h"
 
-#include <PythonQt.h>
-
-
 PygmentsHighlighter::PygmentsHighlighter(QTextDocument *parentDoc) :
     QSyntaxHighlighter(parentDoc)
 {
