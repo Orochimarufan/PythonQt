@@ -38,3 +38,9 @@ include ( src.pri )
 
 include($${PYTHONQT_GENERATED_PATH}/com_trolltech_qt_core_builtin/com_trolltech_qt_core_builtin.pri)
 include($${PYTHONQT_GENERATED_PATH}/com_trolltech_qt_gui_builtin/com_trolltech_qt_gui_builtin.pri)
+
+public_headers.path = ../include
+public_headers.files = $$HEADERS
+
+INSTALLS += public_headers
+
