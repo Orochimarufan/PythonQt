@@ -65,6 +65,9 @@ set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
 if("${generated_cpp_suffix}" STREQUAL "_510")
 	set(generated_cpp_suffix "_56") # Also use 5.6 wrappers for 5.10
 endif()
+if("${generated_cpp_suffix}" STREQUAL "_59")
+	set(generated_cpp_suffix "_56") # Also use 5.6 wrappers for 5.10
+endif()
 if("${generated_cpp_suffix}" STREQUAL "_58")
 	set(generated_cpp_suffix "_56") # Also use 5.6 wrappers for 5.8
 endif()
