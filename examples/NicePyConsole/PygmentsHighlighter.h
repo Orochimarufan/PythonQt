@@ -9,11 +9,11 @@
 #define PYGMENTSHIGHLIGHTER_H
 
 
-// Qt-includes
-#include <QSyntaxHighlighter>
-
 // PythonQt-includes
 #include <PythonQt.h>
+
+// Qt-includes
+#include <QSyntaxHighlighter>
 
 // local includes
 #include "SimpleConsole.h"

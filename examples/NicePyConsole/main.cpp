@@ -5,12 +5,12 @@
 */
 
 
-// Qt-includes
-#include <QApplication>
-
 // PythonQt-includes
 #include <PythonQt.h>
 #include <PythonQt_QtAll.h>
+
+// Qt-includes
+#include <QApplication>
 
 // includes
 #include "NicePyConsole.h"
