@@ -61,29 +61,39 @@ endif(PythonQt_Qt5)
 # The variable "generated_cpp_suffix" allows to conditionnally compile the generated wrappers
 # associated with the Qt version being used.
 
-set(generated_cpp_suffix "_${QT_VERSION_MAJOR}${QT_VERSION_MINOR}")
-if("${generated_cpp_suffix}" STREQUAL "_58")
-	set(generated_cpp_suffix "_56") # Also use 5.6 wrappers for 5.8
-endif()
-if("${generated_cpp_suffix}" STREQUAL "_57")
-	set(generated_cpp_suffix "_56") # Also use 5.6 wrappers for 5.7
-endif()
-if("${generated_cpp_suffix}" STREQUAL "_55")
-	set(generated_cpp_suffix "_54") # Also use 5.4 wrappers for 5.5
-endif()
-if("${generated_cpp_suffix}" STREQUAL "_51" OR "${generated_cpp_suffix}" STREQUAL "_52")
-	set(generated_cpp_suffix "_50") # Also use 5.0 wrappers for 5.1.x and 5.2.x version
-endif()
-if("${generated_cpp_suffix}" STREQUAL "_46")
-	set(generated_cpp_suffix "_47") # Also use 4.7 wrappers for 4.6.x version
+if(${QT_VERSION_MAJOR} EQUAL 5)
+    if    (${QT_VERSION_MINOR} GREATER_EQUAL 6)
+        set(generated_cpp_suffix "_56")
+    elseif(${QT_VERSION_MINOR} GREATER_EQUAL 4)
+        set(generated_cpp_suffix "_54")
+    elseif(${QT_VERSION_MINOR} GREATER_EQUAL 3)
+        set(generated_cpp_suffix "_53")
+    else  ()
+        set(generated_cpp_suffix "_50")
+    endif ()
+elseif(${QT_VERSION_MAJOR} EQUAL 4)
+    if    (${QT_VERSION_MINOR} GREATER_EQUAL 6)
+        set(generated_cpp_suffix "_47")
+    endif ()
 endif()
 
+if("${generated_cpp_suffix}" STREQUAL "")
+    message(SEND_ERROR "Your Qt Version is not supported at this time: ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}")
+elseif(NOT EXISTS "${CMAKE_SOURCE_DIR}/generated_cpp${generated_cpp_suffix}")
+    message(SEND_ERROR "Could not find generated cpp files for detected Qt version: generated_cpp${generated_cpp_suffix}")
+endif()
+
+#-----------------------------------------------------------------------------
+# QtWebKit
+# Included in Qt until 5.6, then replaced by QtWebEngine
+# Default to wrapping it where included and omitting it afterwards.
+# There are copies available for later releases outside the official distro,
+# so allow including it manually
 set(WEBKIT_AVAILABLE ON)
 if("${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}" VERSION_GREATER "5.6" OR QT_STATIC)
 	set(WEBKIT_AVAILABLE OFF)
 endif()
-include(CMakeDependentOption)
-CMAKE_DEPENDENT_OPTION(PYTHONQT_WITH_WEBKIT "include QtWebKit wrappers" ON "WEBKIT_AVAILABLE" OFF)
+option(PYTHONQT_WITH_WEBKIT "include QtWebKit wrappers" ${WEBKIT_AVAILABLE})
 
 #-----------------------------------------------------------------------------
 # Generator
@@ -127,8 +137,9 @@ set(CMAKE_DEBUG_POSTFIX "_d")
 #-----------------------------------------------------------------------------
 # Core
 add_subdirectory(src)
+
 #-----------------------------------------------------------------------------
-# Extenseions (QtAll)
+# Extensions (QtAll)
 if (${PythonQtAll})
 	add_subdirectory(extensions)
 	#find Qt imported targets for use in examples
@@ -137,6 +148,7 @@ if (${PythonQtAll})
 	# Examples, depending on QtAll
 	add_subdirectory(examples EXCLUDE_FROM_ALL)
 endif()
+
 #-----------------------------------------------------------------------------
 # Tests
 add_subdirectory(tests EXCLUDE_FROM_ALL)
@@ -155,6 +167,8 @@ configure_file(
 	IMMEDIATE @ONLY)
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
+#-----------------------------------------------------------------------------
+# Configuration Summary
 if(BUILD_SHARED_LIBS)
 	set(LINK_TYPE "Shared")
 else()
@@ -169,3 +183,4 @@ if(${PythonQtAll})
 	set(WrapAll " + ${PythonQt_QtAll}")
 endif()
 message(STATUS "Building ${PythonQt}${WrapAll} (${QT_LINK_TYPE} Qt ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH} + Python ${PYTHONLIBS_VERSION_STRING} | ${CMAKE_BUILD_TYPE} | ${LINK_TYPE})")
+
